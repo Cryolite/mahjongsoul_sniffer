@@ -45,7 +45,7 @@ def main(driver: WebDriver) -> None:
     if not pathlib.Path('output').is_dir():
         raise RuntimeError('`output` is not a directory.')
 
-    fetch_time = int(datetime.datetime.now(tz=datetime.timezone.utc))
+    fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
 
     driver.get('https://game.mahjongsoul.com/')
 
@@ -97,7 +97,7 @@ def main(driver: WebDriver) -> None:
         if not timestamp_file.is_file():
             raise RuntimeError('`output/login.timestamp` is not a file.')
         timestamp = int(os.path.getmtime(timestamp_file))
-        if timestamp >= fetch_time.timestamp():
+        if timestamp >= int(fetch_time.timestamp()):
             break
     time.sleep(5)
 
@@ -116,7 +116,7 @@ def main(driver: WebDriver) -> None:
 
         # 部屋のプルダウンメニューから「金の間」を選択
         click_canvas_within(driver, canvas, 60, 119, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -124,7 +124,7 @@ def main(driver: WebDriver) -> None:
 
         # モードのプルダウンメニューから「4人東風戦」を選択
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         driver.get_screenshot_as_file('output/金の間・四人東風戦.png')
 
@@ -134,7 +134,7 @@ def main(driver: WebDriver) -> None:
 
         # モードのプルダウンメニューから「4人半荘戦」を選択
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         driver.get_screenshot_as_file('output/金の間・四人半荘戦.png')
 
@@ -144,7 +144,7 @@ def main(driver: WebDriver) -> None:
 
         # 部屋のプルダウンメニューから「玉の間」を選択
         click_canvas_within(driver, canvas, 60, 150, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -152,7 +152,7 @@ def main(driver: WebDriver) -> None:
 
         # モードのプルダウンメニューから「4人東風戦」を選択
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         driver.get_screenshot_as_file('output/玉の間・四人東風戦.png')
 
@@ -162,7 +162,7 @@ def main(driver: WebDriver) -> None:
 
         # モードのプルダウンメニューから「4人半荘戦」を選択
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         driver.get_screenshot_as_file('output/玉の間・四人半荘戦.png')
 
@@ -172,7 +172,7 @@ def main(driver: WebDriver) -> None:
 
         # 部屋のプルダウンメニューから「王座の間」を選択
         click_canvas_within(driver, canvas, 60, 182, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -180,7 +180,7 @@ def main(driver: WebDriver) -> None:
 
         # モードのプルダウンメニューから「4人東風戦」を選択
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         driver.get_screenshot_as_file('output/王座の間・四人東風戦.png')
 
@@ -190,7 +190,7 @@ def main(driver: WebDriver) -> None:
 
         # モードのプルダウンメニューから「4人半荘戦」を選択
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
-        time.sleep(10)
+        time.sleep(15)
 
         driver.get_screenshot_as_file('output/王座の間・四人半荘戦.png')
 
@@ -198,7 +198,10 @@ def main(driver: WebDriver) -> None:
 if __name__ == '__main__':
     options = Options()
     options.headless = True
-    options.add_argument("--window-size=800,600")
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--ignore-certificate-errors')
+    options.add_argument('--window-size=800,600')
     with Chrome(options=options) as driver:
         try:
             main(driver)
