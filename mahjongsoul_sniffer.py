@@ -153,6 +153,7 @@ __websocket_dispatcher = [
     (re.compile(b'^\x02..\n\x1d\\.lq\\.Lobby\\.fetchAllCommonViews\x12', flags=re.DOTALL), mahjongsoul_sniffer.sniffer.websocket.on_fetch_all_common_views),
     (re.compile(b'^\x02..\n\x26\\.lq\\.Lobby\\.fetchCollectedGameRecordList\x12', flags=re.DOTALL), mahjongsoul_sniffer.sniffer.websocket.on_fetch_collected_game_record_list),
     (re.compile(b'^\x02..\n\x13\\.lq\\.Lobby\\.loginBeat\x12', flags=re.DOTALL), mahjongsoul_sniffer.sniffer.websocket.on_login_beat),
+    (re.compile(b'^\x02..\n\x1b\\.lq\\.Lobby\\.fetchGameLiveList\x12', flags=re.DOTALL), mahjongsoul_sniffer.sniffer.websocket.on_fetch_game_live_list),
     (re.compile(b'^\x02..\n\x1d\\.lq\\.Lobby\\.fetchGameRecordList\x12', flags=re.DOTALL), mahjongsoul_sniffer.sniffer.websocket.on_fetch_game_record_list),
     (re.compile(b'^\x02..\n\x19\\.lq\\.Lobby\\.fetchGameRecord\x12', flags=re.DOTALL), mahjongsoul_sniffer.sniffer.websocket.on_fetch_game_record)
 ]

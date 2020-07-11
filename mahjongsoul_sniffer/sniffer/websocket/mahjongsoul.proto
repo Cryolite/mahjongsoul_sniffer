@@ -1242,7 +1242,7 @@ service Lobby {
   rpc sendClientMessage (ReqSendClientMessage) returns (ResCommon);
   rpc fetchGameLiveInfo (ReqGameLiveInfo) returns (ResGameLiveInfo);
   rpc fetchGameLiveLeftSegment (ReqGameLiveLeftSegment) returns (ResGameLiveLeftSegment);
-  rpc fetchGameLiveList (ReqGameLiveList) returns (ResGameLiveList);
+  rpc fetchGameLiveList (FetchGameLiveListRequest) returns (FetchGameLiveListResponse);
   rpc fetchCommentSetting (ReqCommon) returns (ResCommentSetting);
   rpc updateCommentSetting (ReqUpdateCommentSetting) returns (ResCommon);
   rpc fetchCommentList (ReqFetchCommentList) returns (ResFetchCommentList);
@@ -1962,13 +1962,21 @@ message ResGameLiveLeftSegment {
   uint32 segment_end_millisecond = 6;
 }
 
-message ReqGameLiveList {
-  uint32 filter_id = 1;
+message FetchGameLiveListRequest {
+  string header = 1;
+  Content content = 2;
+  message Content {
+    uint32 filter_id = 1;
+  }
 }
 
-message ResGameLiveList {
-  Error error = 1;
-  repeated GameLiveHead live_list = 2;
+message FetchGameLiveListResponse {
+  string header = 1;
+  Content content = 2;
+  message Content {
+    Error error = 1;
+    repeated GameLiveHead live_list = 2;
+  }
 }
 
 message ResCommentSetting {

@@ -3,6 +3,7 @@
 import pathlib
 import typing
 import yaml
+from typing import Optional
 import jsonschema
 
 
@@ -53,11 +54,63 @@ _config_schema = {
                                 }
                             ]
                         }
-                    }
+                    },
+                    'additionalProperties': False
                 }
-            }
+            },
+            'additionalProperties': False
+        },
+        'game_abstract': {
+            'type': 'object',
+            'required': [
+                'storage'
+            ],
+            'properties': {
+                'storage': {
+                    'oneOf': [
+                        {
+                            'type': 'object',
+                            'required': [
+                                'type',
+                                'bucket_name',
+                                'key_prefix',
+                            ],
+                            'properties': {
+                                'type': {
+                                    'const': 'aws_s3'
+                                },
+                                'bucket_name': {
+                                    'type': 'string'
+                                },
+                                'key_prefix': {
+                                    'type': 'string'
+                                }
+                            },
+                            'additionalProperties': False
+                        },
+                        {
+                            'type': 'object',
+                            'required': [
+                                'type',
+                                'prefix'
+                            ],
+                            'properties': {
+                                'type': {
+                                    'const': 'local'
+                                },
+                                'prefix': {
+                                    'type': 'string'
+                                }
+                            },
+                            'additionalProperties': False
+                        }
+                    ]
+                }
+            },
+            'additionalProperties': False
         }
-    }
+    },
+    'additionalProperties': False
 }
 
 
@@ -112,6 +165,28 @@ class Config(object):
         else:
             log_file_backup_count = None
         return log_file_backup_count
+
+    @property
+    def game_abstract_storage_type(self) -> str:
+        return self._config['game_abstract']['storage']['type']
+
+    @property
+    def game_abstract_storage_prefix(self) -> Optional[str]:
+        if self.game_abstract_storage_type != 'local':
+            return None
+        return self._config['game_abstract']['storage']['prefix']
+
+    @property
+    def game_abstract_storage_bucket_name(self) -> Optional[str]:
+        if self.game_abstract_storage_type != 'aws_s3':
+            return None
+        return self._config['game_abstract']['storage']['bucket_name']
+
+    @property
+    def game_abstract_storage_key_prefix(self) -> Optional[str]:
+        if self.game_abstract_storage_type != 'aws_s3':
+            return None
+        return self._config['game_abstract']['storage']['key_prefix']
 
 
 config = Config()

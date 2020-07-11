@@ -3,6 +3,7 @@
 set -uxo pipefail
 
 protobuf_latest_releases_url='https://github.com/protocolbuffers/protobuf/releases/latest'
+chromedriver_url='https://chromedriver.storage.googleapis.com/83.0.4103.39/chromedriver_linux64.zip'
 
 function print_error_message ()
 {
@@ -22,6 +23,12 @@ if [[ $(uname -o) != GNU/Linux ]]; then
   exit 1
 fi
 
+architecture="$(uname -i)"
+if [[ $architecture != x86_64 ]]; then
+  print_error_message "Only support for x86_64."
+  exit 1
+fi
+
 tempdir=$(mktemp -d)
 trap "rm -rf '$tempdir'" EXIT
 
@@ -38,7 +45,6 @@ if (( $? != 0 )); then
   exit 1
 fi
 
-architecture="$(uname -i)"
 grep -Eo "protoc-[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+-linux-$architecture.zip" "$tempdir/protobuf_latest_releases_page" >"$tempdir/protoc_basenames"
 if (( $? != 0 )); then
   print_error_message 'Failed to extract .zip file basename of Protocol Buffers compiler.'
@@ -66,6 +72,17 @@ else
   exit 1
 fi
 
+chromedriver_basename="$(basename "$chromedriver_url")"
+
+if which wget >/dev/null 2>&1; then
+  (cd "$tempdir" && wget "$chromedriver_url")
+elif which curl >/dev/null 2>&1; then
+  (cd "$tempdir" && curl -o "$chromedriver_basename" -L "$chromedriver_url")
+else
+  print_error_message "Either \`wget' or \`curl' is required."
+  exit 1
+fi
+
 python3 -m venv .local
 . .local/bin/activate
 pip install -U pip
@@ -75,6 +92,10 @@ pip install -U pyyaml
 pip install -U jsonschema
 pip install -U mitmproxy
 pip install -U protobuf
+pip install -U boto3
+pip install -U selenium
 
 unzip "$tempdir/$protoc_basename" -d .local
 protoc --python_out=. mahjongsoul_sniffer/sniffer/websocket/mahjongsoul.proto
+
+unzip "$tempdir/$chromedriver_basename" -d .local/bin

@@ -506,7 +506,7 @@ def _on_new_round(data: bytes) -> GameRound:
         jsonschema.validate(instance=new_round_json, schema=new_round_schema)
     except jsonschema.exceptions.ValidationError:
         raise RuntimeError(
-            f''''Failed to validate the following NewRound data:
+            f'''Failed to validate the following NewRound data:
 {{'protobuf': new_round, 'json': new_round_json}}''')
 
     chang = None
@@ -659,8 +659,8 @@ def _on_deal_tile(data: bytes, game_round: GameRound) -> None:
         jsonschema.validate(instance=deal_tile_json, schema=deal_tile_schema)
     except jsonschema.exceptions.ValidationError:
         raise RuntimeError(
-            f''''Failed to validate the following DealTile data:
-{{'protocol_buffers': deal_tile, 'json': deal_tile_json}}''')
+            f'''Failed to validate the following DealTile data:
+{{'protobuf': deal_tile, 'json': deal_tile_json}}''')
 
     try:
         seat = Seat(deal_tile.seat)
@@ -675,8 +675,8 @@ def _on_deal_tile(data: bytes, game_round: GameRound) -> None:
         game_round.append_turn(turn)
     except Exception as e:
         raise RuntimeError(
-            f''''Failed to decode the following DealTile data:
-{{'protocol_buffers': deal_tile, 'json': deal_tile_json}}''')
+            f'''Failed to decode the following DealTile data:
+{{'protobuf': deal_tile, 'json': deal_tile_json}}''')
 
 
 def _on_chi_peng_gang(data: bytes, game_round: GameRound) -> None:
@@ -848,7 +848,7 @@ def _on_chi_peng_gang(data: bytes, game_round: GameRound) -> None:
                             schema=chi_peng_gang_schema)
     except jsonschema.exceptions.ValidationError:
         raise RuntimeError(
-            f''''Failed to validate the following ChiPengGang data:
+            f'''Failed to validate the following ChiPengGang data:
 {{'protobuf': chi_peng_gang, 'json': chi_peng_gang_json}}''')
 
     try:
@@ -879,7 +879,7 @@ def _on_chi_peng_gang(data: bytes, game_round: GameRound) -> None:
         game_round.append_turn(turn)
     except Exception as e:
         raise RuntimeError(
-            f''''Failed to decode the following ChiPengGang data:
+            f'''Failed to decode the following ChiPengGang data:
 {{'protobuf': chi_peng_gang, 'json': chi_peng_gang_json}}''')
 
 
@@ -963,7 +963,7 @@ def _on_an_gang_add_gang(data: bytes, game_round: GameRound) -> None:
                             schema=an_gang_add_gang_schema)
     except jsonschema.exceptions.ValidationError:
         raise RuntimeError(
-            f''''Failed to validate the following AnGangAddGang data:
+            f'''Failed to validate the following AnGangAddGang data:
 {{'protobuf': an_gang_add_gang, 'json': an_gang_add_gang_json}}''')
 
     seat = Seat(an_gang_add_gang.seat)
@@ -983,7 +983,7 @@ def _on_an_gang_add_gang(data: bytes, game_round: GameRound) -> None:
         game_round.append_turn(turn)
     except Exception as e:
         raise RuntimeError(
-            f''''Failed to decode the following AnGangAddGang data:
+            f'''Failed to decode the following AnGangAddGang data:
 {{'protobuf': an_gang_add_gang, 'json': an_gang_add_gang_json}}''')
 
 
@@ -1222,7 +1222,7 @@ def _on_discard_tile(data: bytes, game_round: GameRound) -> None:
                             schema=discard_tile_schema)
     except jsonschema.exceptions.ValidationError:
         raise RuntimeError(
-            f''''Failed to validate the following DiscardTile data:
+            f'''Failed to validate the following DiscardTile data:
 {{'protobuf': discard_tile, 'json': discard_tile_json}}''')
 
     try:
@@ -1246,7 +1246,7 @@ def _on_discard_tile(data: bytes, game_round: GameRound) -> None:
         game_round.append_turn(turn)
     except Exception as e:
         raise RuntimeError(
-            f''''Failed to decode the following DiscardTile data:
+            f'''Failed to decode the following DiscardTile data:
 {{'protobuf': discard_tile, 'json': discard_tile_json}}''')
 
 
@@ -1559,7 +1559,7 @@ def _on_hule(data: bytes, game_round: GameRound) -> None:
                             schema=hule_schema)
     except jsonschema.exceptions.ValidationError:
         raise RuntimeError(
-            f''''Failed to validate the following Hule data:
+            f'''Failed to validate the following Hule data:
 {{'protobuf': hule, 'json': hule_json}}''')
 
     def decode_hule(msg: google.protobuf.message) -> Hule:
@@ -1673,7 +1673,7 @@ def _on_hule(data: bytes, game_round: GameRound) -> None:
         game_round.append_turn(turn)
     except Exception as e:
         raise RuntimeError(
-            f''''Failed to decode the following Hule data:
+            f'''Failed to decode the following Hule data:
 {{'protobuf': hule, 'json': hule_json}}''')
 
 
@@ -1811,7 +1811,7 @@ def _on_no_tile(data: bytes, game_round: GameRound) -> None:
     try:
         jsonschema.validate(instance=no_tile_json, schema=no_tile_schema)
     except jsonschema.exceptions.ValidationError:
-        raise RuntimeError(f''''Failed to validate the following NoTile data:
+        raise RuntimeError(f'''Failed to validate the following NoTile data:
 {{'protobuf': no_tile, 'json': no_tile_json}}''')
 
     try:
@@ -1856,7 +1856,7 @@ def _on_no_tile(data: bytes, game_round: GameRound) -> None:
         game_round.append_turn(turn)
     except Exception as e:
         raise RuntimeError(
-            f''''Failed to decode the following NoTile data:
+            f'''Failed to decode the following NoTile data:
 {{'protobuf': no_tile, 'json': no_tile_json}}''')
 
 
@@ -1937,7 +1937,7 @@ def _on_liuju(data: bytes, game_round: GameRound) -> None:
     try:
         jsonschema.validate(instance=liuju_json, schema=liuju_schema)
     except jsonschema.exceptions.ValidationError:
-        raise RuntimeError(f''''Failed to validate the following Liuju data:
+        raise RuntimeError(f'''Failed to validate the following Liuju data:
 {{'protobuf': liuju, 'json': liuju_json}}''')
 
     try:
@@ -1953,7 +1953,7 @@ def _on_liuju(data: bytes, game_round: GameRound) -> None:
         game_round.append_turn(turn)
     except Exception as e:
         raise RuntimeError(
-            f''''Failed to decode the following NoTile data:
+            f'''Failed to decode the following NoTile data:
 {{'protobuf': liuju, 'json': liuju_json}}''')
 
 
@@ -2041,6 +2041,7 @@ def on_fetch_game_record(request_message: WebSocketMessage,
                                 'type': 'boolean'
                             },
                             'extendinfo': {
+                                '$commend': 'TODO: 詳細不明',
                                 'const': ''
                             },
                             'detail_rule': {
@@ -2063,11 +2064,23 @@ def on_fetch_game_record(request_message: WebSocketMessage,
                                 'minimum': 0
                             },
                             'mode_id': {
-                                'description': '2: 段位戦4人東風戦？, 6: 段位戦4人半荘戦？',
+                                'description': '2: 段位戦・銅の間・四人東風戦, '
+                                               '6: 段位戦・銀の間・四人半荘戦, '
+                                               '8: 段位戦・金の間・四人東風戦, '
+                                               '9: 段位戦・金の間・四人半荘戦, '
+                                               '11: 段位戦・玉の間・四人東風戦, '
+                                               '12: 段位戦・玉の間・四人半荘戦, '
+                                               '16: 段位戦・王座の間・四人半荘戦, '
+                                               '21: 段位戦・金の間・三人東風戦, '
+                                               '22: 段位戦・金の間・三人半荘戦, '
+                                               '23: 段位戦・玉の間・三人東風戦, '
+                                               '24: 段位戦・玉の間・三人半荘戦, '
+                                               '26: 段位戦・王座の間・三人半荘戦',
                                 'type': 'integer',
                                 'minimum': 0
                             },
                             'contest_uid': {
+                                '$comment': 'TODO: 詳細不明',
                                 'const': 0
                             }
                         },
@@ -2136,7 +2149,8 @@ def on_fetch_game_record(request_message: WebSocketMessage,
                                     'minimum': 0
                                 },
                                 'views': {
-                                    'type': 'array'
+                                    'type': 'array',
+                                    'maxItems': 0
                                 },
                                 'skin': {
                                     'type': 'integer',
@@ -2164,7 +2178,7 @@ def on_fetch_game_record(request_message: WebSocketMessage,
                             'minimum': 0
                         },
                         'level': {
-                            'title': '4人戦段位',
+                            'title': '四人戦段位',
                             'type': 'object',
                             'required': [
                                 'id',
@@ -2172,13 +2186,18 @@ def on_fetch_game_record(request_message: WebSocketMessage,
                             ],
                             'properties': {
                                 'id': {
-                                    'title': '4人戦段位ID',
-                                    'description': '"10X0Y" の形式か？ X == 1: 初心？, X == 2: 雀士？',
+                                    'title': '四人戦段位ID',
+                                    'description': '1010X: 初心, '
+                                                   '1020X: 雀士, '
+                                                   '1030X: 雀傑, '
+                                                   '1040X: 雀豪, '
+                                                   '1050X: 雀聖, '
+                                                   '1060X: 魂天',
                                     'type': 'integer',
                                     'minimum': 0
                                 },
                                 'grading_point': {
-                                    'title': '4人戦昇段ポイント',
+                                    'title': '四人戦昇段ポイント',
                                     'type': 'integer',
                                     'minimum': 0
                                 }
@@ -2186,7 +2205,7 @@ def on_fetch_game_record(request_message: WebSocketMessage,
                             'additionalProperties': False
                         },
                         'level3': {
-                            'title': '3人戦段位',
+                            'title': '三人戦段位',
                             'type': 'object',
                             'required': [
                                 'id',
@@ -2194,13 +2213,18 @@ def on_fetch_game_record(request_message: WebSocketMessage,
                             ],
                             'properties': {
                                 'id': {
-                                    'title': '3人戦段位ID',
-                                    'description': '"20X0Y" の形式か？ X == 1: 初心？, X == 2: 雀士？',
+                                    'title': '三人戦段位ID',
+                                    'description': '2010X: 初心, '
+                                                   '2020X: 雀士, '
+                                                   '2030X: 雀傑, '
+                                                   '2040X: 雀豪, '
+                                                   '2050X: 雀聖, '
+                                                   '2060X: 魂天',
                                     'type': 'integer',
                                     'minimum': 0
                                 },
                                 'grading_point': {
-                                    'title': '3人戦昇段ポイント',
+                                    'title': '三人戦昇段ポイント',
                                     'type': 'integer',
                                     'minimum': 0
                                 }
@@ -2333,7 +2357,7 @@ def on_fetch_game_record(request_message: WebSocketMessage,
     try:
         jsonschema.validate(instance=game_summary_json, schema=game_summary_schema)
     except jsonschema.exceptions.ValidationError:
-        raise RuntimeError(f''''Failed to validate the game summary data:
+        raise RuntimeError(f'''Failed to validate the game summary data:
 {game_summary}''')
 
     start_time = datetime.datetime.fromtimestamp(game_summary.start_time)
@@ -2344,9 +2368,29 @@ def on_fetch_game_record(request_message: WebSocketMessage,
     end_time = datetime.datetime.fromtimestamp(game_summary.end_time)
 
     if game_summary.config.meta.mode_id == 2:
-        mode = '段位戦4人東風戦'
+        mode = '段位戦・銅の間・四人東風戦'
     elif game_summary.config.meta.mode_id == 6:
-        mode = '段位戦4人半荘戦'
+        mode = '段位戦・銀の間・四人半荘戦'
+    elif game_summary.config.meta.mode_id == 8:
+        mode = '段位戦・金の間・四人東風戦'
+    elif game_summary.config.meta.mode_id == 9:
+        mode = '段位戦・金の間・四人半荘戦'
+    elif game_summary.config.meta.mode_id == 11:
+        mode = '段位戦・玉の間・四人東風戦'
+    elif game_summary.config.meta.mode_id == 12:
+        mode = '段位戦・玉の間・四人半荘戦'
+    elif game_summary.config.meta.mode_id == 16:
+        mode = '段位戦・王座の間・四人半荘戦'
+    elif game_summary.config.meta.mode_id == 21:
+        mode = '段位戦・金の間・三人東風戦'
+    elif game_summary.config.meta.mode_id == 22:
+        mode = '段位戦・金の間・三人半荘戦'
+    elif game_summary.config.meta.mode_id == 23:
+        mode = '段位戦・玉の間・三人東風戦'
+    elif game_summary.config.meta.mode_id == 24:
+        mode = '段位戦・玉の間・三人半荘戦'
+    elif game_summary.config.meta.mode_id == 26:
+        mode = '段位戦・王座の間・三人半荘戦'
     else:
         raise NotImplementedError(
             f'mode_id == {game_summary.config.meta.mode_id}')
