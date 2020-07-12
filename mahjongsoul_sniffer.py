@@ -37,6 +37,7 @@ __http_dispatcher = [
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/uiconfig/'), ignore_http_flow),
     (re.compile('^https://passport\\.mahjongsoul\\.com/js/'), ignore_http_flow),
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/jp/extendRes/'), ignore_http_flow),
+    (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/resconfig\\.json$'), ignore_http_flow),
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/audio/'), ignore_http_flow),
     (re.compile('^https://mjjpgs\\.mahjongsoul\\.com:8443/api/v0/recommend_list\\?'), ignore_http_flow),
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/scene/'), ignore_http_flow),
@@ -45,6 +46,7 @@ __http_dispatcher = [
     (re.compile('^https://game\\.mahjongsoul\\.com/client_language\\.txt$'), ignore_http_flow),
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/user_xieyi/'), ignore_http_flow),
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/d3_prefab\\.json$'), ignore_http_flow),
+    (re.compile('^https://passport\\.mahjongsoul\\.com/account/'), ignore_http_flow),
     (re.compile('^https://passport\\.mahjongsoul\\.com/user/login$'), ignore_http_flow),
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/jp/myres2/'), ignore_http_flow)
 ]
