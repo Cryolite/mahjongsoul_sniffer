@@ -90,7 +90,8 @@ def main(driver: WebDriver) -> None:
     click_canvas_within(driver, canvas, 209, 293, 163, 37)
 
     timestamp_file = pathlib.Path('output/login.timestamp')
-    while True:
+    login = False
+    for i in range(60):
         time.sleep(1)
         if not timestamp_file.exists():
             continue
@@ -98,7 +99,10 @@ def main(driver: WebDriver) -> None:
             raise RuntimeError('`output/login.timestamp` is not a file.')
         timestamp = int(os.path.getmtime(timestamp_file))
         if timestamp >= int(fetch_time.timestamp()):
+            login = True
             break
+    if not login:
+        raise RuntimeError('Failed to login.')
     time.sleep(5)
 
     driver.get_screenshot_as_file('output/ロビー.png')
