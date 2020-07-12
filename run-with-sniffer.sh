@@ -5,6 +5,7 @@ set -uxo pipefail
 
 # mitmproxy を起動する．
 AWS_PROFILE=mahjongsoul-sniffer mitmdump -q -s mahjongsoul_sniffer.py &
+sleep 5
 
 # 一度 mitmproxy を起動すると ~/.mitmproxy ディレクトリが作成されるので，そこに
 # 作成される mitmproxy の証明書をシステムにインストールする．
@@ -12,7 +13,7 @@ openssl x509 -in ~/.mitmproxy/mitmproxy-ca-cert.pem -inform PEM -out /usr/local/
 update-ca-certificates
 
 # Headless Chrome を起動してすぐに終了する．
-./run-chromedrive-once.py
+./run-chromedriver-once.py
 
 # 一度 Chrome を起動すると ~/.pki/nssdb ディレクトリが作成されるので，そこに
 # 作成される証明書ストアに mitmproxy の証明書をインストールする．
