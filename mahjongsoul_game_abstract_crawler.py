@@ -182,9 +182,14 @@ def main(driver: WebDriver) -> None:
     canvas = WebDriverWait(driver, 60).until(
         ec.visibility_of_element_located((By.ID, 'layaCanvas'))
     )
+
+    driver.get_screenshot_as_file('output/00-ページ読み込み.png')
+
     # 「ログイン」ボタンをクリック
     click_canvas_within(driver, canvas, 540, 177, 167, 38)
     time.sleep(1)
+
+    driver.get_screenshot_as_file('output/01-ログインボタンクリック.png')
 
     mail_address = input('メールアドレス: ')
 
@@ -193,13 +198,20 @@ def main(driver: WebDriver) -> None:
     ActionChains(driver).send_keys(mail_address).perform()
     time.sleep(1)
 
+    driver.get_screenshot_as_file('output/02-メールアドレス入力.png')
+
     # 「コードを受け取る」ボタンをクリック
     click_canvas_within(driver, canvas, 351, 206, 86, 36)
     time.sleep(1)
 
+    driver.get_screenshot_as_file(
+        'output/03-コードを受け取るボタンクリック.png')
+
     # 「確認」ボタンをクリック
     click_canvas_within(driver, canvas, 378, 273, 60, 23)
     time.sleep(1)
+
+    driver.get_screenshot_as_file('output/04-確認ボタンクリック.png')
 
     auth_code = getpass.getpass(prompt='認証コード: ',)
 
@@ -207,6 +219,8 @@ def main(driver: WebDriver) -> None:
     click_canvas_within(driver, canvas, 144, 211, 196, 30)
     ActionChains(driver).send_keys(auth_code).perform()
     time.sleep(1)
+
+    driver.get_screenshot_as_file('output/05-認証コード入力.png')
 
     # 「ログイン」ボタンをクリック
     click_canvas_within(driver, canvas, 209, 293, 163, 37)
