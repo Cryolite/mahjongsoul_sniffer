@@ -48,7 +48,8 @@ __http_dispatcher = [
     (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/d3_prefab\\.json$'), ignore_http_flow),
     (re.compile('^https://passport\\.mahjongsoul\\.com/account/'), ignore_http_flow),
     (re.compile('^https://passport\\.mahjongsoul\\.com/user/login$'), ignore_http_flow),
-    (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/jp/myres2/'), ignore_http_flow)
+    (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/jp/myres2/'), ignore_http_flow),
+    (re.compile('^https://game\\.mahjongsoul\\.com/v\\d+\\.\\d+\\.\\d+\\.w/jp/myres/'), ignore_http_flow)
 ]
 
 

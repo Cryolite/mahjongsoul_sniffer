@@ -470,3 +470,9 @@ def on_fetch_game_live_list(request_message: WebSocketMessage,
         }
 
         _queue.put(data)
+
+        if not pathlib.Path('output').exists():
+            raise RuntimeError('`output` directory does not exist.')
+        if not pathlib.Path('output').is_dir():
+            raise RuntimeError('`output` is not a directory.')
+        pathlib.Path('output/fetch-game-live-list.timestamp').touch()
