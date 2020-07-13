@@ -52,7 +52,7 @@ def _raise_if_gets_stuck() -> None:
         raise RefreshRequest()
 
 
-def _after_login(fetch_time: datetime.datetime) -> None:
+def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
     timestamp_file = pathlib.Path('output/login.timestamp')
     login = False
     for i in range(60):
@@ -228,7 +228,7 @@ def main(driver: WebDriver) -> None:
 
     while True:
         try:
-            _after_login(fetch_time)
+            _after_login(fetch_time, canvas)
         except RefreshRequest:
             print('Refresh was requested.')
             fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
