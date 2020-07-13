@@ -182,6 +182,7 @@ def main(driver: WebDriver) -> None:
     canvas = WebDriverWait(driver, 60).until(
         ec.visibility_of_element_located((By.ID, 'layaCanvas'))
     )
+    time.sleep(10)
 
     driver.get_screenshot_as_file('output/00-ページ読み込み.png')
 
