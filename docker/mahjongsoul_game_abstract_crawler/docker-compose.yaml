@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  redis:
+    image: redis
+  crawler:
+    build: .
+    volumes:
+      - type: bind
+        source: ../..
+        target: /mahjongsoul_sniffer
+    links:
+      - redis
+    stdin_open: true
+    tty: true

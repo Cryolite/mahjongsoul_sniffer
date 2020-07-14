@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 
-
 set -uxo pipefail
 
+# .proto ファイルをコンパイルする．
+protoc --python_out=. mahjongsoul_sniffer/sniffer/websocket/mahjongsoul.proto
+
 # mitmproxy を起動する．
-AWS_PROFILE=mahjongsoul-sniffer mitmdump -q -s mahjongsoul_sniffer.py &
+mitmdump -q -s mahjongsoul_sniffer.py &
 sleep 5
 
 # 一度 mitmproxy を起動すると ~/.mitmproxy ディレクトリが作成されるので，そこに

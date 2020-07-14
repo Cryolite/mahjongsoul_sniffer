@@ -3,9 +3,11 @@
 import datetime
 import random
 import pathlib
-import os.path
 import time
 import getpass
+import typing
+import yaml
+import jsonschema
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver import Chrome
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -15,6 +17,159 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
+import redis
+
+
+_config_schema = {
+    'type': 'object',
+    'required': [
+        'logging',
+        'redis'
+    ],
+    'properties': {
+        'logging': {
+            'type': 'object',
+            'required': ['log_file'],
+            'properties': {
+                'level': {
+                    'enum': [
+                        'DEBUG',
+                        'INFO',
+                        'WARNING',
+                        'ERROR',
+                        'CRITICAL',
+                        None
+                    ]
+                },
+                'log_file': {
+                    'type': 'object',
+                    'required': ['path'],
+                    'properties': {
+                        'path': {
+                            'type': 'string'
+                        },
+                        'max_bytes': {
+                            'oneOf': [
+                                {
+                                    'type': 'integer',
+                                    'minimum': 0
+                                },
+                                {
+                                    'const': None
+                                }
+                            ]
+                        },
+                        'backup_count': {
+                            'oneOf': [
+                                {
+                                    'type': 'integer',
+                                    'minimum': 0
+                                },
+                                {
+                                    'const': None
+                                }
+                            ]
+                        }
+                    },
+                    'additionalProperties': False
+                }
+            },
+            'additionalProperties': False
+        },
+        'redis': {
+            'type': 'object',
+            'required': [
+                'host'
+            ],
+            'properties': {
+                'host': {
+                    'type': 'string'
+                },
+                'port': {
+                    'oneOf': [
+                        {
+                            'type': 'integer',
+                            'minimum': 1
+                        },
+                        {
+                            'const': None
+                        }
+                    ]
+                }
+            },
+            'additionalProperties': False
+        }
+    },
+    'additionalProperties': False
+}
+
+
+class Config(object):
+    def __init__(self):
+        config_file_path = pathlib.Path('config/game_abstract_crawler.yaml')
+        if not config_file_path.exists():
+            raise RuntimeError(
+                f'Config file `{config_file_path}` does not exist.')
+        if not config_file_path.is_file():
+            raise RuntimeError(f'`{config_file_path}` is expected to be a'
+                               ' config file but not a file.')
+
+        with open(config_file_path) as config_file:
+            config = yaml.load(config_file, Loader=yaml.Loader)
+        jsonschema.validate(instance=config, schema=_config_schema)
+
+        self._config = config
+
+    @property
+    def logging_level(self) -> str:
+        if 'level' in self._config['logging']:
+            logging_level = self._config['logging']['level']
+            if logging_level is None:
+                logging_level = 'INFO'
+        else:
+            logging_level = 'INFO'
+        return logging_level
+
+    @property
+    def log_file_path(self) -> pathlib.Path:
+        return self._config['logging']['log_file']['path']
+
+    @property
+    def log_file_max_bytes(self) -> typing.Optional[int]:
+        if 'max_bytes' in self._config['logging']['log_file']:
+            log_file_max_bytes = \
+                self._config['logging']['log_file']['max_bytes']
+            if log_file_max_bytes == 0:
+                log_file_max_bytes = None
+        else:
+            log_file_max_bytes = None
+        return log_file_max_bytes
+
+    @property
+    def log_file_backup_count(self) -> typing.Optional[int]:
+        if 'backup_count' in self._config['logging']['log_file']:
+            log_file_backup_count = \
+                self._config['logging']['log_file']['backup_count']
+            if log_file_backup_count == 0:
+                log_file_backup_count = None
+        else:
+            log_file_backup_count = None
+        return log_file_backup_count
+
+    @property
+    def redis_host(self) -> str:
+        return self._config['redis']['host']
+
+    @property
+    def redis_port(self) -> int:
+        if 'port' not in self._config['redis']:
+            return 6379
+        if self._config['redis']['port'] is None:
+            return 6379
+        return self._config['redis']['port']
+
+
+config = Config()
 
 
 class RefreshRequest(Exception):
@@ -43,26 +198,29 @@ def click_canvas_within(
     ActionChains(driver).move_to_element_with_offset(canvas, x, y).click().perform()
 
 
-def _raise_if_gets_stuck() -> None:
-    timestamp_file = pathlib.Path('output/fetch-game-live-list.timestamp')
-    last_timestamp = int(os.path.getmtime(timestamp_file))
+def _raise_if_gets_stuck(r: redis.Redis) -> None:
+    api_timestamp = r.hget('api-timestamp', 'fetchGameLiveList')
+    if api_timestamp is None:
+        raise RefreshRequest()
+    api_timestamp = int(api_timestamp.decode('utf-8'))
+
     now = int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
 
-    if now - last_timestamp > 60:
+    if now - api_timestamp > 60:
         raise RefreshRequest()
 
 
 def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
-    timestamp_file = pathlib.Path('output/login.timestamp')
+    r = redis.Redis(host=config.redis_host, port=config.redis_port)
+
     login = False
     for i in range(60):
         time.sleep(1)
-        if not timestamp_file.exists():
+        login_timestamp = r.hget('api-timestamp', 'loginBeat')
+        if login_timestamp is None:
             continue
-        if not timestamp_file.is_file():
-            raise RuntimeError('`output/login.timestamp` is not a file.')
-        timestamp = int(os.path.getmtime(timestamp_file))
-        if timestamp >= int(fetch_time.timestamp()):
+        login_timestamp = int(login_timestamp.decode('utf-8'))
+        if login_timestamp >= int(fetch_time.timestamp()):
             login = True
             break
     if not login:
@@ -94,7 +252,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
         time.sleep(15)
 
-        _raise_if_gets_stuck()
+        _raise_if_gets_stuck(r)
 
         driver.get_screenshot_as_file('output/金の間・四人東風戦.png')
 
@@ -106,7 +264,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
         time.sleep(15)
 
-        _raise_if_gets_stuck()
+        _raise_if_gets_stuck(r)
 
         driver.get_screenshot_as_file('output/金の間・四人半荘戦.png')
 
@@ -126,7 +284,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
         time.sleep(15)
 
-        _raise_if_gets_stuck()
+        _raise_if_gets_stuck(r)
 
         driver.get_screenshot_as_file('output/玉の間・四人東風戦.png')
 
@@ -138,7 +296,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
         time.sleep(15)
 
-        _raise_if_gets_stuck()
+        _raise_if_gets_stuck(r)
 
         driver.get_screenshot_as_file('output/玉の間・四人半荘戦.png')
 
@@ -158,7 +316,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
         time.sleep(15)
 
-        _raise_if_gets_stuck()
+        _raise_if_gets_stuck(r)
 
         driver.get_screenshot_as_file('output/王座の間・四人東風戦.png')
 
@@ -170,19 +328,23 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
         time.sleep(15)
 
-        _raise_if_gets_stuck()
+        _raise_if_gets_stuck(r)
 
         driver.get_screenshot_as_file('output/王座の間・四人半荘戦.png')
+
+
+def _wait_for_page_to_present(driver: WebDriver) -> WebElement:
+    canvas = WebDriverWait(driver, 60).until(
+        ec.visibility_of_element_located((By.ID, 'layaCanvas'))
+    )
+    time.sleep(10)
+    return canvas
 
 
 def main(driver: WebDriver) -> None:
     fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
     driver.get('https://game.mahjongsoul.com/')
-
-    canvas = WebDriverWait(driver, 60).until(
-        ec.visibility_of_element_located((By.ID, 'layaCanvas'))
-    )
-    time.sleep(10)
+    canvas = _wait_for_page_to_present(driver)
 
     driver.get_screenshot_as_file('output/00-ページ読み込み.png')
 
@@ -233,6 +395,7 @@ def main(driver: WebDriver) -> None:
             print('Refresh was requested.')
             fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
             driver.refresh()
+            canvas = _wait_for_page_to_present(driver)
             continue
 
 

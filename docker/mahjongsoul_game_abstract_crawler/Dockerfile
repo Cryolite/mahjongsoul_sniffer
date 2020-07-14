@@ -3,7 +3,9 @@ FROM ubuntu:latest
 RUN apt-get update && apt-get install -y \
       ca-certificates \
       git \
+      fonts-ipafont \
       libnss3-tools \
+      protobuf-compiler \
       python3 \
       python3-pip \
       unzip \
@@ -14,16 +16,15 @@ RUN apt-get update && apt-get install -y \
     DEBIAN_FRONTEND=noninteractive apt-get install -y google-chrome-stable && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     pip3 install -U pip && pip3 install -U \
-      pyyaml \
       jsonschema \
       mitmproxy \
-      boto3 \
+      pyyaml \
+      redis \
       selenium && \
     pip3 install -U protobuf && \
-    git clone 'https://github.com/Cryolite/mahjongsoul_sniffer.git' && \
-    /mahjongsoul_sniffer/install-protoc.sh && \
-    /mahjongsoul_sniffer/install-chromedriver.sh && \
-    protoc --python_out=. mahjongsoul_sniffer/mahjongsoul_sniffer/sniffer/websocket/mahjongsoul.proto
+    wget "https://chromedriver.storage.googleapis.com/`wget -O - https://chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip" && \
+    unzip chromedriver_linux64.zip -d /usr/local/bin && \
+    rm chromedriver_linux64.zip
 
 WORKDIR /mahjongsoul_sniffer
 

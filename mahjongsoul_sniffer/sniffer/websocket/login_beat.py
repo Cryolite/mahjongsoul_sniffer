@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
-import pathlib
+import datetime
 import logging
 from mitmproxy.websocket import WebSocketMessage
+import redis
+from mahjongsoul_sniffer.config import config
 
 
 def on_login_beat(request_message: WebSocketMessage,
@@ -10,9 +12,7 @@ def on_login_beat(request_message: WebSocketMessage,
     logging.info(
         "Sniffering WebSocket messages from/to `.lq.Lobby.loginBeat'.")
 
-    if not pathlib.Path('output').exists():
-        raise RuntimeError('`output` does not exist.')
-    if not pathlib.Path('output').is_dir():
-        raise RuntimeError('`output` is not a directory.')
-
-    pathlib.Path('output/login.timestamp').touch()
+    r = redis.Redis(host=config.redis_host, port=config.redis_port)
+    timestamp = int(
+        datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+    r.hset('api-timestamp', 'loginBeat', timestamp)

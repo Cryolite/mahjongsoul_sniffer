@@ -9,7 +9,10 @@ import jsonschema
 
 _config_schema = {
     'type': 'object',
-    'required': ['logging'],
+    'required': [
+        'logging',
+        'redis'
+    ],
     'properties': {
         'logging': {
             'type': 'object',
@@ -60,49 +63,23 @@ _config_schema = {
             },
             'additionalProperties': False
         },
-        'game_abstract': {
+        'redis': {
             'type': 'object',
             'required': [
-                'storage'
+                'host'
             ],
             'properties': {
-                'storage': {
+                'host': {
+                    'type': 'string'
+                },
+                'port': {
                     'oneOf': [
                         {
-                            'type': 'object',
-                            'required': [
-                                'type',
-                                'bucket_name',
-                                'key_prefix',
-                            ],
-                            'properties': {
-                                'type': {
-                                    'const': 'aws_s3'
-                                },
-                                'bucket_name': {
-                                    'type': 'string'
-                                },
-                                'key_prefix': {
-                                    'type': 'string'
-                                }
-                            },
-                            'additionalProperties': False
+                            'type': 'integer',
+                            'minimum': 1
                         },
                         {
-                            'type': 'object',
-                            'required': [
-                                'type',
-                                'prefix'
-                            ],
-                            'properties': {
-                                'type': {
-                                    'const': 'local'
-                                },
-                                'prefix': {
-                                    'type': 'string'
-                                }
-                            },
-                            'additionalProperties': False
+                            'const': None
                         }
                     ]
                 }
@@ -116,7 +93,7 @@ _config_schema = {
 
 class Config(object):
     def __init__(self):
-        config_file_path = pathlib.Path('config.yaml')
+        config_file_path = pathlib.Path('config/sniffer.yaml')
         if not config_file_path.exists():
             raise RuntimeError(
                 f"Config file `{config_file_path}' does not exist.")
@@ -167,26 +144,16 @@ class Config(object):
         return log_file_backup_count
 
     @property
-    def game_abstract_storage_type(self) -> str:
-        return self._config['game_abstract']['storage']['type']
+    def redis_host(self) -> str:
+        return self._config['redis']['host']
 
     @property
-    def game_abstract_storage_prefix(self) -> Optional[str]:
-        if self.game_abstract_storage_type != 'local':
-            return None
-        return self._config['game_abstract']['storage']['prefix']
-
-    @property
-    def game_abstract_storage_bucket_name(self) -> Optional[str]:
-        if self.game_abstract_storage_type != 'aws_s3':
-            return None
-        return self._config['game_abstract']['storage']['bucket_name']
-
-    @property
-    def game_abstract_storage_key_prefix(self) -> Optional[str]:
-        if self.game_abstract_storage_type != 'aws_s3':
-            return None
-        return self._config['game_abstract']['storage']['key_prefix']
+    def redis_port(self) -> int:
+        if 'port' not in self._config['redis']:
+            return 6379
+        if self._config['redis']['port'] is None:
+            return 6379
+        return self._config['redis']['port']
 
 
 config = Config()
