@@ -1,113 +1,21 @@
 #!/usr/bin/env python3
 
-import re
 import datetime
-import pathlib
 import logging
-import multiprocessing
 import json
-import atexit
 import jsonschema
 import jsonschema.exceptions
 import google.protobuf
 import google.protobuf.json_format
 from mitmproxy.websocket import WebSocketMessage
+import redis
 from mahjongsoul_sniffer.config import config
 from mahjongsoul_sniffer.sniffer.websocket.mahjongsoul_pb2 \
     import (FetchGameLiveListRequest, FetchGameLiveListResponse)
 
 
-class _StorageWriter(object):
-    def __init__(self):
-        if config.game_abstract_storage_type == 'local':
-            self._type = 'local'
-        elif config.game_abstract_storage_type == 'aws_s3':
-            self._type = 'aws_s3'
-            import boto3
-            self._s3 = boto3.resource('s3')
-            bucket_name = config.game_abstract_storage_bucket_name
-            self._bucket = self._s3.Bucket(bucket_name)
-        else:
-            raise NotImplementedError(f'{config.game_abstract_storage_type}:'
-                                      ' An unimplemented storage type.')
-
-    def _write_to_local(self, *, path: pathlib.Path, data: object) -> None:
-        with open(path, 'w') as f:
-            json.dump(data, f, ensure_ascii=False, allow_nan=False,
-                      separators=(',', ':'))
-
-    def _write_to_s3(self, *, key: str, data: object) -> None:
-        body = json.dumps(data, ensure_ascii=False, allow_nan=False,
-                          separators=(',', ':'))
-        body = body.encode('utf-8')
-        self._bucket.put_object(Key=key, Body=body)
-
-    def write(self, *, uuid: str, mode: str,
-              start_time: datetime.datetime) -> None:
-        data = {
-            'uuid': uuid,
-            'mode': mode,
-            'start_time': int(start_time.timestamp())
-        }
-
-        if self._type == 'local':
-            prefix = start_time.strftime(config.game_abstract_storage_prefix)
-            prefix = pathlib.Path(prefix)
-            prefix.mkdir(parents=True, exist_ok=True)
-            self._write_to_local(path=prefix / uuid, data=data)
-        elif self._type == 'aws_s3':
-            key_prefix = start_time.strftime(
-                config.game_abstract_storage_key_prefix)
-            key_prefix = re.sub('/+$', '', key_prefix)
-            self._write_to_s3(key=key_prefix + '/' + uuid, data=data)
-        else:
-            raise NotImplementedError(
-                f'{self._type}: An unimplemented storage type.')
-
-
-_queue = multiprocessing.SimpleQueue()
-
-
-def _writer_process_main():
-    writer = _StorageWriter()
-    finished = {}
-
-    while True:
-        data = _queue.get()
-
-        if data is None:
-            break
-
-        uuid = data['uuid']
-        start_time = data['start_time']
-
-        if uuid in finished:
-            continue
-
-        writer.write(uuid=uuid, mode=data['mode'], start_time=start_time)
-        finished[uuid] = start_time
-
-        if len(finished) >= 10000:
-            now = datetime.datetime.now(tz=datetime.timezone.utc)
-            old_uuid_list = []
-            for uuid, start_time in finished.items():
-                if now - start_time > datetime.timedelta(hours=2):
-                    old_uuid_list.append(uuid)
-
-            for old_uuid in old_uuid_list:
-                del finished[old_uuid]
-
-
-_writer_process = multiprocessing.Process(target=_writer_process_main)
-_writer_process.start()
-
-
-def _stop_writer_process() -> None:
-    _queue.put(None)
-    _writer_process.join()
-
-
-atexit.register(_stop_writer_process)
+with open('schema/game_abstract.json') as f:
+    _game_abstract_schema = json.load(f)
 
 
 def on_fetch_game_live_list(request_message: WebSocketMessage,
@@ -426,7 +334,7 @@ def on_fetch_game_live_list(request_message: WebSocketMessage,
         raise RuntimeError(f'''Failed to validate the following response:
 {{'protobuf': response, 'json': response_json}}''')
 
-    storage_writer = _StorageWriter()
+    r = redis.Redis(host=config.redis_host, port=config.redis_port)
 
     for game_live in response.live_list:
         uuid = game_live.uuid
@@ -463,16 +371,18 @@ def on_fetch_game_live_list(request_message: WebSocketMessage,
         else:
             raise NotImplementedError(f'mode_id == {mode_id}')
 
-        data = {
+        game_abstract = {
             'uuid': uuid,
             'mode': mode,
-            'start_time': start_time
+            'start_time': int(start_time.timestamp())
         }
+        jsonschema.validate(instance=game_abstract,
+                            schema=_game_abstract_schema)
+        game_abstract = json.dumps(game_abstract, ensure_ascii=False,
+                                   allow_nan=False, separators=(',', ':'))
 
-        _queue.put(data)
+        r.rpush('game-abstract-list', game_abstract)
 
-        if not pathlib.Path('output').exists():
-            raise RuntimeError('`output` directory does not exist.')
-        if not pathlib.Path('output').is_dir():
-            raise RuntimeError('`output` is not a directory.')
-        pathlib.Path('output/fetch-game-live-list.timestamp').touch()
+    timestamp = int(
+        datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
+    r.hset('api-timestamp', 'fetchGameLiveList', timestamp)
