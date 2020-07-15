@@ -2,13 +2,30 @@ version: '3.8'
 services:
   redis:
     image: redis
-  crawler:
-    build: .
+  archiver:
+    build: ../game_abstract_archiver
+    image: mahjongsoul_game_abstract_archiver
     volumes:
       - type: bind
         source: ../..
         target: /mahjongsoul_sniffer
-    links:
+      - type: bind
+        source: "${DOT_AWS_DIR}"
+        target: /root/.aws
+        read_only: true
+    environment:
+      - AWS_PROFILE
+    depends_on:
       - redis
+  crawler:
+    build: .
+    image: mahjongsoul_game_abstract_crawler
+    volumes:
+      - type: bind
+        source: ../..
+        target: /mahjongsoul_sniffer
+    depends_on:
+      - redis
+      - archiver
     stdin_open: true
     tty: true

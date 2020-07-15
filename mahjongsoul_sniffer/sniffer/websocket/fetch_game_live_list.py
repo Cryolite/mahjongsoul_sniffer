@@ -14,6 +14,10 @@ from mahjongsoul_sniffer.sniffer.websocket.mahjongsoul_pb2 \
     import (FetchGameLiveListRequest, FetchGameLiveListResponse)
 
 
+with open('schema/game_abstract.json') as f:
+    _game_abstract_schema = json.load(f)
+
+
 def on_fetch_game_live_list(request_message: WebSocketMessage,
                             response_message: WebSocketMessage) -> None:
     logging.info('Sniffering WebSocket messages from/to'
@@ -367,14 +371,17 @@ def on_fetch_game_live_list(request_message: WebSocketMessage,
         else:
             raise NotImplementedError(f'mode_id == {mode_id}')
 
-        data = {
+        game_abstract = {
             'uuid': uuid,
             'mode': mode,
             'start_time': int(start_time.timestamp())
         }
-        data = json.dumps(data, ensure_ascii=False, allow_nan=False,
-                          separators=(',', ':'))
-        r.hsetnx('game-abstract-list', uuid, data)
+        jsonschema.validate(instance=game_abstract,
+                            schema=_game_abstract_schema)
+        game_abstract = json.dumps(game_abstract, ensure_ascii=False,
+                                   allow_nan=False, separators=(',', ':'))
+
+        r.rpush('game-abstract-list', game_abstract)
 
     timestamp = int(
         datetime.datetime.now(tz=datetime.timezone.utc).timestamp())

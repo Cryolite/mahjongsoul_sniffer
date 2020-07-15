@@ -337,7 +337,7 @@ def _wait_for_page_to_present(driver: WebDriver) -> WebElement:
     canvas = WebDriverWait(driver, 60).until(
         ec.visibility_of_element_located((By.ID, 'layaCanvas'))
     )
-    time.sleep(10)
+    time.sleep(15)
     return canvas
 
 

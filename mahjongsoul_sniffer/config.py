@@ -16,7 +16,9 @@ _config_schema = {
     'properties': {
         'logging': {
             'type': 'object',
-            'required': ['log_file'],
+            'required': [
+                'log_file'
+            ],
             'properties': {
                 'level': {
                     'enum': [
@@ -30,7 +32,9 @@ _config_schema = {
                 },
                 'log_file': {
                     'type': 'object',
-                    'required': ['path'],
+                    'required': [
+                        'path'
+                    ],
                     'properties': {
                         'path': {
                             'type': 'string'
@@ -76,7 +80,8 @@ _config_schema = {
                     'oneOf': [
                         {
                             'type': 'integer',
-                            'minimum': 1
+                            'minimum': 1,
+                            'maximum': 65535
                         },
                         {
                             'const': None

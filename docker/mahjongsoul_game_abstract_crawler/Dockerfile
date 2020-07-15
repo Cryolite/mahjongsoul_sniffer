@@ -2,7 +2,6 @@ FROM ubuntu:latest
 
 RUN apt-get update && apt-get install -y \
       ca-certificates \
-      git \
       fonts-ipafont \
       libnss3-tools \
       protobuf-compiler \
