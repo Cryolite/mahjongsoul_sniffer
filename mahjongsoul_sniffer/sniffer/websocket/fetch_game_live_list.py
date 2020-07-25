@@ -356,6 +356,8 @@ def on_fetch_game_live_list(request_message: WebSocketMessage,
             mode = '段位戦・玉の間・四人東風戦'
         elif mode_id == 12:
             mode = '段位戦・玉の間・四人半荘戦'
+        elif mode_id == 15:
+            mode = '段位戦・王座の間・四人東風戦'
         elif mode_id == 16:
             mode = '段位戦・王座の間・四人半荘戦'
         elif mode_id == 21:
@@ -369,7 +371,7 @@ def on_fetch_game_live_list(request_message: WebSocketMessage,
         elif mode_id == 26:
             mode = '段位戦・王座の間・三人半荘戦'
         else:
-            raise NotImplementedError(f'mode_id == {mode_id}')
+            raise NotImplementedError(f'uuid == {uuid}, mode_id == {mode_id}')
 
         game_abstract = {
             'uuid': uuid,
