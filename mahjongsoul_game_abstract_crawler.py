@@ -198,6 +198,16 @@ def click_canvas_within(
     ActionChains(driver).move_to_element_with_offset(canvas, x, y).click().perform()
 
 
+def _get_screenshot(driver: WebDriver, name: str) -> None:
+    game_abstract_crawler_log_prefix = pathlib.Path(
+        '/var/log/mahjongsoul-sniffer/game-abstract-crawler')
+    if not game_abstract_crawler_log_prefix.exists():
+        raise RuntimeError(
+            f'`{game_abstract_crawler_log_prefix}` does not exist.')
+    screenshot_path = game_abstract_crawler_log_prefix / name
+    driver.get_screenshot_as_file(str(screenshot_path))
+
+
 def _raise_if_gets_stuck(r: redis.Redis) -> None:
     api_timestamp = r.hget('api-timestamp', 'fetchGameLiveList')
     if api_timestamp is None:
@@ -227,13 +237,13 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
         raise RuntimeError('Failed to login.')
     time.sleep(5)
 
-    driver.get_screenshot_as_file('output/ロビー.png')
+    _get_screenshot(driver, '06-ロビー.png')
 
     # 「観戦」ボタンをクリック
     click_canvas_within(driver, canvas, 491, 398, 51, 42)
     time.sleep(10)
 
-    driver.get_screenshot_as_file('output/観戦.png')
+    _get_screenshot(driver, '07-観戦ボタンクリック.png')
 
     while True:
         # 部屋のプルダウンメニューをクリックして展開
@@ -242,7 +252,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # 部屋のプルダウンメニューから「金の間」を選択
         click_canvas_within(driver, canvas, 60, 119, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -250,11 +260,11 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # モードのプルダウンメニューから「4人東風戦」を選択
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         _raise_if_gets_stuck(r)
 
-        driver.get_screenshot_as_file('output/金の間・四人東風戦.png')
+        _get_screenshot(driver, '08-00-金の間・4人東風戦.png')
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -262,11 +272,11 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # モードのプルダウンメニューから「4人半荘戦」を選択
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         _raise_if_gets_stuck(r)
 
-        driver.get_screenshot_as_file('output/金の間・四人半荘戦.png')
+        _get_screenshot(driver, '08-01-金の間・4人半荘戦.png')
 
         # 部屋のプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 60, 88, 157, 30)
@@ -274,7 +284,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # 部屋のプルダウンメニューから「玉の間」を選択
         click_canvas_within(driver, canvas, 60, 150, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -282,11 +292,11 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # モードのプルダウンメニューから「4人東風戦」を選択
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         _raise_if_gets_stuck(r)
 
-        driver.get_screenshot_as_file('output/玉の間・四人東風戦.png')
+        _get_screenshot(driver, '08-02-玉の間・4人東風戦.png')
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -294,11 +304,11 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # モードのプルダウンメニューから「4人半荘戦」を選択
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         _raise_if_gets_stuck(r)
 
-        driver.get_screenshot_as_file('output/玉の間・四人半荘戦.png')
+        _get_screenshot(driver, '08-03-玉の間・4人半荘戦.png')
 
         # 部屋のプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 60, 88, 157, 30)
@@ -306,7 +316,7 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # 部屋のプルダウンメニューから「王座の間」を選択
         click_canvas_within(driver, canvas, 60, 182, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -314,11 +324,11 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # モードのプルダウンメニューから「4人東風戦」を選択
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         _raise_if_gets_stuck(r)
 
-        driver.get_screenshot_as_file('output/王座の間・四人東風戦.png')
+        _get_screenshot(driver, '08-04-王座の間・4人東風戦.png')
 
         # モードのプルダウンメニューをクリックして展開
         click_canvas_within(driver, canvas, 241, 88, 157, 30)
@@ -326,11 +336,11 @@ def _after_login(fetch_time: datetime.datetime, canvas: WebElement) -> None:
 
         # モードのプルダウンメニューから「4人半荘戦」を選択
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
-        time.sleep(15)
+        time.sleep(10)
 
         _raise_if_gets_stuck(r)
 
-        driver.get_screenshot_as_file('output/王座の間・四人半荘戦.png')
+        _get_screenshot(driver, '08-05-王座の間・4人半荘戦.png')
 
 
 def _wait_for_page_to_present(driver: WebDriver) -> WebElement:
@@ -346,44 +356,47 @@ def main(driver: WebDriver) -> None:
     driver.get('https://game.mahjongsoul.com/')
     canvas = _wait_for_page_to_present(driver)
 
-    driver.get_screenshot_as_file('output/00-ページ読み込み.png')
+    _get_screenshot(driver, '00-ページ読み込み.png')
 
     # 「ログイン」ボタンをクリック
     click_canvas_within(driver, canvas, 540, 177, 167, 38)
     time.sleep(1)
 
-    driver.get_screenshot_as_file('output/01-ログインボタンクリック.png')
+    _get_screenshot(driver, '01-ログインボタンクリック.png')
 
     mail_address = input('メールアドレス: ')
 
     # 「メールアドレス」フォームに入力
     click_canvas_within(driver, canvas, 145, 154, 291, 30)
+    time.sleep(1)
+
     ActionChains(driver).send_keys(mail_address).perform()
     time.sleep(1)
 
-    driver.get_screenshot_as_file('output/02-メールアドレス入力.png')
+    _get_screenshot(driver, '02-メールアドレス入力.png')
 
     # 「コードを受け取る」ボタンをクリック
     click_canvas_within(driver, canvas, 351, 206, 86, 36)
     time.sleep(1)
 
-    driver.get_screenshot_as_file(
-        'output/03-コードを受け取るボタンクリック.png')
+    _get_screenshot(driver, '03-コードを受け取るボタンクリック.png')
 
     # 「確認」ボタンをクリック
     click_canvas_within(driver, canvas, 378, 273, 60, 23)
     time.sleep(1)
 
-    driver.get_screenshot_as_file('output/04-確認ボタンクリック.png')
+    _get_screenshot(driver, '04-確認ボタンクリック.png')
 
     auth_code = getpass.getpass(prompt='認証コード: ',)
 
     # 「認証コード」フォームに入力
     click_canvas_within(driver, canvas, 144, 211, 196, 30)
+    time.sleep(1)
+
     ActionChains(driver).send_keys(auth_code).perform()
     time.sleep(1)
 
-    driver.get_screenshot_as_file('output/05-認証コード入力.png')
+    _get_screenshot(driver, '05-認証コード入力.png')
 
     # 「ログイン」ボタンをクリック
     click_canvas_within(driver, canvas, 209, 293, 163, 37)
@@ -393,17 +406,30 @@ def main(driver: WebDriver) -> None:
             _after_login(fetch_time, canvas)
         except RefreshRequest:
             print('Refresh was requested.')
-            fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
-            driver.refresh()
+            while True:
+                fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
+                try:
+                    driver.refresh()
+                    break
+                except TimeoutException:
+                    time.sleep(60)
             canvas = _wait_for_page_to_present(driver)
             continue
 
 
 if __name__ == '__main__':
-    if not pathlib.Path('output').exists():
-        raise RuntimeError('`output` directory does not exist.')
-    if not pathlib.Path('output').is_dir():
-        raise RuntimeError('`output` is not a directory.')
+    log_prefix = pathlib.Path('/var/log/mahjongsoul-sniffer')
+    if not log_prefix.exists():
+        raise RuntimeError(f'`{log_prefix}` does not exist.')
+    if not log_prefix.is_dir():
+        raise RuntimeError(f'`{log_prefix}` is not a directory.')
+
+    game_abstract_crawler_log_prefix = log_prefix / 'game-abstract-crawler'
+    if not game_abstract_crawler_log_prefix.exists():
+        game_abstract_crawler_log_prefix.mkdir()
+    if not game_abstract_crawler_log_prefix.is_dir():
+        raise RuntimeError(
+            f'`{game_abstract_crawler_log_prefix}` is not a directory.')
 
     options = Options()
     options.headless = True
@@ -414,5 +440,5 @@ if __name__ == '__main__':
         try:
             main(driver)
         except Exception as e:
-            driver.get_screenshot_as_file('output/error.png')
+            _get_screenshot(driver, '99-エラー.png')
             raise

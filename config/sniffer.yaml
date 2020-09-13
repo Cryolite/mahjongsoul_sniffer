@@ -1,7 +1,7 @@
 logging:
   level: INFO
   log_file:
-    path: output/sniffer.log
+    path: /var/log/mahjongsoul-sniffer/sniffer.log
     max_bytes: 10485760
     backup_count: 10
 redis:

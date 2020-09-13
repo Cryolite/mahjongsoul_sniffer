@@ -1,7 +1,7 @@
 logging:
   level: INFO
   log_file:
-    path: output/game_abstract_archiver.log
+    path: /var/log/mahjongsoul-sniffer/game-abstract-archiver.log
     max_bytes: 10485760
     backup_count: 10
 redis:

@@ -1,31 +1,76 @@
 version: '3.8'
+
+volumes:
+  share:
+  log:
+
 services:
   redis:
     image: redis
   archiver:
     build: ../game_abstract_archiver
-    image: mahjongsoul_game_abstract_archiver
+    image: mahjongsoul-game-abstract-archiver
     volumes:
       - type: bind
         source: ../..
-        target: /mahjongsoul_sniffer
+        target: /opt/mahjongsoul-sniffer
+        read_only: true
       - type: bind
         source: "${DOT_AWS_DIR}"
-        target: /root/.aws
+        target: /home/ubuntu/.aws
         read_only: true
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
     environment:
       - AWS_PROFILE
     depends_on:
       - redis
-  crawler:
-    build: .
-    image: mahjongsoul_game_abstract_crawler
+  monitor-build:
+    build: ../game-abstract-crawler-monitor-build
+    image: mahjongsoul-game-abstract-crawler-monitor-build
     volumes:
       - type: bind
         source: ../..
-        target: /mahjongsoul_sniffer
+        target: /opt/mahjongsoul-sniffer
+        read_only: true
+      - type: volume
+        source: share
+        target: /usr/local/share/mahjongsoul-sniffer
+  monitor-run:
+    build: ../game-abstract-crawler-monitor-run
+    image: mahjongsoul-game-abstract-crawler-monitor-run
+    volumes:
+      - type: bind
+        source: ../..
+        target: /opt/mahjongsoul-sniffer
+        read_only: true
+      - type: volume
+        source: share
+        target: /usr/local/share/mahjongsoul-sniffer
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
+    depends_on:
+      - monitor-build
+    ports:
+      - target: 5000
+        published: 5000
+        protocol: tcp
+  crawler:
+    build: .
+    image: mahjongsoul-game-abstract-crawler
+    volumes:
+      - type: bind
+        source: ../..
+        target: /opt/mahjongsoul-sniffer
+        read_only: true
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
     depends_on:
       - redis
       - archiver
+      - monitor-run
     stdin_open: true
     tty: true

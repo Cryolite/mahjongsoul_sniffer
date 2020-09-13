@@ -23,8 +23,13 @@ RUN apt-get update && apt-get install -y \
     pip3 install -U protobuf && \
     wget "https://chromedriver.storage.googleapis.com/`wget -O - https://chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip" && \
     unzip chromedriver_linux64.zip -d /usr/local/bin && \
-    rm chromedriver_linux64.zip
+    rm chromedriver_linux64.zip && \
+    useradd -ms /bin/bash ubuntu && \
+    mkdir -p /var/log/mahjongsoul-sniffer && \
+    chown -R ubuntu /var/log/mahjongsoul-sniffer
 
-WORKDIR /mahjongsoul_sniffer
+USER ubuntu
+
+WORKDIR /opt/mahjongsoul-sniffer
 
 ENTRYPOINT ["./run-with-sniffer.sh", "./mahjongsoul_game_abstract_crawler.py"]
