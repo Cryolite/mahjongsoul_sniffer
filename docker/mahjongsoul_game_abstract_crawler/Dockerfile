@@ -28,8 +28,12 @@ RUN apt-get update && apt-get install -y \
     mkdir -p /var/log/mahjongsoul-sniffer && \
     chown -R ubuntu /var/log/mahjongsoul-sniffer
 
+COPY --chown=ubuntu . /opt/mahjongsoul-sniffer/
+
 USER ubuntu
 
 WORKDIR /opt/mahjongsoul-sniffer
+
+RUN protoc --python_out=. mahjongsoul_sniffer/sniffer/websocket/mahjongsoul.proto
 
 ENTRYPOINT ["./run-with-sniffer.sh", "./mahjongsoul_game_abstract_crawler.py"]

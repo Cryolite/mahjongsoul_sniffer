@@ -58,13 +58,11 @@ services:
         published: 5000
         protocol: tcp
   crawler:
-    build: .
+    build:
+      context: ../..
+      dockerfile: docker/mahjongsoul_game_abstract_crawler/Dockerfile
     image: mahjongsoul-game-abstract-crawler
     volumes:
-      - type: bind
-        source: ../..
-        target: /opt/mahjongsoul-sniffer
-        read_only: true
       - type: volume
         source: log
         target: /var/log/mahjongsoul-sniffer

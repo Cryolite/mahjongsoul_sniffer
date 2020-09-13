@@ -2,9 +2,6 @@
 
 set -uxo pipefail
 
-# .proto ファイルをコンパイルする．
-protoc --python_out=. mahjongsoul_sniffer/sniffer/websocket/mahjongsoul.proto
-
 # mitmproxy を起動する．
 mitmdump -q -s mahjongsoul_sniffer.py &
 sleep 5
