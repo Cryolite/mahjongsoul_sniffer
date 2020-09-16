@@ -75,6 +75,8 @@ _sniffer_log_path = _log_prefix / 'sniffer.log'
 def sniffer_log():
     if not _sniffer_log_path.exists():
         return ''
+    if not _sniffer_log_path.is_file():
+        flask.abort(500, f'{_sniffer_log_path}: Not a file.')
 
     if 'n' not in flask.request.args:
         n = -1
@@ -92,12 +94,39 @@ def sniffer_log():
     return ''.join(queue)
 
 
+_archiver_log_path = _log_prefix / 'game-abstract-archiver.log'
+
+
+@app.route('/archiver.log')
+def archiver_log():
+    if not _archiver_log_path.exists():
+        return ''
+    if not _archiver_log_path.is_file():
+        flask.abort(500, f'{_archiver_log_path}: Not a file.')
+
+    if 'n' not in flask.request.args:
+        n = None
+    else:
+        n = int(flask.request.args['n'])
+        if n < 0:
+            n = 0
+
+    queue = []
+    with open(_archiver_log_path) as f:
+        for line in f:
+            queue.append(line)
+            if n is not None and len(queue) > n:
+                queue.pop(0)
+
+    return ''.join(queue)
+
+
 @app.route('/running')
 def running():
     if not _sniffer_log_path.exists():
         flask.abort(404)
     if not _sniffer_log_path.is_file():
-        flask.abort(404)
+        flask.abort(500, f'{_sniffer_log_path}: Not a file.')
 
     last_activity_time = None
     with open(_sniffer_log_path) as sniffer_log:
@@ -120,4 +149,31 @@ def running():
     if now - last_activity_time > datetime.timedelta(minutes=1):
         flask.abort(404)
 
-    return 'Mahjongsoul Game Abstract Crawler is running.'
+
+    if not _archiver_log_path.exists():
+        flask.abort(404)
+    if not _archiver_log_path.is_file():
+        flask.abort(500, f'{_archiver_log_path}: Not a file.')
+
+    last_activity_time = None
+    with open(_archiver_log_path) as archiver_log:
+        target_message = 'Archived the abstract of the game '
+        time_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})')
+        for line in archiver_log:
+            if line.find(target_message) == -1:
+                continue
+            m = re.search(time_pattern, line)
+            if m is None:
+                flask.abort(404)
+            last_activity_time = datetime.datetime.strptime(
+                m.group(1), '%Y-%m-%d %H:%M:%S')
+
+    if last_activity_time is None:
+        flask.abort(404)
+
+    now = datetime.datetime.now()
+    if now - last_activity_time > datetime.timedelta(minutes=5):
+        flask.abort(404)
+
+
+    return 'MahjongSoul Game Abstract Crawler is running.'

@@ -323,6 +323,7 @@ def main():
         for writer in writers:
             writer.write(uuid=uuid, mode=game_abstract['mode'],
                          start_time=start_time)
+        logging.info(f'Archived the abstract of the game {uuid}.')
 
         finished[uuid] = start_time
 
