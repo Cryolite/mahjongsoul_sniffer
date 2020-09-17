@@ -3,8 +3,7 @@
 import datetime
 import logging
 from mitmproxy.websocket import WebSocketMessage
-import redis
-from mahjongsoul_sniffer.config import config
+import mahjongsoul_sniffer.config
 
 
 def on_login_beat(request_message: WebSocketMessage,
@@ -12,7 +11,7 @@ def on_login_beat(request_message: WebSocketMessage,
     logging.info(
         "Sniffering WebSocket messages from/to `.lq.Lobby.loginBeat'.")
 
-    r = redis.Redis(host=config.redis_host, port=config.redis_port)
+    r = mahjongsoul_sniffer.config.get_redis()
     timestamp = int(
         datetime.datetime.now(tz=datetime.timezone.utc).timestamp())
     r.hset('api-timestamp', 'loginBeat', timestamp)

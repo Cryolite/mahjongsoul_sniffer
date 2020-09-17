@@ -9,7 +9,7 @@ import google.protobuf
 import google.protobuf.json_format
 from mitmproxy.websocket import WebSocketMessage
 import redis
-from mahjongsoul_sniffer.config import config
+import mahjongsoul_sniffer.config
 from mahjongsoul_sniffer.sniffer.websocket.mahjongsoul_pb2 \
     import (FetchGameLiveListRequest, FetchGameLiveListResponse)
 
@@ -334,7 +334,7 @@ def on_fetch_game_live_list(request_message: WebSocketMessage,
         raise RuntimeError(f'''Failed to validate the following response:
 {{'protobuf': response, 'json': response_json}}''')
 
-    r = redis.Redis(host=config.redis_host, port=config.redis_port)
+    r = mahjongsoul_sniffer.config.get_redis()
 
     for game_live in response.live_list:
         uuid = game_live.uuid

@@ -13,8 +13,11 @@ import mitmproxy.websocket
 THIS_FILENAME = inspect.getframeinfo(inspect.currentframe()).filename
 THIS_DIR_PATH = os.path.dirname(os.path.abspath(THIS_FILENAME))
 sys.path.append(THIS_DIR_PATH)
-import mahjongsoul_sniffer.logging
+import mahjongsoul_sniffer.config
 import mahjongsoul_sniffer.sniffer.websocket
+
+
+mahjongsoul_sniffer.config.initialize_logging('sniffer')
 
 
 def ignore_http_flow(flow: mitmproxy.http.HTTPFlow) -> None:
