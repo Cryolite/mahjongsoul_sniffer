@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
 
-import re
 import datetime
 import pathlib
 import os.path
 import hashlib
 import os
 import flask
+import mahjongsoul_sniffer.sniffer
 
 
 app = flask.Flask(__name__)
 
 
-_html_prefix = pathlib.Path('/usr/local/share/mahjongsoul-sniffer/game-abstract-crawler-monitor')
+_html_prefix = pathlib.Path(
+    '/usr/local/share/mahjongsoul-sniffer/game-abstract-crawler-monitor')
 
 
 @app.route('/')
 def top_page():
-    return flask.send_from_directory(_html_prefix, 'index.html', mimetype='text/html')
+    return flask.send_from_directory(_html_prefix, 'index.html',
+                                     mimetype='text/html')
 
 
 @app.route('/js/<path:filename>')
@@ -26,20 +28,20 @@ def js(filename):
                                      mimetype='text/javascript')
 
 
-_log_prefix = pathlib.Path('/var/log/mahjongsoul-sniffer')
+_LOG_PREFIX = pathlib.Path('/var/log/mahjongsoul-sniffer')
 
 
-_game_abstract_crawler_log_prefix = _log_prefix / 'game-abstract-crawler'
+_CRAWLER_LOG_PREFIX = _LOG_PREFIX / 'game-abstract-crawler'
 
 
 @app.route('/screenshots.json')
 def screenshots():
     screenshots = []
-    for name in os.listdir(_game_abstract_crawler_log_prefix):
+    for name in os.listdir(_CRAWLER_LOG_PREFIX):
         if not name.endswith('.png'):
             continue
 
-        path = _game_abstract_crawler_log_prefix / name
+        path = _CRAWLER_LOG_PREFIX / name
 
         hasher = hashlib.sha512()
         with open(path, 'rb') as f:
@@ -64,116 +66,42 @@ def screenshots():
 
 @app.route('/screenshot/<path:filename>')
 def screenshot(filename):
-    return flask.send_from_directory(_game_abstract_crawler_log_prefix,
+    return flask.send_from_directory(_CRAWLER_LOG_PREFIX,
                                      filename, mimetype='image/png')
-
-
-_sniffer_log_path = _log_prefix / 'sniffer.log'
 
 
 @app.route('/sniffer.log')
 def sniffer_log():
-    if not _sniffer_log_path.exists():
-        return ''
-    if not _sniffer_log_path.is_file():
-        flask.abort(500, f'{_sniffer_log_path}: Not a file.')
-
-    if 'n' not in flask.request.args:
-        n = -1
-    else:
-        n = int(flask.request.args['n'])
-        if n < 0:
-            n = 0
-
-    queue = []
-    with open(_sniffer_log_path) as f:
-        for line in f:
-            queue.append(line)
-            if n != -1 and len(queue) > n:
-                queue.pop(0)
-    return ''.join(queue)
-
-
-_archiver_log_path = _log_prefix / 'game-abstract-archiver.log'
+    redis_client = mahjongsoul_sniffer.sniffer.RedisClient()
+    records = redis_client.get_all_log_records('log.sniffer')
+    return '\n'.join(records)
 
 
 @app.route('/archiver.log')
 def archiver_log():
-    if not _archiver_log_path.exists():
-        return ''
-    if not _archiver_log_path.is_file():
-        flask.abort(500, f'{_archiver_log_path}: Not a file.')
+    redis_client = mahjongsoul_sniffer.sniffer.RedisClient()
+    records = redis_client.get_all_log_records('log.archiver')
+    return '\n'.join(records)
 
-    if 'n' not in flask.request.args:
-        n = None
-    else:
-        n = int(flask.request.args['n'])
-        if n < 0:
-            n = 0
 
-    queue = []
-    with open(_archiver_log_path) as f:
-        for line in f:
-            queue.append(line)
-            if n is not None and len(queue) > n:
-                queue.pop(0)
-
-    return ''.join(queue)
+@app.route('/crawler.log')
+def crawler_log():
+    redis_client = mahjongsoul_sniffer.sniffer.RedisClient()
+    records = redis_client.get_all_log_records('log.crawler')
+    return '\n'.join(records)
 
 
 @app.route('/running')
 def running():
-    if not _sniffer_log_path.exists():
-        flask.abort(404)
-    if not _sniffer_log_path.is_file():
-        flask.abort(500, f'{_sniffer_log_path}: Not a file.')
+    redis_client = mahjongsoul_sniffer.sniffer.RedisClient()
+    timestamp = redis_client.get_timestamp('archiver.heartbeat')
 
-    last_activity_time = None
-    with open(_sniffer_log_path) as sniffer_log:
-        target_message = 'Sniffering WebSocket messages from/to\
- `.lq.Lobby.fetchGameLiveList`.'
-        time_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})')
-        for line in sniffer_log:
-            if line.find(target_message) == -1:
-                continue
-            m = re.search(time_pattern, line)
-            if m is None:
-                flask.abort(404)
-            last_activity_time = datetime.datetime.strptime(
-                m.group(1), '%Y-%m-%d %H:%M:%S')
-
-    if last_activity_time is None:
+    if timestamp is None:
         flask.abort(404)
 
-    now = datetime.datetime.now()
-    if now - last_activity_time > datetime.timedelta(minutes=1):
+    now = datetime.datetime.now(tz=datetime.timezone.utc)
+    threshold = datetime.timedelta(minutes=5)
+    if now - timestamp > threshold:
         flask.abort(404)
-
-
-    if not _archiver_log_path.exists():
-        flask.abort(404)
-    if not _archiver_log_path.is_file():
-        flask.abort(500, f'{_archiver_log_path}: Not a file.')
-
-    last_activity_time = None
-    with open(_archiver_log_path) as archiver_log:
-        target_message = 'Archived the abstract of the game '
-        time_pattern = re.compile(r'^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})')
-        for line in archiver_log:
-            if line.find(target_message) == -1:
-                continue
-            m = re.search(time_pattern, line)
-            if m is None:
-                flask.abort(404)
-            last_activity_time = datetime.datetime.strptime(
-                m.group(1), '%Y-%m-%d %H:%M:%S')
-
-    if last_activity_time is None:
-        flask.abort(404)
-
-    now = datetime.datetime.now()
-    if now - last_activity_time > datetime.timedelta(minutes=5):
-        flask.abort(404)
-
 
     return 'MahjongSoul Game Abstract Crawler is running.'

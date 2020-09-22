@@ -5,6 +5,7 @@ import logging
 import logging.handlers
 import yaml
 import jsonschema
+from mahjongsoul_sniffer.redis_log_handler import RedisLogHandler
 
 
 _REDIS_CONFIG_SCHEMA = {
@@ -88,18 +89,7 @@ _LOGGING_CONFIG_SCHEMA = {
                 None
             ]
         },
-        'max_bytes': {
-            'oneOf': [
-                {
-                    'type': 'integer',
-                    'minimum': 0
-                },
-                {
-                    'const': None
-                }
-            ]
-        },
-        'backup_count': {
+        'max_entries': {
             'oneOf': [
                 {
                     'type': 'integer',
@@ -159,45 +149,34 @@ if not _CONFIG_PATH.exists():
 if not _CONFIG_PATH.is_file():
     raise RuntimeError(f'{_CONFIG_PATH}: Not a file.')
 with open(_CONFIG_PATH) as config_file:
-    _config = yaml.load(config_file, Loader=yaml.Loader)
-jsonschema.validate(instance=_config, schema=_CONFIG_SCHEMA)
+    _CONFIG = yaml.load(config_file, Loader=yaml.Loader)
+jsonschema.validate(instance=_CONFIG, schema=_CONFIG_SCHEMA)
 
 
 def initialize_logging(name: str) -> None:
     default_logging_config = {
         'level': 'INFO',
-        'max_bytes': 10485760,
-        'backup_count': 10
+        'max_entries': 100
     }
 
     if name == 'sniffer':
-        log_file_path = pathlib.Path(
-            '/var/log/mahjongsoul-sniffer/sniffer.log')
-        if 'sniffer' in _config:
-            if 'logging' in _config['sniffer']:
-                logging_config = _config['sniffer']['logging']
-            else:
-                logging_config = default_logging_config
+        log_key = 'log.sniffer'
+        if 'sniffer' in _CONFIG and 'logging' in _CONFIG['sniffer']:
+            logging_config = _CONFIG['sniffer']['logging']
         else:
             logging_config = default_logging_config
     elif name == 'game abstract archiver':
-        log_file_path = pathlib.Path(
-            '/var/log/mahjongsoul-sniffer/game-abstract-archiver.log')
-        if 'game_abstract_archiver' in _config:
-            if 'logging' in _config['game_abstract_archiver']:
-                logging_config = _config['game_abstract_archiver']['logging']
-            else:
-                logging_config = default_logging_config
+        log_key = 'log.archiver'
+        if 'game_abstract_archiver' in _CONFIG \
+           and 'logging' in _CONFIG['game_abstract_archiver']:
+            logging_config = _CONFIG['game_abstract_archiver']['logging']
         else:
             logging_config = default_logging_config
     elif name == 'game abstract crawler':
-        log_file_path = pathlib.Path(
-            '/var/log/mahjongsoul-sniffer/game-abstract-crawler.log')
-        if 'game_abstract_crawler' in _config:
-            if 'logging' in _config['game_abstract_crawler']:
-                logging_config = _config['game_abstract_crawler']['logging']
-            else:
-                logging_config = default_logging_config
+        log_key = 'log.crawler'
+        if 'game_abstract_crawler' in _CONFIG \
+           and 'logging' in _CONFIG['game_abstract_crawler']:
+            logging_config = _CONFIG['game_abstract_crawler']['logging']
         else:
             logging_config = default_logging_config
     else:
@@ -218,17 +197,22 @@ def initialize_logging(name: str) -> None:
     else:
         raise ValueError(f'level == {logging_config["level"]}')
 
-    if 'max_bytes' not in logging_config or logging_config['max_bytes'] is None:
-        logging_config['max_bytes'] = 0
+    if 'max_entries' not in logging_config \
+       or logging_config['max_entries'] is None:
+        logging_config['max_entries'] = 0
 
-    if 'backup_count' not in logging_config or logging_config['backup_count'] is None:
-        logging_config['backup_count'] = 0
+    redis_config = _CONFIG['redis']
+    redis_host = redis_config['host']
+    if 'port' not in redis_config or redis_config['port'] is None:
+        redis_port = 6379
+    else:
+        redis_port = redis_config['port']
 
     log_format = '%(asctime)s:%(filename)s:%(funcName)s:%(lineno)d:\
 %(levelname)s: %(message)s'
-    log_handler = logging.handlers.RotatingFileHandler(
-        filename=log_file_path, maxBytes=logging_config['max_bytes'],
-        backupCount=logging_config['backup_count'], delay=True)
+    log_handler = RedisLogHandler(
+        host=redis_host, port=redis_port, key=log_key,
+        max_entries=logging_config['max_entries'])
     logging.basicConfig(
         format=log_format, level=logging_config['level'],
         handlers=[log_handler])
@@ -237,7 +221,7 @@ def initialize_logging(name: str) -> None:
 def get_redis():
     import redis
 
-    redis_config = _config['redis']
+    redis_config = _CONFIG['redis']
     redis_host = redis_config['host']
     if 'port' not in redis_config or redis_config['port'] is None:
         redis_port = 6379
@@ -250,15 +234,14 @@ def get_s3_bucket():
     import boto3
 
     s3 = boto3.resource('s3')
-    return s3.Bucket(_config['s3']['bucket'])
+    return s3.Bucket(_CONFIG['s3']['bucket'])
 
 
 def get_s3_key_prefix():
-    if 'key_prefix' not in _config['s3']:
+    if 'key_prefix' not in _CONFIG['s3'] \
+       or _CONFIG['s3']['key_prefix'] is None:
         return '%k/%Y/%m/%d'
-    if _config['s3']['key_prefix'] is None:
-        return '%k/%Y/%m/%d'
-    return _config['s3']['key_prefix']
+    return _CONFIG['s3']['key_prefix']
 
 
 def get_gmail_api():
@@ -266,14 +249,12 @@ def get_gmail_api():
     import googleapiclient.discovery
 
     default_token_path = pathlib.Path('google-api-token.pickle')
-    if 'google_api' not in _config:
-        token_path = default_token_path
-    elif 'token_path' not in _config['google_api']:
-        token_path = default_token_path
-    elif _config['google_api']['token_path'] is None:
+    if 'google_api' not in _CONFIG \
+       or 'token_path' not in _CONFIG['google_api'] \
+       or _CONFIG['google_api']['token_path'] is None:
         token_path = default_token_path
     else:
-        token_path = pathlib.Path(_config['google_api']['token_path'])
+        token_path = pathlib.Path(_CONFIG['google_api']['token_path'])
 
     if not token_path.exists():
         raise RuntimeError(f'{token_path}: File does not exist.')
@@ -282,5 +263,5 @@ def get_gmail_api():
     with open(token_path, 'rb') as token:
         creds = pickle.load(token)
 
-    return googleapiclient.discovery.build(
-        'gmail', 'v1', credentials=creds)
+    return googleapiclient.discovery.build('gmail', 'v1',
+                                           credentials=creds)

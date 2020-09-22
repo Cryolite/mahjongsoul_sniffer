@@ -8,13 +8,11 @@ services:
   redis:
     image: redis
   archiver:
-    build: ../game_abstract_archiver
+    build:
+      context: ../..
+      dockerfile: docker/game-abstract-archiver/Dockerfile
     image: mahjongsoul-game-abstract-archiver
     volumes:
-      - type: bind
-        source: ../..
-        target: /opt/mahjongsoul-sniffer
-        read_only: true
       - type: bind
         source: "${DOT_AWS_DIR}"
         target: /home/ubuntu/.aws
@@ -60,7 +58,7 @@ services:
   crawler:
     build:
       context: ../..
-      dockerfile: docker/mahjongsoul_game_abstract_crawler/Dockerfile
+      dockerfile: docker/game-abstract-crawler/Dockerfile
     image: mahjongsoul-game-abstract-crawler
     volumes:
       - type: volume

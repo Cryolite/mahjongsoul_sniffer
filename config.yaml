@@ -10,15 +10,12 @@ google_api:
 sniffer:
   logging:
     level: INFO
-    max_bytes: 10485760
-    backup_count: 10
+    max_entries: 100
 game_abstract_archiver:
   logging:
     level: INFO
-    max_bytes: 10485760
-    backup_count: 10
+    max_entries: 100
 game_abstract_crawler:
   logging:
     level: INFO
-    max_bytes: 10485760
-    backup_count: 10
+    max_entries: 100

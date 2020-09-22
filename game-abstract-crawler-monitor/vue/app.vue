@@ -16,6 +16,9 @@
 
   <h2>Archiver</h2>
   <textarea v-model="archiver_log" rows="30" style="width: 100%;" readonly wrap="off"></textarea>
+
+  <h2>CRAWLER</h2>
+  <textarea v-model="crawler_log" rows="30" style="width: 100%;" readonly wrap="off"></textarea>
 </div>
 </template>
 
@@ -55,9 +58,9 @@ export default {
           vm.sniffer_log = this.responseText;
         }
       };
-      sniffer_log_xhr.open("GET", "/sniffer.log?n=30");
+      sniffer_log_xhr.open("GET", "/sniffer.log");
       sniffer_log_xhr.send();
-    }, 1000);
+    }, 60000);
 
     setInterval(function () {
       var archiver_log_xhr = new XMLHttpRequest();
@@ -66,9 +69,20 @@ export default {
           vm.archiver_log = this.responseText;
         }
       };
-      archiver_log_xhr.open("GET", "/archiver.log?n=30");
+      archiver_log_xhr.open("GET", "/archiver.log");
       archiver_log_xhr.send();
-    }, 1000);
+    }, 60000);
+
+    setInterval(function () {
+      var crawler_log_xhr = new XMLHttpRequest();
+      crawler_log_xhr.onreadystatechange = function() {
+        if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
+          vm.crawler_log = this.responseText;
+        }
+      };
+      crawler_log_xhr.open("GET", "/crawler.log");
+      crawler_log_xhr.send();
+    }, 60000);
   }
 }
 </script>

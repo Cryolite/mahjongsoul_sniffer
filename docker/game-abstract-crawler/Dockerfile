@@ -4,7 +4,6 @@ RUN apt-get update && apt-get install -y \
       ca-certificates \
       fonts-ipafont \
       libnss3-tools \
-      protobuf-compiler \
       python3 \
       python3-pip \
       unzip \
@@ -20,7 +19,6 @@ RUN apt-get update && apt-get install -y \
       pyyaml \
       redis \
       selenium && \
-    pip3 install -U protobuf && \
     wget "https://chromedriver.storage.googleapis.com/`wget -O - https://chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip" && \
     unzip chromedriver_linux64.zip -d /usr/local/bin && \
     rm chromedriver_linux64.zip && \
@@ -34,6 +32,6 @@ USER ubuntu
 
 WORKDIR /opt/mahjongsoul-sniffer
 
-RUN protoc --python_out=. mahjongsoul_sniffer/sniffer/websocket/mahjongsoul.proto
+ENV PYTHONPATH /opt/mahjongsoul-sniffer
 
-ENTRYPOINT ["./run-with-sniffer.sh", "./mahjongsoul_game_abstract_crawler.py"]
+ENTRYPOINT ["bin/run-with-sniffer", "game-abstract-crawler/sniffer.py", "game-abstract-crawler/crawler.py"]
