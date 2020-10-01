@@ -86,3 +86,7 @@ class RedisClient(object):
         records = self.__redis.lrange(key, 0, -1)
         records = [record.decode('UTF-8') for record in records]
         return records
+
+    def delete(self, key: str) -> None:
+        key = key.encode('UTF-8')
+        self.__redis.delete(key)
