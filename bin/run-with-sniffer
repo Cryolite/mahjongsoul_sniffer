@@ -17,5 +17,5 @@ bin/run-chromedriver-once.py
 # 作成される証明書ストアに mitmproxy の証明書をインストールする．
 certutil -A -n mitmproxy -t 'TCu,Cu,Tu' -i ~/mitmproxy-ca-cert.crt -d "sql:$HOME/.pki/nssdb"
 
-# mitmproxy をプロキシとして第2引数に指定されたプログラムを起動する．
-http_proxy='http://localhost:8080' https_proxy='https://localhost:8080' "$2"
+# 第2引数に指定されたプログラムを起動する．
+"$2"

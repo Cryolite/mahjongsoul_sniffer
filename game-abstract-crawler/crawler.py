@@ -7,6 +7,9 @@ import time
 import logging
 import getpass
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.proxy import Proxy
+from selenium.webdriver.common.desired_capabilities \
+    import DesiredCapabilities
 from selenium.webdriver import Chrome
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -239,6 +242,8 @@ def main(driver: WebDriver) -> None:
 
     redis_client = mahjongsoul_sniffer.sniffer.RedisClient()
 
+    redis_client.delete('archiver.heartbeat')
+
     failure_count = 0
 
     while True:
@@ -273,14 +278,19 @@ def main(driver: WebDriver) -> None:
                 raise RuntimeError(
                     '`archiver` service seems stuck for 5 minutes.')
 
-            logging.warning('Refresh was requested.')
             while True:
                 fetch_time = datetime.datetime.now(
                     tz=datetime.timezone.utc)
                 try:
+                    logging.warning(
+                        'Requesting the driver to refresh the page...')
                     driver.refresh()
+                    logging.info('The driver has refreshed the page.')
                     break
                 except TimeoutException:
+                    logging.warning(
+                        'Failed to refresh the page.  Trying again\
+ requesting the driver to refresh the page after 1-minute sleep...')
                     time.sleep(60)
             canvas = _wait_for_page_to_present(driver)
             continue
@@ -295,7 +305,15 @@ if __name__ == '__main__':
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--window-size=800,600')
-    with Chrome(options=options) as driver:
+
+    proxy = Proxy()
+    proxy.http_proxy = 'localhost:8080'
+    proxy.https_proxy = 'localhost:8080'
+    capabilities = DesiredCapabilities.CHROME
+    proxy.add_to_capabilities(capabilities)
+
+    with Chrome(options=options,
+                desired_capabilities=capabilities) as driver:
         try:
             main(driver)
         except Exception as e:
