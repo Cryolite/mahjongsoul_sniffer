@@ -17,7 +17,7 @@
   <h2>Archiver</h2>
   <textarea v-model="archiver_log" rows="30" style="width: 100%;" readonly wrap="off"></textarea>
 
-  <h2>CRAWLER</h2>
+  <h2>Crawler</h2>
   <textarea v-model="crawler_log" rows="30" style="width: 100%;" readonly wrap="off"></textarea>
 </div>
 </template>
