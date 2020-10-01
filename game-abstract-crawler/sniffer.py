@@ -1,6 +1,7 @@
-import inspect
-import sys
 import os.path
+import logging
+import sys
+import inspect
 import mitmproxy.websocket
 
 # This file is executed by `mitmdump' with `execfile'. Therefore, in order to
@@ -41,4 +42,8 @@ redis_mirroring = RedisMirroring(_REDIS_MIRRORING_CONFIG)
 
 
 def websocket_message(flow: mitmproxy.websocket.WebSocketFlow) -> None:
-    redis_mirroring.on_websocket_message(flow)
+    try:
+        redis_mirroring.on_websocket_message(flow)
+    except Exception as e:
+        logging.exception(
+            '`RedisMirroring.on_websocket_message` threw an exception.')
