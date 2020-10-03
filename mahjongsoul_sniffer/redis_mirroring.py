@@ -6,10 +6,9 @@ import logging
 import json
 import base64
 import jsonschema
-import redis
 import wsproto.frame_protocol
 import mitmproxy.websocket
-import mahjongsoul_sniffer.config
+import mahjongsoul_sniffer.redis as redis_
 
 
 _NOP_ACTION_CONFIG_SCHEMA = {
@@ -19,7 +18,7 @@ _NOP_ACTION_CONFIG_SCHEMA = {
 
 _LPUSH_ACTION_CONFIG_SCHEMA = {
     'type': 'object',
-    'requiredProperties': [
+    'required': [
         'command',
         'key'
     ],
@@ -37,7 +36,7 @@ _LPUSH_ACTION_CONFIG_SCHEMA = {
 
 _LPUSHX_ACTION_CONFIG_SCHEMA = {
     'type': 'object',
-    'requiredProperties': [
+    'required': [
         'command',
         'key'
     ],
@@ -55,7 +54,7 @@ _LPUSHX_ACTION_CONFIG_SCHEMA = {
 
 _RPUSH_ACTION_CONFIG_SCHEMA = {
     'type': 'object',
-    'requiredProperties': [
+    'required': [
         'command',
         'key'
     ],
@@ -73,7 +72,7 @@ _RPUSH_ACTION_CONFIG_SCHEMA = {
 
 _RPUSHX_ACTION_CONFIG_SCHEMA = {
     'type': 'object',
-    'requiredProperties': [
+    'required': [
         'command',
         'key'
     ],
@@ -91,7 +90,7 @@ _RPUSHX_ACTION_CONFIG_SCHEMA = {
 
 _SET_ACTION_CONFIG_SCHEMA = {
     'type': 'object',
-    'requiredProperties': [
+    'required': [
         'command',
         'key'
     ],
@@ -135,7 +134,7 @@ _HTTP_CONFIG_SCHEMA = {
     'type': 'array',
     'items': {
         'type': 'object',
-        'requiredProperties': [
+        'required': [
             'url_pattern',
             'action'
         ],
@@ -152,7 +151,7 @@ _HTTP_CONFIG_SCHEMA = {
 
 _WEBSOCKET_MESSAGE_CONFIG_SCHEMA = {
     'type': 'object',
-    'requiredProperties': [
+    'required': [
         'request_direction',
         'action'
     ],
@@ -221,7 +220,7 @@ _CONFIG_SCHEMA = {
 }
 
 
-def _execute_action(data: dict, action: dict, r: redis.Redis) -> None:
+def _execute_action(data: dict, action: dict, r: redis_.Redis) -> None:
     if type(action) == str and action == 'NOP':
         return
 
@@ -252,10 +251,10 @@ def _execute_action(data: dict, action: dict, r: redis.Redis) -> None:
 
 
 class RedisMirroring(object):
-    def __init__(self, config: dict):
+    def __init__(self, *, module_name: str, config: dict):
+        self.__redis = redis_.Redis(module_name=module_name)
         jsonschema.validate(instance=config, schema=_CONFIG_SCHEMA)
         self.__config = config
-        self.__redis = mahjongsoul_sniffer.config.get_redis()
         self.__websocket_message_queue = {}
 
     def on_websocket_message(

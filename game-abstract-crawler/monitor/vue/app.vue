@@ -28,7 +28,8 @@ export default {
     return {
       screenshots: [],
       sniffer_log: "",
-      archiver_log: ""
+      archiver_log: "",
+      crawler_log: ""
     };
   },
 
@@ -52,37 +53,18 @@ export default {
     screenshots_xhr.send();
 
     setInterval(function () {
-      var sniffer_log_xhr = new XMLHttpRequest();
-      sniffer_log_xhr.onreadystatechange = function() {
+      var log_xhr = new XMLHttpRequest();
+      log_xhr.onreadystatechange = function() {
         if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
-          vm.sniffer_log = this.responseText;
+          const log = JSON.parse(this.responseText);
+          vm.sniffer_log = log.sniffer.join("\n")
+          vm.archiver_log = log.archiver.join("\n")
+          vm.crawler_log = log.crawler.join("\n")
         }
       };
-      sniffer_log_xhr.open("GET", "/sniffer.log");
-      sniffer_log_xhr.send();
-    }, 60000);
-
-    setInterval(function () {
-      var archiver_log_xhr = new XMLHttpRequest();
-      archiver_log_xhr.onreadystatechange = function() {
-        if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
-          vm.archiver_log = this.responseText;
-        }
-      };
-      archiver_log_xhr.open("GET", "/archiver.log");
-      archiver_log_xhr.send();
-    }, 60000);
-
-    setInterval(function () {
-      var crawler_log_xhr = new XMLHttpRequest();
-      crawler_log_xhr.onreadystatechange = function() {
-        if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
-          vm.crawler_log = this.responseText;
-        }
-      };
-      crawler_log_xhr.open("GET", "/crawler.log");
-      crawler_log_xhr.send();
-    }, 60000);
+      log_xhr.open("GET", "/log.json");
+      log_xhr.send();
+    }, 10000);
   }
 }
 </script>

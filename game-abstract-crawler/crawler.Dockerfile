@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     DEBIAN_FRONTEND=noninteractive apt-get install -y google-chrome-stable && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     pip3 install -U pip && pip3 install -U \
+      google-api-python-client \
       jsonschema \
       mitmproxy \
       pyyaml \
@@ -23,10 +24,10 @@ RUN apt-get update && apt-get install -y \
     unzip chromedriver_linux64.zip -d /usr/local/bin && \
     rm chromedriver_linux64.zip && \
     useradd -ms /bin/bash ubuntu && \
+    mkdir -p /opt/mahjongsoul-sniffer && \
+    chown -R ubuntu /opt/mahjongsoul-sniffer && \
     mkdir -p /var/log/mahjongsoul-sniffer && \
     chown -R ubuntu /var/log/mahjongsoul-sniffer
-
-COPY --chown=ubuntu . /opt/mahjongsoul-sniffer/
 
 USER ubuntu
 

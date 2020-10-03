@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
 
 import logging
-import redis
+import mahjongsoul_sniffer.config as config_
+import mahjongsoul_sniffer.redis as redis_
 
 
 class RedisLogHandler(logging.Handler):
-    def __init__(self, host: str, port: int, key: str,
-                 max_entries: int=0):
-        if max_entries < 0:
-            raise ValueError(f'`max_entries == {max_entries}`')
+    def __init__(self, *, module_name: str, service_name: str):
+        config = config_.get(module_name)
+        config = config[service_name]
+        config = config['logging']
+        config = config['redis']
 
         super().__init__()
-        self.__key = key.encode('UTF-8')
-        self.__max_entries = max_entries
-        self.__redis = redis.Redis(host=host, port=port)
+
+        self.__redis = redis_.Redis(module_name=module_name)
+        self.__key = config['key']
+        self.__max_entries = config['max_entries']
 
     def emit(self, record: logging.LogRecord) -> None:
         message = super().format(record)

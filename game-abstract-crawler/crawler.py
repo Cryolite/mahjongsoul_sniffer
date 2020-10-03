@@ -5,7 +5,6 @@ import random
 import pathlib
 import time
 import logging
-import getpass
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.proxy import Proxy
 from selenium.webdriver.common.desired_capabilities \
@@ -18,7 +17,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
-import mahjongsoul_sniffer.sniffer
+import mahjongsoul_sniffer.logging as logging_
+import mahjongsoul_sniffer.redis as redis_
+from mahjongsoul_sniffer.yostar_login import YostarLogin
 
 
 class RefreshRequest(Exception):
@@ -61,9 +62,8 @@ def _get_screenshot(driver: WebDriver, name: str) -> None:
 
 
 def _raise_if_gets_stuck(
-        redis_client: mahjongsoul_sniffer.sniffer.RedisClient,
-        fetch_time: datetime.datetime) -> None:
-    timestamp = redis_client.get_timestamp('archiver.heartbeat')
+        redis: redis_.Redis, fetch_time: datetime.datetime) -> None:
+    timestamp = redis.get_timestamp('archiver.heartbeat')
     if timestamp is None:
         raise RefreshRequest()
     if timestamp < fetch_time:
@@ -71,14 +71,12 @@ def _raise_if_gets_stuck(
 
 
 def _after_login(
-        fetch_time: datetime.datetime,
-        canvas: WebElement,
-        redis_client: mahjongsoul_sniffer.sniffer.RedisClient) -> None:
+        fetch_time: datetime.datetime, canvas: WebElement,
+        redis: redis_.Redis) -> None:
     login = False
     for i in range(60):
         time.sleep(1)
-        login_timestamp = redis_client.get_websocket_message(
-            key='login-beat')
+        login_timestamp = redis.get_websocket_message('login-beat')
         if login_timestamp is None:
             continue
         login_timestamp = login_timestamp['timestamp']
@@ -113,7 +111,7 @@ def _after_login(
         fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
         time.sleep(10)
-        _raise_if_gets_stuck(redis_client, fetch_time)
+        _raise_if_gets_stuck(redis, fetch_time)
         _get_screenshot(driver, '08-00-金の間・4人東風戦.png')
 
         # モードのプルダウンメニューをクリックして展開
@@ -124,7 +122,7 @@ def _after_login(
         fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
         time.sleep(10)
-        _raise_if_gets_stuck(redis_client, fetch_time)
+        _raise_if_gets_stuck(redis, fetch_time)
         _get_screenshot(driver, '08-01-金の間・4人半荘戦.png')
 
         # 部屋のプルダウンメニューをクリックして展開
@@ -143,7 +141,7 @@ def _after_login(
         fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
         time.sleep(10)
-        _raise_if_gets_stuck(redis_client, fetch_time)
+        _raise_if_gets_stuck(redis, fetch_time)
         _get_screenshot(driver, '08-02-玉の間・4人東風戦.png')
 
         # モードのプルダウンメニューをクリックして展開
@@ -154,7 +152,7 @@ def _after_login(
         fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
         time.sleep(10)
-        _raise_if_gets_stuck(redis_client, fetch_time)
+        _raise_if_gets_stuck(redis, fetch_time)
         _get_screenshot(driver, '08-03-玉の間・4人半荘戦.png')
 
         # 部屋のプルダウンメニューをクリックして展開
@@ -173,7 +171,7 @@ def _after_login(
         fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
         click_canvas_within(driver, canvas, 241, 119, 134, 30)
         time.sleep(10)
-        _raise_if_gets_stuck(redis_client, fetch_time)
+        _raise_if_gets_stuck(redis, fetch_time)
         _get_screenshot(driver, '08-04-王座の間・4人東風戦.png')
 
         # モードのプルダウンメニューをクリックして展開
@@ -184,7 +182,7 @@ def _after_login(
         fetch_time = datetime.datetime.now(tz=datetime.timezone.utc)
         click_canvas_within(driver, canvas, 241, 150, 134, 30)
         time.sleep(10)
-        _raise_if_gets_stuck(redis_client, fetch_time)
+        _raise_if_gets_stuck(redis, fetch_time)
         _get_screenshot(driver, '08-05-王座の間・4人半荘戦.png')
 
 
@@ -202,22 +200,26 @@ def main(driver: WebDriver) -> None:
     canvas = _wait_for_page_to_present(driver)
     _get_screenshot(driver, '00-ページ読み込み.png')
 
+    yostar_login = YostarLogin(module_name='game_abstract_crawler')
+
     # 「ログイン」ボタンをクリック
     click_canvas_within(driver, canvas, 540, 177, 167, 38)
     time.sleep(1)
     _get_screenshot(driver, '01-ログインボタンクリック.png')
 
-    mail_address = input('メールアドレス: ')
-
-    # 「メールアドレス」フォームに入力
+    # 「メールアドレス」フォームをクリックしてフォーカスを移動
     click_canvas_within(driver, canvas, 145, 154, 291, 30)
     time.sleep(1)
 
-    ActionChains(driver).send_keys(mail_address).perform()
+    email_address = yostar_login.get_email_address()
+
+    # 「メールアドレス」フォームにメールアドレスを入力
+    ActionChains(driver).send_keys(email_address).perform()
     time.sleep(1)
     _get_screenshot(driver, '02-メールアドレス入力.png')
 
     # 「コードを受け取る」ボタンをクリック
+    start_time = datetime.datetime.now(tz=datetime.timezone.utc)
     click_canvas_within(driver, canvas, 351, 206, 86, 36)
     time.sleep(1)
     _get_screenshot(driver, '03-コードを受け取るボタンクリック.png')
@@ -227,12 +229,14 @@ def main(driver: WebDriver) -> None:
     time.sleep(1)
     _get_screenshot(driver, '04-確認ボタンクリック.png')
 
-    auth_code = getpass.getpass(prompt='認証コード: ',)
-
-    # 「認証コード」フォームに入力
+    # 「認証コード」フォームをクリックしてフォーカスを移動
     click_canvas_within(driver, canvas, 144, 211, 196, 30)
     time.sleep(1)
 
+    auth_code = yostar_login.get_auth_code(
+        start_time=start_time, timeout=datetime.timedelta(minutes=1))
+
+    # 「認証コード」フォームに認証コードを入力
     ActionChains(driver).send_keys(auth_code).perform()
     time.sleep(1)
     _get_screenshot(driver, '05-認証コード入力.png')
@@ -240,19 +244,19 @@ def main(driver: WebDriver) -> None:
     # 「ログイン」ボタンをクリック
     click_canvas_within(driver, canvas, 209, 293, 163, 37)
 
-    redis_client = mahjongsoul_sniffer.sniffer.RedisClient()
+    redis = redis_.Redis(module_name='game_abstract_crawler')
 
-    redis_client.delete('archiver.heartbeat')
+    redis.delete('archiver.heartbeat')
 
     failure_count = 0
 
     while True:
         try:
-            _after_login(fetch_time, canvas, redis_client)
+            _after_login(fetch_time, canvas, redis)
         except RefreshRequest:
             failure_count += 1
 
-            timestamp = redis_client.get_timestamp('archiver.heartbeat')
+            timestamp = redis.get_timestamp('archiver.heartbeat')
 
             if timestamp is None:
                 if failure_count >= 3:
@@ -297,8 +301,8 @@ def main(driver: WebDriver) -> None:
 
 
 if __name__ == '__main__':
-    mahjongsoul_sniffer.config.initialize_logging(
-        'game abstract crawler')
+    logging_.initialize(module_name='game_abstract_crawler',
+                        service_name='crawler')
 
     options = Options()
     options.headless = True

@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
-import re
 import datetime
 import logging
-import json
 import typing
 import jsonschema
 import jsonschema.exceptions
 import google.protobuf.json_format
-import mahjongsoul_sniffer.config
-import mahjongsoul_sniffer.sniffer
-from mahjongsoul_sniffer.sniffer.websocket.mahjongsoul_pb2 \
+import mahjongsoul_sniffer.logging as logging_
+import mahjongsoul_sniffer.redis as redis_
+import mahjongsoul_sniffer.s3 as s3_
+from mahjongsoul_sniffer.mahjongsoul_pb2 \
     import FetchGameLiveListResponse
 
 
@@ -374,45 +373,14 @@ def _parse(message: bytes) -> typing.List[dict]:
     return game_abstract_list
 
 
-class _S3Writer(object):
-    def __init__(self):
-        self.__bucket = mahjongsoul_sniffer.config.get_s3_bucket()
-
-        key_prefix = mahjongsoul_sniffer.config.get_s3_key_prefix()
-        key_prefix = re.sub('%k', 'game-abstract', key_prefix)
-        self.__key_prefix = re.sub('/+$', '', key_prefix)
-
-        with open('schema/game-abstract.json') as schema_file:
-            self.__schema = json.load(schema_file)
-
-    def write(self, game_abstract: dict) -> None:
-        uuid = game_abstract['uuid']
-        start_time = game_abstract['start_time']
-        key_prefix = start_time.strftime(self.__key_prefix)
-        key = key_prefix + '/' + uuid
-
-        data = {
-            'uuid': uuid,
-            'mode': game_abstract['mode'],
-            'start_time': int(start_time.timestamp())
-        }
-        jsonschema.validate(instance=data, schema=self.__schema)
-        data = json.dumps(data, ensure_ascii=False, allow_nan=False,
-                          separators=(',', ':'))
-        data = data.encode('utf-8')
-
-        self.__bucket.put_object(Key=key, Body=data)
-
-
 def main():
-    redis_client = mahjongsoul_sniffer.sniffer.RedisClient()
+    redis = redis_.Redis(module_name='game_abstract_crawler')
     finished = {}
-    s3_writer = _S3Writer()
+    s3_bucket = s3_.Bucket(module_name='game_abstract_crawler')
 
     while True:
-        message = redis_client.blpop_websocket_message(
-            key='game-abstract-list')
-        redis_client.set_timestamp(key='archiver.heartbeat')
+        message = redis.blpop_websocket_message('game-abstract-list')
+        redis.set_timestamp('archiver.heartbeat')
         if message['request_direction'] != 'outbound':
             raise RuntimeError(
                 'An outbound WebSocket message is expected,\
@@ -425,7 +393,7 @@ def main():
             uuid = game_abstract['uuid']
             if uuid in finished:
                 continue
-            s3_writer.write(game_abstract)
+            s3_bucket.put_game_abstract(game_abstract)
             logging.info(f'Archived the abstract of the game {uuid}.')
             finished[uuid] = game_abstract['start_time']
 
@@ -441,9 +409,9 @@ def main():
 
 if __name__ == '__main__':
     try:
-        mahjongsoul_sniffer.config.initialize_logging(
-            'game abstract archiver')
+        logging_.initialize(module_name='game_abstract_crawler',
+                            service_name='archiver')
         main()
     except Exception as e:
-        logging.exception('An exception was thrown.')
+        logging.exception('Abort with an unhandled exception.')
         raise

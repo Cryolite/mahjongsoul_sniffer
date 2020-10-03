@@ -4,18 +4,19 @@ import sys
 import inspect
 import mitmproxy.websocket
 
-# This file is executed by `mitmdump' with `execfile'. Therefore, in order to
-# import submodules under the directory where this file exists, we need some
-# tricks. See http://stackoverflow.com/questions/3718657 for the details of
-# the tricks used in the following lines.
+# This file is executed by `mitmdump' with `execfile'. Therefore, in
+# order to import submodules under the directory where this file exists,
+# we need some tricks. See http://stackoverflow.com/questions/3718657
+# for the details of the tricks used in the following lines.
 THIS_FILENAME = inspect.getframeinfo(inspect.currentframe()).filename
 THIS_DIR_PATH = os.path.dirname(os.path.abspath(THIS_FILENAME))
 sys.path.append(THIS_DIR_PATH)
-import mahjongsoul_sniffer.config
-from mahjongsoul_sniffer.sniffer.redis_mirroring import RedisMirroring
+import mahjongsoul_sniffer.logging as logging_
+from mahjongsoul_sniffer.redis_mirroring import RedisMirroring
 
 
-mahjongsoul_sniffer.config.initialize_logging('sniffer')
+logging_.initialize(
+    module_name='game_abstract_crawler', service_name='sniffer')
 
 
 _REDIS_MIRRORING_CONFIG = {
@@ -38,7 +39,8 @@ _REDIS_MIRRORING_CONFIG = {
 }
 
 
-redis_mirroring = RedisMirroring(_REDIS_MIRRORING_CONFIG)
+redis_mirroring = RedisMirroring(
+    module_name='game_abstract_crawler', config=_REDIS_MIRRORING_CONFIG)
 
 
 def websocket_message(flow: mitmproxy.websocket.WebSocketFlow) -> None:
