@@ -53,6 +53,12 @@ services:
       - type: volume
         source: log
         target: /var/log/mahjongsoul-sniffer
+      - type: bind
+        source: "${DOT_AWS_DIR}"
+        target: /home/ubuntu/.aws
+        read_only: true
+    environment:
+      - AWS_PROFILE
     depends_on:
       - build
       - redis

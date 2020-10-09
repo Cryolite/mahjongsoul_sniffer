@@ -2,13 +2,11 @@
 
 import re
 import datetime
-import pathlib
-import pickle
 import time
-import base64
-from typing import Optional
-import googleapiclient.discovery
+import logging
+from typing import (Optional,)
 import mahjongsoul_sniffer.config as config_
+import mahjongsoul_sniffer.s3 as s3_
 
 
 class YostarLogin:
@@ -18,82 +16,72 @@ class YostarLogin:
         yostar_login_config = config['yostar_login']
         self.__email_address = yostar_login_config['email_address']
 
-        google_api_config = config['google_api']
-        self.__google_api_token_path = google_api_config['token_path']
-        self.__google_api_token_path = pathlib.Path(
-            self.__google_api_token_path)
-        if not self.__google_api_token_path.exists():
-            raise RuntimeError(
-                f'{self.__google_api_token_path}: File does not exist.')
-        if not self.__google_api_token_path.is_file():
-            raise RuntimeError(
-                f'{self.__google_api_token_path}: Not a file.')
+        self.__s3_bucket = s3_.Bucket(module_name=module_name)
 
     def get_email_address(self) -> str:
         return self.__email_address
 
     def __get_auth_code(
             self, *, start_time: datetime.datetime) -> Optional[str]:
-        with open(self.__google_api_token_path,
-                  'rb') as google_api_token:
-            google_api_creds = pickle.load(google_api_token)
-
-        # https://github.com/googleapis/google-api-python-client/issues/299
-        gmail_api = googleapiclient.discovery.build(
-            'gmail', 'v1', cache_discovery=False,
-            credentials=google_api_creds)
-
-        messages = []
-        query = f'from:info@mail.yostar.co.jp \
-subject:Eメールアドレスの確認 \
-to:{self.__email_address}'
-        result = gmail_api.users().messages().list(
-            userId='me', q=query).execute()
-        if 'messages' in result:
-            messages.extend(result['messages'])
-        while 'nextPageToken' in result:
-            next_page_token = result['nextPageToken']
-            result = gmail_api.users().messages().list(
-                userId='me', pageToken=next_page_token).execute()
-            messages.extend(result['messages'])
-        message_ids = [message['id'] for message in messages]
+        emails = self.__s3_bucket.get_authentication_emails()
 
         target_date = None
-        target_body = None
-        for message_id in message_ids:
-            result = gmail_api.users().messages().get(
-                userId='me', id=message_id).execute()
-            payload = result['payload']
+        target_content = None
 
-            date = None
-            for header in payload['headers']:
-                name = header['name']
-                value = header['value']
-                if name == 'From' and value != '<info@mail.yostar.co.jp>':
-                    date = None
-                    continue
-                if name == 'To' and value != f'<{self.__email_address}>' :
-                    date = None
-                    continue
-                if name == 'Date':
-                    fmt = '%a, %d %b %Y %H:%M:%S %z'
-                    date = datetime.datetime.strptime(value, fmt)
-                    continue
-
-            if date is None or date < start_time:
+        for key, email in emails.items():
+            if 'Date' not in email:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+            date = datetime.datetime.strptime(
+                email['Date'], '%a, %d %b %Y %H:%M:%S %z')
+            if date < start_time:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+            if target_date is not None and date < target_date:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
                 continue
 
-            if target_date is not None and date < target_date:
+            if 'From' not in email:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+            if email['From'] != 'info@mail.yostar.co.jp':
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+
+            if 'To' not in email:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+            if email['To'] != self.__email_address:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+
+            if 'Subject' not in email:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+            if email['Subject'] != 'Eメールアドレスの確認':
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
                 continue
 
             target_date = date
-            target_body = payload['body']['data']
-            target_body = base64.urlsafe_b64decode(target_body).decode('UTF-8')
+            body = email.get_body()
+            target_content = body.get_content()
 
-        if target_body is None:
+            self.__s3_bucket.delete_object(key)
+            logging.info(f'Deleted the object `{key}`.')
+
+        if target_content is None:
             return None
 
-        m = re.search('>(\\d{6})<', target_body)
+        m = re.search('>(\\d{6})<', target_content)
         if m is None:
             return None
 

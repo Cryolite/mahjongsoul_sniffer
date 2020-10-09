@@ -2,6 +2,9 @@
 
 import re
 import datetime
+import email.policy
+import email.parser
+from email.message import (EmailMessage,)
 import json
 from typing import (List,)
 import jsonschema
@@ -21,6 +24,25 @@ class Bucket:
         s3 = boto3.resource('s3')
         bucket_name = self.__config['bucket_name']
         self.__bucket = s3.Bucket(bucket_name)
+
+    def get_authentication_emails(self) -> List[EmailMessage]:
+        key_prefix = self.__config['authentication_email_key_prefix']
+
+        objects = self.__bucket.objects.filter(Prefix=key_prefix)
+
+        emails = {}
+
+        for obj in objects:
+            key = obj.key
+            obj = obj.get()
+            obj = obj['Body']
+            obj = obj.read()
+            email_parser = email.parser.BytesParser(
+                policy=email.policy.default)
+            obj = email_parser.parsebytes(obj)
+            emails[key] = obj
+
+        return emails
 
     def __get_game_abstract_schema(self) -> dict:
         if self.__game_abstract_schema is None:

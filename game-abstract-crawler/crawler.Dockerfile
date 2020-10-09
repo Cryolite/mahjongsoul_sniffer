@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     DEBIAN_FRONTEND=noninteractive apt-get install -y google-chrome-stable && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     pip3 install -U pip && pip3 install -U \
-      google-api-python-client \
+      boto3 \
       jsonschema \
       mitmproxy \
       pyyaml \

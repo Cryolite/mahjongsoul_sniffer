@@ -43,27 +43,17 @@ _S3_CONFIG_SCHEMA = {
     'type': 'object',
     'required': [
         'bucket_name',
+        'authentication_email_key_prefix',
         'game_abstract_key_prefix'
     ],
     'properties': {
         'bucket_name': {
             'type': 'string'
         },
-        'game_abstract_key_prefix': {
+        'authentication_email_key_prefix': {
             'type': 'string'
-        }
-    },
-    'additionalProperties': False
-}
-
-
-_GOOGLE_API_CONFIG_SCHEMA = {
-    'type': 'object',
-    'required': [
-        'token_path'
-    ],
-    'properties': {
-        'token_path': {
+        },
+        'game_abstract_key_prefix': {
             'type': 'string'
         }
     },
@@ -138,7 +128,6 @@ _CONFIG_SCHEMA = {
         'yostar_login',
         'redis',
         's3',
-        'google_api',
         'sniffer',
         'archiver',
         'crawler'
@@ -147,7 +136,6 @@ _CONFIG_SCHEMA = {
         'yostar_login': _YOSTAR_LOGIN_CONFIG_SCHEMA,
         'redis': _REDIS_CONFIG_SCHEMA,
         's3': _S3_CONFIG_SCHEMA,
-        'google_api': _GOOGLE_API_CONFIG_SCHEMA,
         'sniffer': {
             'type': 'object',
             'required': [
