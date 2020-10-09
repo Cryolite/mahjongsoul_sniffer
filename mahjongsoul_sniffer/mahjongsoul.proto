@@ -3234,7 +3234,7 @@ message NoTileScoreInfo {
   repeated int32 old_scores = 2;
   repeated int32 delta_scores = 3;
   repeated string hand = 4;
-  repeated string ming = 5;
+  repeated string ming_list = 5;
   repeated string doras = 6;
   uint32 score = 7;
 }
