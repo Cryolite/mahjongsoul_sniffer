@@ -278,7 +278,7 @@ class RedisMirroring(object):
         # inbound WebSocket message が存在する．おそらく，レスポンスが
         # 必要ない通知メッセージと思われる．
 
-        m = re.search(b'^(?:\x02|\x03)(..)\n.(\\.lq\\.Lobby.*)\x12',
+        m = re.search(b'^(?:\x02|\x03)(..)\n.(\\.lq\\.Lobby.*?)\x12',
                       content, flags=re.DOTALL)
         if m is not None:
             # リクエストメッセージの処理．
