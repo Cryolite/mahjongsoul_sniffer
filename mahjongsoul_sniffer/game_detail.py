@@ -1868,9 +1868,13 @@ _AN_GANG_SCHEMA = {
             'additionalItems': False
         },
         'option_presence': {
-            '$comment': 'TODO: 詳細不明．',
+            'title': '槍槓の選択肢',
+            'description': '暗槓に対する他家の槍槓の選択肢．国士無双和了に限る．',
+            '$comment': '`_DAPAI_OPTION_PRESENCE_SCHEMA` を許しているが実際にはロンのみ．',
             'type': 'array',
-            'maxItems': 0
+            'maxItems': 3,
+            'items': _DAPAI_OPTION_PRESENCE_SCHEMA,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
