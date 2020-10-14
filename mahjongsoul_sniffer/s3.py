@@ -2,6 +2,7 @@
 
 import re
 import datetime
+import logging
 import email.policy
 import email.parser
 from email.message import (EmailMessage,)
@@ -87,7 +88,14 @@ class Bucket:
         game_abstracts = []
 
         for game_abstract_object in game_abstract_objects:
-            game_abstract = game_abstract_object.get()
+            try:
+                game_abstract = game_abstract_object.get()
+            except botocore.exceptions.ClientError as e:
+                if e.response['Error']['Code'] == 'NoSuchKey':
+                    logging.info(f'Skipped getting an already deleted\
+ game abstract `{game_abstract_object.key}`.')
+                    continue
+                raise
             game_abstract = game_abstract['Body']
             game_abstract = game_abstract.read()
             game_abstract = game_abstract.decode('UTF-8')
