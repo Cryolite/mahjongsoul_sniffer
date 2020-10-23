@@ -125,7 +125,7 @@ def _after_login(
         try:
             driver.get(f'https://game.mahjongsoul.com/?paipu={uuid}')
         except TimeoutException:
-            logging.warning('Timeout occurred while loading the URL\
+            logging.warning(f'Timeout occurred while loading the URL\
  `https://game.mahjongsoul.com/?paipu={uuid}`.')
             raise RefreshRequest
 
