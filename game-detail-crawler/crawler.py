@@ -267,6 +267,10 @@ if __name__ == '__main__':
     logging_.initialize(
         module_name='game_detail_crawler', service_name='crawler')
 
+    for screenshot_path in _SCREENSHOT_PREFIX.glob('*.png'):
+        screenshot_path.unlink()
+        logging.info(f'Deleted an old screenshot `{screenshot_path}`.')
+
     options = Options()
     options.headless = True
     options.add_argument('--no-sandbox')
