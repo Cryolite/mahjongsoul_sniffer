@@ -145,7 +145,9 @@ def _after_login(
         if not got:
             logging.warning(
                 f'Failed to get the detail of the game {uuid}.')
-            continue
+            _get_screenshot(driver, '98-ゲーム詳細取得タイムアウト.png')
+            time.sleep(60)
+            raise RefreshRequest
 
         redis.rpush_websocket_message('game-detail-list', game_detail)
 
