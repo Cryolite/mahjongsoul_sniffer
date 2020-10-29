@@ -5,6 +5,7 @@ import random
 import pathlib
 import time
 import logging
+import sys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.proxy import Proxy
 from selenium.webdriver.common.desired_capabilities \
@@ -24,6 +25,10 @@ import mahjongsoul_sniffer.s3 as s3_
 
 
 class RefreshRequest(Exception):
+    pass
+
+
+class RestartRequest(Exception):
     pass
 
 
@@ -76,7 +81,8 @@ def _after_login(
             login = True
             break
     if not login:
-        raise RuntimeError('Failed to login.')
+        logging.warning('Failed to login.')
+        raise RestartRequest
     time.sleep(5)
 
     _get_screenshot(driver, '06-ロビー.png')
@@ -285,11 +291,18 @@ if __name__ == '__main__':
     capabilities = DesiredCapabilities.CHROME
     proxy.add_to_capabilities(capabilities)
 
-    with Chrome(options=options,
-                desired_capabilities=capabilities) as driver:
-        try:
-            main(driver)
-        except Exception as e:
-            _get_screenshot(driver, '99-エラー.png')
-            logging.exception('Abort with an unhandled exception.')
-            raise
+    while True:
+        with Chrome(options=options,
+                    desired_capabilities=capabilities) as driver:
+            try:
+                main(driver)
+                sys.exit()
+            except RestartRequest as e:
+                logging.info(
+                    'Restarting the crawler after 1-minute sleep...')
+                time.sleep(60)
+                continue
+            except Exception as e:
+                _get_screenshot(driver, '99-エラー.png')
+                logging.exception('Abort with an unhandled exception.')
+                raise
