@@ -13,7 +13,8 @@ from selenium.webdriver.common.desired_capabilities \
 from selenium.webdriver import Chrome
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions \
+    import (TimeoutException, UnexpectedAlertPresentException)
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
@@ -302,6 +303,15 @@ if __name__ == '__main__':
                     'Restarting the crawler after 1-minute sleep...')
                 time.sleep(60)
                 continue
+            except UnexpectedAlertPresentException as e:
+                if e.alert_text == 'Laya3D init error,must support webGL!':
+                    logging.warning('`Laya3D init error` occurred.  So,\
+ restarting the crawler after 1-minute sleep...')
+                    time.sleep(60)
+                    continue
+                _get_screenshot(driver, '99-エラー.png')
+                logging.exception('Abort with an unhandled exception.')
+                raise
             except Exception as e:
                 _get_screenshot(driver, '99-エラー.png')
                 logging.exception('Abort with an unhandled exception.')
