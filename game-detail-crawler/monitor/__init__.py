@@ -119,7 +119,7 @@ def running():
         flask.abort(404)
 
     now = datetime.datetime.now(tz=datetime.timezone.utc)
-    threshold = datetime.timedelta(minutes=5)
+    threshold = datetime.timedelta(minutes=10)
     if now - timestamp > threshold:
         flask.abort(404)
 
