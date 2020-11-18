@@ -23,6 +23,7 @@ import mahjongsoul_sniffer.logging as logging_
 from mahjongsoul_sniffer.yostar_login import YostarLogin
 import mahjongsoul_sniffer.redis as redis_
 import mahjongsoul_sniffer.s3 as s3_
+from mahjongsoul_sniffer.mahjongsoul_pb2 import FetchGameRecordResponse
 
 
 class RefreshRequest(Exception):
@@ -155,6 +156,12 @@ def _after_login(
             _get_screenshot(driver, '98-ゲーム詳細取得タイムアウト.png')
             time.sleep(60)
             raise RefreshRequest
+
+        response = FetchGameRecordResponse()
+        response.ParseFromString(game_detail['response'][3:])
+        error_code = response.content.error.code
+        if error_code != 0:
+            raise RuntimeError(f'uuid = {uuid}, error_code = {error_code}')
 
         redis.rpush_websocket_message('game-detail-list', game_detail)
 
