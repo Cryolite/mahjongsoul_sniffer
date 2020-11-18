@@ -1,0 +1,89 @@
+version: '3.8'
+
+volumes:
+  opt:
+  log:
+  srv:
+
+services:
+  build:
+    build:
+      context: ..
+      dockerfile: game-abstract-crawler/build.Dockerfile
+    image: mahjongsoul-game-abstract-crawler-build
+    volumes:
+      - type: volume
+        source: opt
+        target: /opt/mahjongsoul-sniffer
+      - type: volume
+        source: srv
+        target: /srv/mahjongsoul-sniffer
+  redis:
+    image: redis
+  archiver:
+    build:
+      context: ..
+      dockerfile: game-abstract-crawler/archiver.Dockerfile
+    image: mahjongsoul-game-abstract-archiver
+    volumes:
+      - type: volume
+        source: opt
+        target: /opt/mahjongsoul-sniffer
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
+      - type: bind
+        source: "${DOT_AWS_DIR}"
+        target: /home/ubuntu/.aws
+        read_only: true
+    environment:
+      - AWS_PROFILE
+    depends_on:
+      - build
+      - redis
+  crawler:
+    build:
+      context: ..
+      dockerfile: game-abstract-crawler/crawler.Dockerfile
+    image: mahjongsoul-game-abstract-crawler
+    volumes:
+      - type: volume
+        source: opt
+        target: /opt/mahjongsoul-sniffer
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
+      - type: bind
+        source: "${DOT_AWS_DIR}"
+        target: /home/ubuntu/.aws
+        read_only: true
+    environment:
+      - AWS_PROFILE
+    depends_on:
+      - build
+      - redis
+      - archiver
+  monitor:
+    build:
+      context: ..
+      dockerfile: game-abstract-crawler/monitor.Dockerfile
+    image: mahjongsoul-game-abstract-crawler-monitor
+    volumes:
+      - type: volume
+        source: opt
+        target: /opt/mahjongsoul-sniffer
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
+      - type: volume
+        source: srv
+        target: /srv/mahjongsoul-sniffer
+    depends_on:
+      - build
+      - redis
+      - archiver
+      - crawler
+    ports:
+      - target: 5000
+        published: 5000
+        protocol: tcp
