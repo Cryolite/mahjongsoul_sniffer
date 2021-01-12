@@ -160,6 +160,14 @@ def _after_login(
         response = FetchGameRecordResponse()
         response.ParseFromString(game_detail['response'][3:])
         error_code = response.content.error.code
+
+        if error_code == 1203:
+            # 「対戦が存在しません」
+            logging.warning(f'{uuid}: 対戦が存在しません (error_code = {error_code})')
+            s3_bucket.delete_object(key)
+            logging.warning(f'Deleted the abstract of the game {uuid}.')
+            continue
+
         if error_code != 0:
             raise RuntimeError(f'uuid = {uuid}, error_code = {error_code}')
 
