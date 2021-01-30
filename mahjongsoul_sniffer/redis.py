@@ -28,7 +28,7 @@ _WEBSOCKET_MESSAGE_SCHEMA = {
             'type': 'string'
         },
         'response': {
-            'type': 'string'
+            'type': ['string', 'null']
         },
         'timestamp': {
             'type': 'number'
@@ -96,8 +96,9 @@ class Redis:
 
         message['request'] = base64.b64encode(message['request'])
         message['request'] = message['request'].decode('UTF-8')
-        message['response'] = base64.b64encode(message['response'])
-        message['response'] = message['response'].decode('UTF-8')
+        if message['response'] is not None:
+            message['response'] = base64.b64encode(message['response'])
+            message['response'] = message['response'].decode('UTF-8')
         message['timestamp'] = message['timestamp'].timestamp()
         jsonschema.validate(
             instance=message, schema=_WEBSOCKET_MESSAGE_SCHEMA)
@@ -115,11 +116,20 @@ class Redis:
             instance=message, schema=_WEBSOCKET_MESSAGE_SCHEMA)
 
         message['request'] = base64.b64decode(message['request'])
-        message['response'] = base64.b64decode(message['response'])
+        if message['response'] is not None:
+            message['response'] = base64.b64decode(message['response'])
         message['timestamp'] = datetime.datetime.fromtimestamp(
             message['timestamp'], tz=datetime.timezone.utc)
 
         return message
+
+    def lpop_websocket_message(self, key) -> Optional[dict]:
+        message = self.lpop(key)
+
+        if message is None:
+            return None
+
+        return self.__decode_websocket_message(message)
 
     def blpop_websocket_message(self, key: str) -> dict:
         message = self.blpop(key)

@@ -40,27 +40,33 @@ Current call: module_name = {module_name},\
 
     level = config['level']
 
-    file_config = config['file']
+    handlers = []
 
-    file_path = pathlib.Path(file_config['path'])
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    if file_path.exists() and not file_path.is_file():
-        raise RuntimeError(f'{file_path}: Not a file.')
+    if 'file' in config:
+        file_config = config['file']
 
-    file_max_bytes = file_config['max_bytes']
-    file_backup_count = file_config['backup_count']
+        file_path = pathlib.Path(file_config['path'])
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        if file_path.exists() and not file_path.is_file():
+            raise RuntimeError(f'{file_path}: Not a file.')
 
-    file_handler = logging.handlers.RotatingFileHandler(
-        file_path, maxBytes=file_max_bytes,
-        backupCount=file_backup_count, delay=True)
+        file_max_bytes = file_config['max_bytes']
+        file_backup_count = file_config['backup_count']
 
-    redis_handler = RedisLogHandler(
-        module_name=module_name, service_name=service_name)
+        file_handler = logging.handlers.RotatingFileHandler(
+            file_path, maxBytes=file_max_bytes,
+            backupCount=file_backup_count, delay=True)
+        handlers.append(file_handler)
+
+    if 'redis' in config:
+        redis_handler = RedisLogHandler(
+            module_name=module_name, service_name=service_name)
+        handlers.append(redis_handler)
 
     log_format = '%(asctime)s:%(filename)s:%(funcName)s:%(lineno)d:\
 %(levelname)s: %(message)s'
     logging.basicConfig(format=log_format, level=level,
-                        handlers=[file_handler, redis_handler])
+                        handlers=handlers)
 
     _module_name = module_name
     _service_name = service_name
