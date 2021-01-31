@@ -52,13 +52,13 @@ web_server_1  |  * Debug mode: off
 web_server_1  |  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 ```
 
-### 5. Web サーバにアクセスしてサーバ証明書をダウンロードする
+### 5. Web サーバにアクセスしてルート証明書をインストールする
 
 雀魂のゲームクライアントを実行するホストから API Visualizer を実行したホストのポート番号5000に Web ブラウザでアクセスする．以下は API Visualizer を実行したホストの IP アドレスが 192.168.247.129 の場合の例．
 
 ![mahjongsoul-sniffer api-visualizer initial](https://user-images.githubusercontent.com/180041/106376020-950ff680-63d4-11eb-8df4-2145bbc54475.png)
 
-`Certificate` をクリックして証明書をダウンロードし，雀魂のゲームクライアントを実行するホストで信頼されたルート証明機関の証明書としてインストールする．
+`Certificate` をクリックして証明書をダウンロードし，雀魂のゲームクライアントを実行するホストで信頼されたルート証明機関の証明書としてインストールする．**ルート証明書をインストールすることによるセキュリティリスクを理解した上でインストールすること．**
 
 ### 6. 雀魂を実行する
 
