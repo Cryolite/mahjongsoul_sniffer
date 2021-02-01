@@ -9,7 +9,7 @@ import jsonschema
 import jsonschema.exceptions
 import google.protobuf.json_format
 from mahjongsoul_sniffer.mahjongsoul_pb2 \
-    import (FetchGameRecordResponse, GameDetailRecords, RecordNewRound,
+    import (Wrapper, ResGameRecord, GameDetailRecords, RecordNewRound,
             RecordDealTile, RecordDiscardTile, RecordChiPengGang,
             RecordAnGangAddGang, RecordHule, RecordNoTile, RecordLiuJu)
 
@@ -203,7 +203,7 @@ _SUMMARY_SCHEMA = {
                         'title': 'キャラクタ情報',
                         'type': 'object',
                         'required': [
-                            'id',
+                            'charid',
                             'level',
                             'exp',
                             'views',
@@ -212,7 +212,7 @@ _SUMMARY_SCHEMA = {
                             'extra_emoji'
                         ],
                         'properties': {
-                            'id': {
+                            'charid': {
                                 'title': 'キャラクタ ID',
                                 'type': 'integer',
                                 'minimum': 0
@@ -230,7 +230,8 @@ _SUMMARY_SCHEMA = {
                             'views': {
                                 '$comment': 'TODO: 詳細不明',
                                 'type': 'array',
-                                'maxItems': 0
+                                'maxItems': 0,
+                                'additionalItems': False
                             },
                             'skin': {
                                 '$comment': 'TODO: 詳細不明',
@@ -306,7 +307,7 @@ _SUMMARY_SCHEMA = {
                         'type': 'object',
                         'required': [
                             'id',
-                            'grading_point'
+                            'score'
                         ],
                         'properties': {
                             'id': {
@@ -336,7 +337,7 @@ _SUMMARY_SCHEMA = {
                                     10601
                                 ]
                             },
-                            'grading_point': {
+                            'score': {
                                 'title': '四人戦昇段ポイント',
                                 'type': 'integer',
                                 'minimum': 0
@@ -349,7 +350,7 @@ _SUMMARY_SCHEMA = {
                         'type': 'object',
                         'required': [
                             'id',
-                            'grading_point'
+                            'score'
                         ],
                         'properties': {
                             'id': {
@@ -379,7 +380,7 @@ _SUMMARY_SCHEMA = {
                                     20601
                                 ]
                             },
-                            'grading_point': {
+                            'score': {
                                 'title': '三人戦昇段ポイント',
                                 'type': 'integer',
                                 'minimum': 0
@@ -456,19 +457,19 @@ _SUMMARY_SCHEMA = {
                         'type': 'object',
                         'required': [
                             'seat',
-                            'total_score',
-                            'base_score',
+                            'total_point',
+                            'part_point_1',
                             'part_point_2',
-                            'grading_point',
-                            'coin'
+                            'grading_score',
+                            'gold'
                         ],
                         'properties': {
                             'seat': _SEAT_SCHEMA,
-                            'total_score': {
+                            'total_point': {
                                 'title': '順位ウマを含めた最終点数',
                                 'type': 'integer'
                             },
-                            'base_score': {
+                            'part_point_1': {
                                 'title': '順位ウマを除いた最終点数',
                                 'type': 'integer'
                             },
@@ -476,12 +477,12 @@ _SUMMARY_SCHEMA = {
                                 '$comment': 'TODO: 詳細不明',
                                 'const': 0
                             },
-                            'grading_point': {
+                            'grading_score': {
                                 'title': '段位ポイントの増減',
                                 'description': '友人戦では常に0．',
                                 'type': 'integer'
                             },
-                            'coin': {
+                            'gold': {
                                 'title': 'コインの増減',
                                 'description': '友人戦では常に0．',
                                 'type': 'integer'
@@ -502,44 +503,18 @@ _SUMMARY_SCHEMA = {
 _GAME_RECORD_SCHEMA = {
     'type': 'object',
     'required': [
-        'header',
-        'content'
+        'head',
+        'data',
+        'data_url'
     ],
     'properties': {
-        'header': {
+        'head': _SUMMARY_SCHEMA,
+        'data': {
+            'type': 'string'
+        },
+        'data_url': {
             '$comment': 'TODO: 詳細不明',
             'const': ''
-        },
-        'content': {
-            'type': 'object',
-            'required': [
-                'summary',
-                'detail',
-                'data_url'
-            ],
-            'properties': {
-                'summary': _SUMMARY_SCHEMA,
-                'detail': {
-                    'type': 'object',
-                    'required': [
-                        'header',
-                        'data'
-                    ],
-                    'properties': {
-                        'header': {
-                            'const': '.lq.GameDetailRecords'
-                        },
-                        'data': {
-                            'type': 'string'
-                        }
-                    }
-                },
-                'data_url': {
-                    '$comment': 'TODO: 詳細不明',
-                    'const': ''
-                }
-            },
-            'additionalProperties': False
         }
     },
     'additionalProperties': False
@@ -594,33 +569,33 @@ _TINGPAI_SCHEMA = {
     'title': '聴牌情報',
     'required': [
         'tile',
-        'has_yifan',
-        'damanguan_rong',
-        'fan_rong',
-        'fu_rong',
+        'haveyi',
+        'yiman',
+        'count',
+        'fu',
         'biao_dora_count',
-        'damanguan_zimo',
-        'fan_zimo',
+        'yiman_zimo',
+        'count_zimo',
         'fu_zimo'
     ],
     'properties': {
         'tile': _TILE_SCHEMA,
-        'has_yifan': {
+        'haveyi': {
             'title': '役の有無',
             'description': 'false: 役無し, true: 和了に必要な一翻がある',
             'type': 'boolean'
         },
-        'damanguan_rong': {
+        'yiman': {
             'title': '出上がり役満聴牌',
             'description': 'false: 出上がり役満聴牌ではない, true: 出上がり役満聴牌である',
             'type': 'boolean'
         },
-        'fan_rong': {
+        'count': {
             'title': '栄和の場合のドラを除いた確定翻数',
             'type': 'integer',
             'minimum': 0
         },
-        'fu_rong': {
+        'fu': {
             'title': '栄和の場合の符',
             'type': 'integer',
             'minimum': 25
@@ -630,12 +605,12 @@ _TINGPAI_SCHEMA = {
             'type': 'integer',
             'minimum': 0
         },
-        'damanguan_zimo': {
+        'yiman_zimo': {
             'title': '自模り役満聴牌',
             'description': 'false: 自模り役満聴牌ではない, true: 自模り役満聴牌である',
             'type': 'boolean'
         },
-        'fan_zimo': {
+        'count_zimo': {
             'title': '自摸和の場合のドラを除いた確定翻数',
             'type': 'integer',
             'minimum': 0
@@ -659,7 +634,9 @@ _ZIMO_OPTION_SCHEMA = {
             'type': 'object',
             'required': [
                 'type',
-                'combination'
+                'combination',
+                'change_tiles',
+                'change_tile_states'
             ],
             'properties': {
                 'type': {
@@ -670,6 +647,18 @@ _ZIMO_OPTION_SCHEMA = {
                     'type': 'array',
                     'items': _TILE_SCHEMA,
                     'additionalItems': False
+                },
+                'change_tiles': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tile_states': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 }
             },
             'additionalProperties': False
@@ -679,7 +668,9 @@ _ZIMO_OPTION_SCHEMA = {
             'type': 'object',
             'required': [
                 'type',
-                'combination'
+                'combination',
+                'change_tiles',
+                'change_tile_states'
             ],
             'properties': {
                 'type': {
@@ -733,6 +724,18 @@ _ZIMO_OPTION_SCHEMA = {
                         ]
                     },
                     'additionalItems': False
+                },
+                'change_tiles': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tile_states': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 }
             },
             'additionalProperties': False
@@ -742,7 +745,9 @@ _ZIMO_OPTION_SCHEMA = {
             'type': 'object',
             'required': [
                 'type',
-                'combination'
+                'combination',
+                'change_tiles',
+                'change_tile_states'
             ],
             'properties': {
                 'type': {
@@ -792,6 +797,18 @@ _ZIMO_OPTION_SCHEMA = {
                         ]
                     },
                     'additionalItems': False
+                },
+                'change_tiles': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tile_states': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 }
             },
             'additionalProperties': False
@@ -801,7 +818,9 @@ _ZIMO_OPTION_SCHEMA = {
             'type': 'object',
             'required': [
                 'type',
-                'combination'
+                'combination',
+                'change_tiles',
+                'change_tile_states'
             ],
             'properties': {
                 'type': {
@@ -813,6 +832,18 @@ _ZIMO_OPTION_SCHEMA = {
                     'minItems': 1,
                     'items': _TILE_SCHEMA,
                     'additionalItems': False
+                },
+                'change_tiles': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tile_states': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 }
             },
             'additionalProperties': False
@@ -822,7 +853,9 @@ _ZIMO_OPTION_SCHEMA = {
             'type': 'object',
             'required': [
                 'type',
-                'combination'
+                'combination',
+                'change_tiles',
+                'change_tile_states'
             ],
             'properties': {
                 'type': {
@@ -830,7 +863,20 @@ _ZIMO_OPTION_SCHEMA = {
                 },
                 'combination': {
                     'type': 'array',
-                    'maxItems': 0
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tiles': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tile_states': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 }
             },
             'additionalProperties': False
@@ -840,7 +886,9 @@ _ZIMO_OPTION_SCHEMA = {
             'type': 'object',
             'required': [
                 'type',
-                'combination'
+                'combination',
+                'change_tiles',
+                'change_tile_states'
             ],
             'properties': {
                 'type': {
@@ -848,7 +896,20 @@ _ZIMO_OPTION_SCHEMA = {
                 },
                 'combination': {
                     'type': 'array',
-                    'maxItems': 0
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tiles': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'change_tile_states': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 }
             },
             'additionalProperties': False
@@ -863,24 +924,24 @@ _ZIMO_OPTION_PRESENCE_SCHEMA = {
     'type': 'object',
     'required': [
         'seat',
-        'options',
-        'overtime',
-        'main_time'
+        'operation_list',
+        'time_add',
+        'time_fixed'
     ],
     'properties': {
         'seat': _SEAT_SCHEMA,
-        'options': {
+        'operation_list': {
             '$comment': '立直宣言者は打牌が自動になるので空配列になる場合がある．',
             'type': 'array',
             'items': _ZIMO_OPTION_SCHEMA,
             'additionalItems': False
         },
-        'overtime': {
+        'time_add': {
             'title': '追加考慮時間（ミリ秒）',
             'type': 'integer',
             'minimum': 0
         },
-        'main_time': {
+        'time_fixed': {
             'title': '基本考慮時間（ミリ秒）',
             'type': 'integer',
             'minimum': 0
@@ -894,181 +955,174 @@ _NEW_ROUND_SCHEMA = {
     'title': '開局',
     'type': 'object',
     'required': [
-        'header',
-        'content'
+        'chang',
+        'ju',
+        'ben',
+        'dora',
+        'scores',
+        'liqibang',
+        'tiles0',
+        'tiles1',
+        'tiles2',
+        'tiles3',
+        'tingpai',
+        'operation',
+        'md5',
+        'paishan',
+        'left_tile_count',
+        'doras',
+        'opens',
+        'operations'
     ],
     'properties': {
-        'header': {
-            'const': '.lq.RecordNewRound'
+        'chang': {
+            'title': '場',
+            'description': '0: 東場, 1: 南場, 2: 西場',
+            'enum': [0, 1, 2]
         },
-        'content': {
-            'type': 'object',
-            'required': [
-                'chang',
-                'ju',
-                'ben',
-                'dora',
-                'scores',
-                'lizhibang',
-                'qipai0',
-                'qipai1',
-                'qipai2',
-                'qipai3',
-                'tingpai_list',
-                'option_presence',
-                'paishan_code',
-                'paishan',
-                'left_tile_count',
-                'doras',
-                'opened_tiles'
-            ],
-            'properties': {
-                'chang': {
-                    'title': '場',
-                    'description': '0: 東場, 1: 南場, 2: 西場',
-                    'enum': [0, 1, 2]
-                },
-                'ju': {
-                    'title': '局',
-                    'description': '0: 1局目, 1: 2局目, 2: 3局目, 3: 4局目',
-                    'enum': [0, 1, 2, 3]
-                },
-                'ben': {
-                    'title': 'n本場',
-                    'description': '0: 0本場, 1: 1本場, ...',
-                    'type': 'integer',
-                    'minimum': 0
-                },
-                'dora': {
-                    '$comment': 'TODO: ドラは `doras` に記録されるのでこのキーの詳細が不明．',
-                    'const': ''
-                },
-                'scores': {
-                    'title': '開局時各家スコア',
-                    'description': '0: 起家, 1: 起家の下家, 2: 起家の対面, 3: 起家の上家',
-                    'type': 'array',
-                    'minItems': 3,
-                    'maxItems': 4,
-                    'items': {
-                        'type': 'integer'
-                    },
-                    'additionalItems': False
-                },
-                'lizhibang': {
-                    'title': '供託本数',
-                    'type': 'integer',
-                    'minimum': 0
-                },
-                'qipai0': {
-                    'title': '起家の配牌',
-                    '$comment': '起牌 (qipai) = 配牌',
-                    'type': 'array',
-                    'minItems': 13,
-                    'maxItems': 14,
-                    'items': _TILE_SCHEMA,
-                    'additionalItems': False
-                },
-                'qipai1': {
-                    'title': '起家の下家の配牌',
-                    '$comment': '起牌 (qipai) = 配牌',
-                    'type': 'array',
-                    'minItems': 13,
-                    'maxItems': 14,
-                    'items': _TILE_SCHEMA,
-                    'additionalItems': False
-                },
-                'qipai2': {
-                    'title': '起家の対面の配牌',
-                    '$comment': '起牌 (qipai) = 配牌',
-                    'type': 'array',
-                    'minItems': 13,
-                    'maxItems': 14,
-                    'items': _TILE_SCHEMA,
-                    'additionalItems': False
-                },
-                'qipai3': {
-                    'title': '起家の上家の配牌',
-                    '$comment': '起牌 (qipai) = 配牌',
-                    'type': 'array',
-                    'minItems': 13,
-                    'maxItems': 14,
-                    'items': _TILE_SCHEMA,
-                    'additionalItems': False
-                },
-                'tingpai_list': {
-                    'title': '配牌時の各家の聴牌情報',
-                    'type': 'array',
-                    'maxItems': 4,
-                    'items': {
-                        'type': 'object',
-                        'required': [
-                            'seat',
-                            'tingpai'
-                        ],
-                        'properties': {
-                            'seat': _SEAT_SCHEMA,
-                            'tingpai': {
-                                'type': 'array',
-                                'minItems': 1,
-                                'items': _TINGPAI_SCHEMA
-                            }
-                        },
-                        'additionalProperties': False
-                    },
-                    'additionalItems': False
-                },
-                'option_presence': _ZIMO_OPTION_PRESENCE_SCHEMA,
-                'paishan_code': {
-                    'title': '牌山コード',
-                    'type': 'string'
-                },
-                'paishan': {
-                    'title': '牌山',
-                    'type': 'string'
-                },
-                'left_tile_count': {
-                    'title': '残り自摸牌数',
-                    'enum': [
-                        69
-                    ]
-                },
-                'doras': {
-                    'title': '表ドラ表示牌',
-                    'type': 'array',
-                    'minItems': 1,
-                    'maxItems': 1,
-                    'items': _TILE_SCHEMA,
-                    'additionalItems': False
-                },
-                'opened_tiles': {
-                    '$comment': 'TODO: 詳細不明．',
-                    'type': 'array',
-                    'minItems': 3,
-                    'maxItems': 4,
-                    'items': {
-                        'type': 'object',
-                        'required': [
-                            'seat',
-                            'tiles',
-                            'count'
-                        ],
-                        'properties': {
-                            'seat': _SEAT_SCHEMA,
-                            'tiles': {
-                                'type': 'array',
-                                'maxItems': 0
-                            },
-                            'count': {
-                                'type': 'array',
-                                'maxItems': 0
-                            }
-                        },
-                        'additionalProperties': False
-                    },
-                    'additionalItems': False
-                }
+        'ju': {
+            'title': '局',
+            'description': '0: 1局目, 1: 2局目, 2: 3局目, 3: 4局目',
+            'enum': [0, 1, 2, 3]
+        },
+        'ben': {
+            'title': 'n本場',
+            'description': '0: 0本場, 1: 1本場, ...',
+            'type': 'integer',
+            'minimum': 0
+        },
+        'dora': {
+            '$comment': 'TODO: ドラは `doras` に記録されるのでこのキーの詳細が不明．',
+            'const': ''
+        },
+        'scores': {
+            'title': '開局時各家スコア',
+            'description': '0: 起家, 1: 起家の下家, 2: 起家の対面, 3: 起家の上家',
+            'type': 'array',
+            'minItems': 3,
+            'maxItems': 4,
+            'items': {
+                'type': 'integer'
             },
-            'additionalProperties': False
+            'additionalItems': False
+        },
+        'liqibang': {
+            'title': '供託本数',
+            'type': 'integer',
+            'minimum': 0
+        },
+        'tiles0': {
+            'title': '起家の配牌',
+            'type': 'array',
+            'minItems': 13,
+            'maxItems': 14,
+            'items': _TILE_SCHEMA,
+            'additionalItems': False
+        },
+        'tiles1': {
+            'title': '起家の下家の配牌',
+            'type': 'array',
+            'minItems': 13,
+            'maxItems': 14,
+            'items': _TILE_SCHEMA,
+            'additionalItems': False
+        },
+        'tiles2': {
+            'title': '起家の対面の配牌',
+            'type': 'array',
+            'minItems': 13,
+            'maxItems': 14,
+            'items': _TILE_SCHEMA,
+            'additionalItems': False
+        },
+        'tiles3': {
+            'title': '起家の上家の配牌',
+            'type': 'array',
+            'minItems': 13,
+            'maxItems': 14,
+            'items': _TILE_SCHEMA,
+            'additionalItems': False
+        },
+        'tingpai': {
+            'title': '配牌時の各家の聴牌情報',
+            'type': 'array',
+            'maxItems': 4,
+            'items': {
+                'type': 'object',
+                'required': [
+                    'seat',
+                    'tingpais1'
+                ],
+                'properties': {
+                    'seat': _SEAT_SCHEMA,
+                    'tingpais1': {
+                        'type': 'array',
+                        'minItems': 1,
+                        'items': _TINGPAI_SCHEMA,
+                        'additionalItems': False
+                    }
+                },
+                'additionalProperties': False
+            },
+            'additionalItems': False
+        },
+        'operation': _ZIMO_OPTION_PRESENCE_SCHEMA,
+        'md5': {
+            'title': '牌山コード',
+            'type': 'string'
+        },
+        'paishan': {
+            'title': '牌山',
+            'type': 'string'
+        },
+        'left_tile_count': {
+            'title': '残り自摸牌数',
+            'enum': [
+                69
+            ]
+        },
+        'doras': {
+            'title': '表ドラ表示牌',
+            'type': 'array',
+            'minItems': 1,
+            'maxItems': 1,
+            'items': _TILE_SCHEMA,
+            'additionalItems': False
+        },
+        'opens': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'minItems': 3,
+            'maxItems': 4,
+            'items': {
+                'type': 'object',
+                'required': [
+                    'seat',
+                    'tiles',
+                    'count'
+                ],
+                'properties': {
+                    'seat': _SEAT_SCHEMA,
+                    'tiles': {
+                        'type': 'array',
+                        'maxItems': 0,
+                        'additionalProperties': False
+                    },
+                    'count': {
+                        'type': 'array',
+                        'maxItems': 0,
+                        'additionalProperties': False
+                    }
+                },
+                'additionalProperties': False
+            },
+            'additionalItems': False
+        },
+        'operations': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
@@ -1080,19 +1134,24 @@ _PREV_LIZHI_SCHEMA = {
     'type': 'object',
     'required': [
         'seat',
-        'new_score',
-        'lizhibang'
+        'score',
+        'liqibang',
+        'failed'
     ],
     'properties': {
         'seat': _SEAT_SCHEMA,
-        'new_score': {
+        'score': {
             'type': 'integer',
             'minimum': 0
         },
-        'lizhibang': {
+        'liqibang': {
             '$comment': '立直棒の種類か？',
             'type': 'integer',
             'minimum': 0
+        },
+        'failed': {
+            '$comment': 'TODO: 詳細不明．',
+            'const': False
         }
     },
     'additionalProperties': False
@@ -1116,48 +1175,35 @@ _DEAL_TILE_SCHEMA = {
     'title': '自摸',
     'type': 'object',
     'required': [
-        'header',
-        'content'
+        'seat',
+        'tile',
+        'left_tile_count',
+        'doras',
+        'zhenting',
+        'operation',
+        'tile_state'
     ],
     'properties': {
-        'header': {
-            'const': '.lq.RecordDealTile'
+        'seat': _SEAT_SCHEMA,
+        'tile': _TILE_SCHEMA,
+        'left_tile_count': {
+            'title': '残り自摸牌数',
+            'type': 'integer',
+            'minimum': 0
         },
-        'content': {
-            'type': 'object',
-            'required': [
-                'seat',
-                'tile',
-                'left_tile_count',
-                'doras',
-                'zhenting',
-                'option_presence',
-                'tile_state'
-            ],
-            'properties': {
-                'seat': _SEAT_SCHEMA,
-                'tile': _TILE_SCHEMA,
-                'left_tile_count': {
-                    'title': '残り自摸牌数',
-                    'type': 'integer',
-                    'minimum': 0
-                },
-                'prev_lizhi': _PREV_LIZHI_SCHEMA,
-                'doras': {
-                    'title': 'ドラ',
-                    'description': '嶺上牌を自摸った際に新ドラを表示する必要があるために存在する．新旧の全ドラを含む．',
-                    'type': 'array',
-                    'items': _TILE_SCHEMA,
-                    'additionalItems': False
-                },
-                'zhenting': _ZHENTING_SCHEMA,
-                'option_presence': _ZIMO_OPTION_PRESENCE_SCHEMA,
-                'tile_state': {
-                    '$comment': '詳細不明．',
-                    'const': 0
-                }
-            },
-            'additionalProperties': False
+        'liqi': _PREV_LIZHI_SCHEMA,
+        'doras': {
+            'title': 'ドラ',
+            'description': '嶺上牌を自摸った際に新ドラを表示する必要があるために存在する．新旧の全ドラを含む．',
+            'type': 'array',
+            'items': _TILE_SCHEMA,
+            'additionalItems': False
+        },
+        'zhenting': _ZHENTING_SCHEMA,
+        'operation': _ZIMO_OPTION_PRESENCE_SCHEMA,
+        'tile_state': {
+            '$comment': '詳細不明．',
+            'const': 0
         }
     },
     'additionalProperties': False
@@ -1169,7 +1215,9 @@ _CHI_OPTION_SCHEMA = {
     'type': 'object',
     'required': [
         'type',
-        'combination'
+        'combination',
+        'change_tiles',
+        'change_tile_states'
     ],
     'properties': {
         'type': {
@@ -1241,6 +1289,18 @@ _CHI_OPTION_SCHEMA = {
                 ]
             },
             'additionalItems': False
+        },
+        'change_tiles': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
+        },
+        'change_tile_states': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
@@ -1252,7 +1312,9 @@ _PENG_OPTION_SCHEMA = {
     'type': 'object',
     'required': [
         'type',
-        'combination'
+        'combination',
+        'change_tiles',
+        'change_tile_states'
     ],
     'properties': {
         'type': {
@@ -1304,6 +1366,18 @@ _PENG_OPTION_SCHEMA = {
                 ]
             },
             'additionalItems': False
+        },
+        'change_tiles': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
+        },
+        'change_tile_states': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
@@ -1315,7 +1389,9 @@ _DAMINGGANG_OPTION_SCHEMA = {
     'type': 'object',
     'required': [
         'type',
-        'combination'
+        'combination',
+        'change_tiles',
+        'change_tile_states'
     ],
     'properties': {
         'type': {
@@ -1368,6 +1444,18 @@ _DAMINGGANG_OPTION_SCHEMA = {
                 ]
             },
             'additionalItems': False
+        },
+        'change_tiles': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
+        },
+        'change_tile_states': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'minItems': 0,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
@@ -1379,7 +1467,9 @@ _RONG_OPTION_SCHEMA = {
     'type': 'object',
     'required': [
         'type',
-        'combination'
+        'combination',
+        'change_tiles',
+        'change_tile_states'
     ],
     'properties': {
         'type': {
@@ -1387,7 +1477,20 @@ _RONG_OPTION_SCHEMA = {
         },
         'combination': {
             'type': 'array',
-            'maxItems': 0
+            'maxItems': 0,
+            'additionalItems': False
+        },
+        'change_tiles': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
+        },
+        'change_tile_states': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
@@ -1399,13 +1502,13 @@ _DAPAI_OPTION_PRESENCE_SCHEMA = {
     'type': 'object',
     'required': [
         'seat',
-        'options',
-        'overtime',
-        'main_time'
+        'operation_list',
+        'time_add',
+        'time_fixed'
     ],
     'properties': {
         'seat': _SEAT_SCHEMA,
-        'options': {
+        'operation_list': {
             'type': 'array',
             'minItems': 1,
             'items': {
@@ -1418,12 +1521,12 @@ _DAPAI_OPTION_PRESENCE_SCHEMA = {
             },
             'additionalItems': False
         },
-        'overtime': {
+        'time_add': {
             'title': '追加考慮時間（ミリ秒）',
             'type': 'integer',
             'minimum': 0
         },
-        'main_time': {
+        'time_fixed': {
             'title': '基本考慮時間（ミリ秒）',
             'type': 'integer',
             'minimum': 0
@@ -1437,70 +1540,58 @@ _DISCARD_TILE_SCHEMA = {
     'title': '打牌',
     'type': 'object',
     'required': [
-        'header',
-        'content'
+        'seat',
+        'tile',
+        'is_liqi',
+        'moqie',
+        'zhenting',
+        'tingpais',
+        'doras',
+        'is_wliqi',
+        'operations',
+        'tile_state'
     ],
     'properties': {
-        'header': {
-            'const': '.lq.RecordDiscardTile'
+        'seat': _SEAT_SCHEMA,
+        'tile': _TILE_SCHEMA,
+        'is_liqi': {
+            'title': '立直フラグ',
+            'description': 'false: 立直宣言ではない, true: 立直宣言である',
+            'type': 'boolean'
         },
-        'content': {
-            'type': 'object',
-            'required': [
-                'seat',
-                'tile',
-                'lizhi',
-                'moqie',
-                'zhenting',
-                'tingpai_list',
-                'doras',
-                'double_lizhi',
-                'option_presence_list',
-            ],
-            'properties': {
-                'seat': _SEAT_SCHEMA,
-                'tile': _TILE_SCHEMA,
-                'lizhi': {
-                    'title': '立直フラグ',
-                    'description': 'false: 立直宣言ではない, true: 立直宣言である',
-                    'type': 'boolean'
-                },
-                'moqie': {
-                    'title': '自摸切りフラグ',
-                    'description': 'false: 手出し, true: 自摸切り',
-                    'type': 'boolean'
-                },
-                'zhenting': _ZHENTING_SCHEMA,
-                'tingpai_list': {
-                    'title': '聴牌情報',
-                    'type': 'array',
-                    'items': _TINGPAI_SCHEMA,
-                    'additionalItems': False
-                },
-                'doras': {
-                    'title': 'ドラ',
-                    'description': '嶺上牌の自摸後の打牌時にのみ要素が存在する．新旧全てのドラを含む．',
-                    'type': 'array',
-                    'items': _TILE_SCHEMA,
-                    'additionalItems': False
-                },
-                'double_lizhi': {
-                    'title': 'ダブル立直フラグ',
-                    'description': 'false: ダブル立直宣言ではない, true: ダブル立直宣言である',
-                    'type': 'boolean'
-                },
-                'option_presence_list': {
-                    'title': '当該打牌に対する他家の選択肢',
-                    'type': 'array',
-                    'items': _DAPAI_OPTION_PRESENCE_SCHEMA,
-                    'additionalItems': False
-                },
-                'tile_state': {
-                    '$comment': 'TODO: 詳細不明．',
-                    'const': 0
-                }
-            },
-            'additionalProperties': False
+        'moqie': {
+            'title': '自摸切りフラグ',
+            'description': 'false: 手出し, true: 自摸切り',
+            'type': 'boolean'
+        },
+        'zhenting': _ZHENTING_SCHEMA,
+        'tingpais': {
+            'title': '聴牌情報',
+            'type': 'array',
+            'items': _TINGPAI_SCHEMA,
+            'additionalItems': False
+        },
+        'doras': {
+            'title': 'ドラ',
+            'description': '嶺上牌の自摸後の打牌時にのみ要素が存在する．新旧全てのドラを含む．',
+            'type': 'array',
+            'items': _TILE_SCHEMA,
+            'additionalItems': False
+        },
+        'is_wliqi': {
+            'title': 'ダブル立直フラグ',
+            'description': 'false: ダブル立直宣言ではない, true: ダブル立直宣言である',
+            'type': 'boolean'
+        },
+        'operations': {
+            'title': '当該打牌に対する他家の選択肢',
+            'type': 'array',
+            'items': _DAPAI_OPTION_PRESENCE_SCHEMA,
+            'additionalItems': False
+        },
+        'tile_state': {
+            '$comment': 'TODO: 詳細不明．',
+            'const': 0
         }
     },
     'additionalProperties': False
@@ -1516,7 +1607,8 @@ _CHI_SCHEMA = {
         'tiles',
         'froms',
         'zhenting',
-        'option_presence'
+        'operation',
+        'tile_states'
     ],
     'properties': {
         'seat': _SEAT_SCHEMA,
@@ -1629,12 +1721,14 @@ _CHI_SCHEMA = {
                 [3, 3, 2]
             ]
         },
-        'prev_lizhi': _PREV_LIZHI_SCHEMA,
+        'liqi': _PREV_LIZHI_SCHEMA,
         'zhenting': _ZHENTING_SCHEMA,
-        'option_presence': _ZIMO_OPTION_PRESENCE_SCHEMA,
+        'operation': _ZIMO_OPTION_PRESENCE_SCHEMA,
         'tile_states': {
             '$comment': 'TODO: 詳細を調査すること．',
             'type': 'array',
+            'minItems': 2,
+            'maxItems': 2,
             'items': {
                 'const': 0
             },
@@ -1654,7 +1748,8 @@ _PENG_SCHEMA = {
         'tiles',
         'froms',
         'zhenting',
-        'option_presence'
+        'operation',
+        'tile_states'
     ],
     'properties': {
         'seat': _SEAT_SCHEMA,
@@ -1725,12 +1820,14 @@ _PENG_SCHEMA = {
                 [3, 3, 2]
             ]
         },
-        'prev_lizhi': _PREV_LIZHI_SCHEMA,
+        'liqi': _PREV_LIZHI_SCHEMA,
         'zhenting': _ZHENTING_SCHEMA,
-        'option_presence': _ZIMO_OPTION_PRESENCE_SCHEMA,
+        'operation': _ZIMO_OPTION_PRESENCE_SCHEMA,
         'tile_states': {
             '$comment': 'TODO: 詳細を調査すること．',
             'type': 'array',
+            'minItems': 2,
+            'maxItems': 2,
             'items': {
                 'const': 0
             },
@@ -1819,11 +1916,13 @@ _GANG_SCHEMA = {
                 [3, 3, 3, 2]
             ]
         },
-        'prev_lizhi': _PREV_LIZHI_SCHEMA,
+        'liqi': _PREV_LIZHI_SCHEMA,
         'zhenting': _ZHENTING_SCHEMA,
         'tile_states': {
             '$comment': 'TODO: 詳細を調査すること．',
             'type': 'array',
+            'minItems': 3,
+            'maxItems': 3,
             'items': {
                 'const': 0
             },
@@ -1836,24 +1935,11 @@ _GANG_SCHEMA = {
 
 _CHI_PENG_GANG_SCHEMA = {
     'title': 'チー・ポン・カン',
-    'type': 'object',
-    'required': [
-        'header',
-        'content'
-    ],
-    'properties': {
-        'header': {
-            'const': '.lq.RecordChiPengGang'
-        },
-        'content': {
-            'oneOf': [
-                _CHI_SCHEMA,
-                _PENG_SCHEMA,
-                _GANG_SCHEMA
-            ]
-        }
-    },
-    'additionalProperties': False
+    'oneOf': [
+        _CHI_SCHEMA,
+        _PENG_SCHEMA,
+        _GANG_SCHEMA
+    ]
 }
 
 
@@ -1865,7 +1951,7 @@ _AN_GANG_SCHEMA = {
         'type',
         'tiles',
         'doras',
-        'option_presence'
+        'operations'
     ],
     'properties': {
         'seat': _SEAT_SCHEMA,
@@ -1880,7 +1966,7 @@ _AN_GANG_SCHEMA = {
             'items': _TILE_SCHEMA,
             'additionalItems': False
         },
-        'option_presence': {
+        'operations': {
             'title': '槍槓の選択肢',
             'description': '暗槓に対する他家の槍槓の選択肢．国士無双和了に限る．',
             '$comment': '`_DAPAI_OPTION_PRESENCE_SCHEMA` を許しているが実際にはロンのみ．',
@@ -1902,7 +1988,7 @@ _ADD_GANG_SCHEMA = {
         'type',
         'tiles',
         'doras',
-        'option_presence'
+        'operations'
     ],
     'properties': {
         'seat': _SEAT_SCHEMA,
@@ -1917,7 +2003,7 @@ _ADD_GANG_SCHEMA = {
             'items': _TILE_SCHEMA,
             'additionalItems': False
         },
-        'option_presence': {
+        'operations': {
             'title': '槍槓の選択肢',
             'description': '加槓に対する他家の槍槓の選択肢．',
             '$comment': '`_DAPAI_OPTION_PRESENCE_SCHEMA` を許しているが実際にはロンのみ．',
@@ -1933,23 +2019,10 @@ _ADD_GANG_SCHEMA = {
 
 _AN_GANG_ADD_GANG_SCHEMA = {
     'title': '暗槓・加槓',
-    'type': 'object',
-    'required': [
-        'header',
-        'content'
-    ],
-    'properties': {
-        'header': {
-            'const': '.lq.RecordAnGangAddGang'
-        },
-        'content': {
-            'oneOf': [
-                _AN_GANG_SCHEMA,
-                _ADD_GANG_SCHEMA
-            ]
-        }
-    },
-    'additionalProperties': False
+    'oneOf': [
+        _AN_GANG_SCHEMA,
+        _ADD_GANG_SCHEMA
+    ]
 }
 
 
@@ -1957,353 +2030,347 @@ _HULE_SCHEMA = {
     'title': '和了',
     'type': 'object',
     'required': [
-        'header',
-        'content'
+        'hules',
+        'old_scores',
+        'delta_scores',
+        'wait_timeout',
+        'scores',
+        'gameend',
+        'doras'
     ],
     'properties': {
-        'header': {
-            'const': '.lq.RecordHule'
+        'hules': {
+            'type': 'array',
+            'minItems': 1,
+            'maxItems': 3,
+            'items': {
+                'type': 'object',
+                'required': [
+                    'hand',
+                    'ming',
+                    'hu_tile',
+                    'seat',
+                    'zimo',
+                    'qinjia',
+                    'liqi',
+                    'doras',
+                    'li_doras',
+                    'yiman',
+                    'count',
+                    'fans',
+                    'fu',
+                    'title',
+                    'point_rong',
+                    'point_zimo_qin',
+                    'point_zimo_xian',
+                    'title_id',
+                    'point_sum',
+                    'dadian'
+                ],
+                'properties': {
+                    'hand': {
+                        'title': '和了時の手牌',
+                        'type': 'array',
+                        'minItems': 1,
+                        'maxItems': 13,
+                        'items': _TILE_SCHEMA,
+                        'additionalItems': False
+                    },
+                    'ming': {
+                        'title': '和了時の副露牌',
+                        'description': '"shunzi(X,Y,Z)": チー, "kezi(X,Y,Z)": ポン, "minggang(X,Y,Z,W)": 明槓, "angang(X,Y,Z,W)": 暗槓',
+                        'type': 'array',
+                        'maxItems': 4,
+                        'items': {
+                            'type': 'string'
+                        },
+                        'additionalItems': False
+                    },
+                    'hu_tile': _TILE_SCHEMA,
+                    'seat': _SEAT_SCHEMA,
+                    'zimo': {
+                        'title': '自模和フラグ',
+                        'type': 'boolean'
+                    },
+                    'qinjia': {
+                        'title': '庄家（親）フラグ',
+                        'type': 'boolean'
+                    },
+                    'liqi': {
+                        'title': '立直フラグ',
+                        'type': 'boolean'
+                    },
+                    'doras': {
+                        'title': '表ドラ表示牌',
+                        'type': 'array',
+                        'minItems': 1,
+                        'maxItems': 5,
+                        'items': _TILE_SCHEMA,
+                        'additionalItems': False
+                    },
+                    'li_doras': {
+                        'title': '裏ドラ表示牌',
+                        'type': 'array',
+                        'maxItems': 5,
+                        'items': _TILE_SCHEMA,
+                        'additionalItems': False
+                    },
+                    'yiman': {
+                        'title': '役満フラグ',
+                        'description': 'false: 三倍満以下, true: 役満以上',
+                        'type': 'boolean'
+                    },
+                    'count': {
+                        'title': '翻数',
+                        'description': '役満以上の場合，役満ならば1，二倍役満ならば2，三倍役満ならば3，以下同様．',
+                        'type': 'integer',
+                        'minimum': 1
+                    },
+                    'fans': {
+                        'title': '役',
+                        'type': 'array',
+                        'minItems': 1,
+                        'items': {
+                            'type': 'object',
+                            'required': [
+                                'name',
+                                'val',
+                                'id'
+                            ],
+                            'properties': {
+                                'name': {
+                                    '$comment': '詳細不明．',
+                                    'const': ''
+                                },
+                                'val': {
+                                    'title': '役毎の翻数',
+                                    'description': '裏ドラの場合に0がありうる．また役満以上の場合，役満ならば1，二倍役満ならば2．',
+                                    'type': 'integer',
+                                    'minimum': 0
+                                },
+                                'id': {
+                                    'title': '役 ID',
+                                    'description': '1: 門前清自摸和, '
+                                                   '2: 立直, '
+                                                   '3: 槍槓, '
+                                                   '4: 嶺上開花, '
+                                                   '5: 海底摸月, '
+                                                   '6: 河底撈魚, '
+                                                   '7: 役牌白, '
+                                                   '8: 役牌發, '
+                                                   '9: 役牌中, '
+                                                   '10: 役牌:自風牌, '
+                                                   '11: 役牌:場風牌, '
+                                                   '12: 断幺九, '
+                                                   '13: 一盃口, '
+                                                   '14: 平和, '
+                                                   '15: 混全帯幺九, '
+                                                   '16: 一気通貫, '
+                                                   '17: 三色同順, '
+                                                   '18: ダブル立直, '
+                                                   '19: 三色同刻, '
+                                                   '20: 三槓子, '
+                                                   '21: 対々和, '
+                                                   '22: 三暗刻, '
+                                                   '23: 小三元, '
+                                                   '24: 混老頭, '
+                                                   '25: 七対子, '
+                                                   '26: 純全帯幺九, '
+                                                   '27: 混一色, '
+                                                   '28: 二盃口, '
+                                                   '29: 清一色, '
+                                                   '30: 一発, '
+                                                   '31: ドラ, '
+                                                   '32: 赤ドラ, '
+                                                   '33: 裏ドラ, '
+                                                   '35: 天和, '
+                                                   '36: 地和, '
+                                                   '37: 大三元, '
+                                                   '38: 四暗刻, '
+                                                   '39: 字一色, '
+                                                   '40: 緑一色, '
+                                                   '41: 清老頭, '
+                                                   '42: 国士無双, '
+                                                   '43: 小四喜, '
+                                                   '44: 四槓子, '
+                                                   '45: 九蓮宝燈, '
+                                                   '47: 純正九蓮宝燈, '
+                                                   '48: 四暗刻単騎, '
+                                                   '49: 国士無双十三面待ち, '
+                                                   '50: 大四喜',
+                                    'type': 'integer',
+                                    'enum': [
+                                        1,
+                                        2,
+                                        3,
+                                        4,
+                                        5,
+                                        6,
+                                        7,
+                                        8,
+                                        9,
+                                        10,
+                                        11,
+                                        12,
+                                        13,
+                                        14,
+                                        15,
+                                        16,
+                                        17,
+                                        18,
+                                        19,
+                                        20,
+                                        21,
+                                        22,
+                                        23,
+                                        24,
+                                        25,
+                                        26,
+                                        27,
+                                        28,
+                                        29,
+                                        30,
+                                        31,
+                                        32,
+                                        33,
+                                        35,
+                                        36,
+                                        37,
+                                        38,
+                                        39,
+                                        40,
+                                        41,
+                                        42,
+                                        43,
+                                        44,
+                                        45,
+                                        47,
+                                        48,
+                                        49,
+                                        50
+                                    ]
+                                }
+                            },
+                            'additionalProperties': False
+                        },
+                        'additionalItems': False
+                    },
+                    'fu': {
+                        'title': '符',
+                        'type': 'integer',
+                        'minimum': 20
+                    },
+                    'title': {
+                        '$comment': 'TODO: 詳細不明．',
+                        'const': ''
+                    },
+                    'point_rong': {
+                        'title': '栄和の支払い',
+                        'type': 'integer',
+                        'minimum': 0
+                    },
+                    'point_zimo_qin': {
+                        'title': '散家（子）の自摸和の場合の庄家（親）の支払い',
+                        'type': 'integer',
+                        'minimum': 0
+                    },
+                    'point_zimo_xian': {
+                        'title': '自摸和の場合の散家（子）の支払い',
+                        'type': 'integer',
+                        'minimum': 0
+                    },
+                    'title_id': {
+                        'description': '0: 満貫未満, '
+                                       '1: 満貫, '
+                                       '2: 跳満, '
+                                       '3: 倍満, '
+                                       '4: 三倍満, '
+                                       '5: 役満, '
+                                       '6: 二倍役満, '
+                                       '7: 三倍役満, '
+                                       '11: 数え役満',
+                        'enum': [
+                            0,
+                            1,
+                            2,
+                            3,
+                            4,
+                            5,
+                            6,
+                            7,
+                            11
+                        ]
+                    },
+                    'point_sum': {
+                        'title': '得点',
+                        'description': '和了の演出で右下に表示される数字．',
+                        '$comment': 'TODO: 状況により詳細不明な値になることがある．',
+                        'type': 'integer',
+                        'minimum': 1000
+                    },
+                    'dadian': {
+                        '$coment': 'TODO: 詳細不明．',
+                        'const': 0
+                    }
+                },
+                'additionalProperties': False
+            },
+            'additionalItems': False
         },
-        'content': {
+        'old_scores': {
+            'title': '清算前点数',
+            'type': 'array',
+            'minItems': 3,
+            'maxItems': 4,
+            'items': {
+                'type': 'integer'
+            },
+            'additionalItems': False
+        },
+        'delta_scores': {
+            'title': '点数収支',
+            'type': 'array',
+            'minItems': 3,
+            'maxItems': 4,
+            'items': {
+                'type': 'integer'
+            },
+            'additionalItems': False
+        },
+        'wait_timeout': {
+            '$comment': 'TODO: 詳細不明．',
+            'const': 0
+        },
+        'scores': {
+            'title': '清算後点数',
+            'type': 'array',
+            'minItems': 3,
+            'maxItems': 4,
+            'items': {
+                'type': 'integer'
+            },
+            'additionalItems': False
+        },
+        'gameend': {
+            '$comment': 'TODO: 詳細不明．',
             'type': 'object',
             'required': [
-                'hule_list',
-                'old_scores',
-                'delta_scores',
-                'wait_timeout',
-                'new_scores',
-                'gameend',
-                'doras'
+                'scores'
             ],
             'properties': {
-                'hule_list': {
+                'scores': {
                     'type': 'array',
-                    'minItems': 1,
-                    'maxItems': 3,
-                    'items': {
-                        'type': 'object',
-                        'required': [
-                            'hand',
-                            'ming_list',
-                            'hupai',
-                            'seat',
-                            'zimo',
-                            'zhuangjia',
-                            'lizhi',
-                            'doras',
-                            'li_doras',
-                            'damanguan',
-                            'fan',
-                            'fans',
-                            'fu',
-                            'title',
-                            'point_rong',
-                            'point_zimo_zhuangjia',
-                            'point_zimo_sanjia',
-                            'fan_title_id',
-                            'point_sum'
-                        ],
-                        'properties': {
-                            'hand': {
-                                'title': '和了時の手牌',
-                                'type': 'array',
-                                'minItems': 1,
-                                'maxItems': 13,
-                                'items': _TILE_SCHEMA,
-                                'additionalItems': False
-                            },
-                            'ming_list': {
-                                'title': '和了時の副露牌',
-                                'description': '"shunzi(X,Y,Z)": チー, "kezi(X,Y,Z)": ポン, "minggang(X,Y,Z,W)": 明槓, "angang(X,Y,Z,W)": 暗槓',
-                                'type': 'array',
-                                'maxItems': 4,
-                                'items': {
-                                    'type': 'string'
-                                },
-                                'additionalItems': False
-                            },
-                            'hupai': _TILE_SCHEMA,
-                            'seat': _SEAT_SCHEMA,
-                            'zimo': {
-                                'title': '自模和フラグ',
-                                'type': 'boolean'
-                            },
-                            'zhuangjia': {
-                                'title': '庄家（親）フラグ',
-                                'type': 'boolean'
-                            },
-                            'lizhi': {
-                                'title': '立直フラグ',
-                                'type': 'boolean'
-                            },
-                            'doras': {
-                                'title': '表ドラ表示牌',
-                                'type': 'array',
-                                'minItems': 1,
-                                'maxItems': 5,
-                                'items': _TILE_SCHEMA,
-                                'additionalItems': False
-                            },
-                            'li_doras': {
-                                'title': '裏ドラ表示牌',
-                                'type': 'array',
-                                'maxItems': 5,
-                                'items': _TILE_SCHEMA,
-                                'additionalItems': False
-                            },
-                            'damanguan': {
-                                'title': '役満フラグ',
-                                'description': 'false: 三倍満以下, true: 役満以上',
-                                'type': 'boolean'
-                            },
-                            'fan': {
-                                'title': '翻数',
-                                'description': '役満以上の場合，役満ならば1，二倍役満ならば2，三倍役満ならば3，以下同様．',
-                                'type': 'integer',
-                                'minimum': 1
-                            },
-                            'fans': {
-                                'title': '役',
-                                'type': 'array',
-                                'minItems': 1,
-                                'items': {
-                                    'type': 'object',
-                                    'required': [
-                                        'name',
-                                        'val',
-                                        'id'
-                                    ],
-                                    'properties': {
-                                        'name': {
-                                            '$comment': '詳細不明．',
-                                            'const': ''
-                                        },
-                                        'val': {
-                                            'title': '役毎の翻数',
-                                            'description': '裏ドラの場合に0がありうる．また役満以上の場合，役満ならば1，二倍役満ならば2．',
-                                            'type': 'integer',
-                                            'minimum': 0
-                                        },
-                                        'id': {
-                                            'title': '役 ID',
-                                            'description': '1: 門前清自摸和, '
-                                                           '2: 立直, '
-                                                           '3: 槍槓, '
-                                                           '4: 嶺上開花, '
-                                                           '5: 海底摸月, '
-                                                           '6: 河底撈魚, '
-                                                           '7: 役牌白, '
-                                                           '8: 役牌發, '
-                                                           '9: 役牌中, '
-                                                           '10: 役牌:自風牌, '
-                                                           '11: 役牌:場風牌, '
-                                                           '12: 断幺九, '
-                                                           '13: 一盃口, '
-                                                           '14: 平和, '
-                                                           '15: 混全帯幺九, '
-                                                           '16: 一気通貫, '
-                                                           '17: 三色同順, '
-                                                           '18: ダブル立直, '
-                                                           '19: 三色同刻, '
-                                                           '20: 三槓子, '
-                                                           '21: 対々和, '
-                                                           '22: 三暗刻, '
-                                                           '23: 小三元, '
-                                                           '24: 混老頭, '
-                                                           '25: 七対子, '
-                                                           '26: 純全帯幺九, '
-                                                           '27: 混一色, '
-                                                           '28: 二盃口, '
-                                                           '29: 清一色, '
-                                                           '30: 一発, '
-                                                           '31: ドラ, '
-                                                           '32: 赤ドラ, '
-                                                           '33: 裏ドラ, '
-                                                           '35: 天和, '
-                                                           '36: 地和, '
-                                                           '37: 大三元, '
-                                                           '38: 四暗刻, '
-                                                           '39: 字一色, '
-                                                           '40: 緑一色, '
-                                                           '41: 清老頭, '
-                                                           '42: 国士無双, '
-                                                           '43: 小四喜, '
-                                                           '44: 四槓子, '
-                                                           '45: 九蓮宝燈, '
-                                                           '47: 純正九蓮宝燈, '
-                                                           '48: 四暗刻単騎, '
-                                                           '49: 国士無双十三面待ち, '
-                                                           '50: 大四喜',
-                                            'type': 'integer',
-                                            'enum': [
-                                                1,
-                                                2,
-                                                3,
-                                                4,
-                                                5,
-                                                6,
-                                                7,
-                                                8,
-                                                9,
-                                                10,
-                                                11,
-                                                12,
-                                                13,
-                                                14,
-                                                15,
-                                                16,
-                                                17,
-                                                18,
-                                                19,
-                                                20,
-                                                21,
-                                                22,
-                                                23,
-                                                24,
-                                                25,
-                                                26,
-                                                27,
-                                                28,
-                                                29,
-                                                30,
-                                                31,
-                                                32,
-                                                33,
-                                                35,
-                                                36,
-                                                37,
-                                                38,
-                                                39,
-                                                40,
-                                                41,
-                                                42,
-                                                43,
-                                                44,
-                                                45,
-                                                47,
-                                                48,
-                                                49,
-                                                50
-                                            ]
-                                        }
-                                    },
-                                    'additionalProperties': False
-                                },
-                                'additionalItems': False
-                            },
-                            'fu': {
-                                'title': '符',
-                                'type': 'integer',
-                                'minimum': 20
-                            },
-                            'title': {
-                                '$comment': 'TODO: 詳細不明．',
-                                'const': ''
-                            },
-                            'point_rong': {
-                                'title': '栄和の支払い',
-                                'type': 'integer',
-                                'minimum': 0
-                            },
-                            'point_zimo_zhuangjia': {
-                                'title': '散家（子）の自摸和の場合の庄家（親）の支払い',
-                                'type': 'integer',
-                                'minimum': 0
-                            },
-                            'point_zimo_sanjia': {
-                                'title': '自摸和の場合の散家（子）の支払い',
-                                'type': 'integer',
-                                'minimum': 0
-                            },
-                            'fan_title_id': {
-                                'description': '0: 満貫未満, '
-                                               '1: 満貫, '
-                                               '2: 跳満, '
-                                               '3: 倍満, '
-                                               '4: 三倍満, '
-                                               '5: 役満, '
-                                               '6: 二倍役満, '
-                                               '7: 三倍役満, '
-                                               '11: 数え役満',
-                                'enum': [
-                                    0,
-                                    1,
-                                    2,
-                                    3,
-                                    4,
-                                    5,
-                                    6,
-                                    7,
-                                    11
-                                ]
-                            },
-                            'point_sum': {
-                                'title': '得点',
-                                'description': '和了の演出で右下に表示される数字．',
-                                '$comment': 'TODO: 状況により詳細不明な値になることがある．',
-                                'type': 'integer',
-                                'minimum': 1000
-                            }
-                        },
-                        'additionalProperties': False
-                    },
+                    'maxItems': 0,
                     'additionalItems': False
-                },
-                'old_scores': {
-                    'title': '清算前点数',
-                    'type': 'array',
-                    'minItems': 3,
-                    'maxItems': 4,
-                    'items': {
-                        'type': 'integer'
-                    },
-                    'additionalItems': False
-                },
-                'delta_scores': {
-                    'title': '点数収支',
-                    'type': 'array',
-                    'minItems': 3,
-                    'maxItems': 4,
-                    'items': {
-                        'type': 'integer'
-                    },
-                    'additionalItems': False
-                },
-                'wait_timeout': {
-                    '$comment': 'TODO: 詳細不明．',
-                    'const': 0
-                },
-                'new_scores': {
-                    'title': '清算後点数',
-                    'type': 'array',
-                    'minItems': 3,
-                    'maxItems': 4,
-                    'items': {
-                        'type': 'integer'
-                    },
-                    'additionalItems': False
-                },
-                'gameend': {
-                    '$comment': 'TODO: 詳細不明．',
-                    'type': 'object',
-                    'required': [
-                        'scores'
-                    ],
-                    'properties': {
-                        'scores': {
-                            'type': 'array',
-                            'maxItems': 0
-                        }
-                    },
-                    'additionalProperties': False
-                },
-                'doras': {
-                    '$comment': 'TODO: 詳細不明．',
-                    'type': 'array',
-                    'maxItems': 0
                 }
             },
             'additionalProperties': False
+        },
+        'doras': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
@@ -2314,149 +2381,148 @@ _NO_TILE_SCHEMA = {
     'title': '荒牌平局',
     'type': 'object',
     'required': [
-        'header',
-        'content'
+        'liujumanguan',
+        'players',
+        'scores',
+        'gameend',
+        'hules_history'
     ],
     'properties': {
-        'header': {
-            'const': '.lq.RecordNoTile'
+        'liujumanguan': {
+            'title': '流し満貫フラグ',
+            'description': 'false: 流し満貫ではない, true: 流し満貫である',
+            'type': 'boolean'
         },
-        'content': {
-            'type': 'object',
-            'required': [
-                'liujumanguan',
-                'players',
-                'scores',
-                'gameend'
-            ],
-            'properties': {
-                'liujumanguan': {
-                    'title': '流し満貫フラグ',
-                    'description': 'false: 流し満貫ではない, true: 流し満貫である',
-                    'type': 'boolean'
-                },
-                'players': {
-                    'type': 'array',
-                    'minItems': 3,
-                    'maxItems': 4,
-                    'items': {
-                        'type': 'object',
-                        'required': [
-                            'tingpai',
-                            'hand',
-                            'tingpai_list'
-                        ],
-                        'properties': {
-                            'tingpai': {
-                                'title': '聴牌フラグ',
-                                'description': 'false: 不聴, true: 聴牌',
-                                'type': 'boolean'
-                            },
-                            'hand': {
-                                'title': '聴牌時の手牌',
-                                'description': '不聴の場合は空配列',
-                                'type': 'array',
-                                'maxItems': 13,
-                                'items': _TILE_SCHEMA,
-                                'additionalItems': False
-                            },
-                            'tingpai_list': {
-                                'type': 'array',
-                                'items': _TINGPAI_SCHEMA,
-                                'additionalItems': False
-                            }
-                        },
-                        'additionalProperties': False
+        'players': {
+            'type': 'array',
+            'minItems': 3,
+            'maxItems': 4,
+            'items': {
+                'type': 'object',
+                'required': [
+                    'tingpai',
+                    'hand',
+                    'tings',
+                    'already_hule'
+                ],
+                'properties': {
+                    'tingpai': {
+                        'title': '聴牌フラグ',
+                        'description': 'false: 不聴, true: 聴牌',
+                        'type': 'boolean'
                     },
-                    'additionalItems': False
-                },
-                'scores': {
-                    'type': 'array',
-                    'minItems': 1,
-                    'maxItems': 1,
-                    'items': {
-                        'type': 'object',
-                        'required': [
-                            'seat',
-                            'old_scores',
-                            'delta_scores',
-                            'hand',
-                            'ming_list',
-                            'doras',
-                            'score'
-                        ],
-                        'properties': {
-                            'seat': _SEAT_SCHEMA, # 流し満貫達成者．通常の荒牌平局では0．
-                            'old_scores': {
-                                'title': '開局時の点数',
-                                'type': 'array',
-                                'minItems': 3,
-                                'maxItems': 4,
-                                'items': {
-                                    'type': 'integer'
-                                },
-                                'additionalItems': False
-                            },
-                            'delta_scores': {
-                                'title': '点数収支',
-                                'description': '全員聴牌または全員不聴で点数収支が無い場合は空配列',
-                                'type': 'array',
-                                'maxItems': 4,
-                                'items': {
-                                    'type': 'integer'
-                                },
-                                'additionalItems': False
-                            },
-                            'hand': {
-                                'title': '流し満貫達成者の手牌',
-                                'description': '通常の荒牌平局では空配列．',
-                                '$comment': '流し満貫の達成に手牌は関係ないが，和了の演出を流用しているために便宜上必要と思われる．',
-                                'type': 'array',
-                                'maxItems': 13,
-                                'items': _TILE_SCHEMA,
-                                'additionalItems': False
-                            },
-                            'ming_list': {
-                                'title': '流し満貫達成者の副露牌',
-                                'description': '"shunzi(X,Y,Z)": チー, "kezi(X,Y,Z)": ポン, "minggang(X,Y,Z,W)": 明槓, "angang(X,Y,Z,W)": 暗槓',
-                                '$comment': '雀魂の流し満貫は面前でなくても良い．',
-                                'type': 'array',
-                                'maxItems': 4,
-                                'items': {
-                                    'type': 'string'
-                                },
-                                'additionalItems': False
-                            },
-                            'doras': {
-                                'title': '流し満貫達成時の表ドラ表示牌',
-                                'description': '通常の荒牌平局では空配列．',
-                                '$comment': '流し満貫にドラは関係ないが，和了の演出を流用しているために便宜上必要と思われる．',
-                                'type': 'array',
-                                'maxItems': 5,
-                                'items': _TILE_SCHEMA,
-                                'additionalItems': False
-                            },
-                            'score': {
-                                'title': '流し満貫達成時の得点',
-                                'description': '通常の荒牌平局では0．',
-                                '$comment': '流し満貫達成の演出（和了の演出を流用）で右下に表示される数字．',
-                                'enum': [
-                                    0,
-                                    8000,
-                                    12000
-                                ]
-                            }
-                        },
-                        'additionalProperties': False
+                    'hand': {
+                        'title': '聴牌時の手牌',
+                        'description': '不聴の場合は空配列',
+                        'type': 'array',
+                        'maxItems': 13,
+                        'items': _TILE_SCHEMA,
+                        'additionalItems': False
                     },
-                    'additionalItems': False
+                    'tings': {
+                        'type': 'array',
+                        'items': _TINGPAI_SCHEMA,
+                        'additionalItems': False
+                    },
+                    'already_hule': {
+                        '$comment': 'TODO: 詳細不明．',
+                        'const': False
+                    }
                 },
-                'gameend': {
-                    '$comment': 'TODO: 詳細不明．',
-                    'const': False
-                }
+                'additionalProperties': False
             },
-            'additionalProperties': False
+            'additionalItems': False
+        },
+        'scores': {
+            'type': 'array',
+            'minItems': 1,
+            'maxItems': 1,
+            'items': {
+                'type': 'object',
+                'required': [
+                    'seat',
+                    'old_scores',
+                    'delta_scores',
+                    'hand',
+                    'ming',
+                    'doras',
+                    'score'
+                ],
+                'properties': {
+                    'seat': _SEAT_SCHEMA, # 流し満貫達成者．通常の荒牌平局では0．
+                    'old_scores': {
+                        'title': '開局時の点数',
+                        'type': 'array',
+                        'minItems': 3,
+                        'maxItems': 4,
+                        'items': {
+                            'type': 'integer'
+                        },
+                        'additionalItems': False
+                    },
+                    'delta_scores': {
+                        'title': '点数収支',
+                        'description': '全員聴牌または全員不聴で点数収支が無い場合は空配列',
+                        'type': 'array',
+                        'maxItems': 4,
+                        'items': {
+                            'type': 'integer'
+                        },
+                        'additionalItems': False
+                    },
+                    'hand': {
+                        'title': '流し満貫達成者の手牌',
+                        'description': '通常の荒牌平局では空配列．',
+                        '$comment': '流し満貫の達成に手牌は関係ないが，和了の演出を流用しているために便宜上必要と思われる．',
+                        'type': 'array',
+                        'maxItems': 13,
+                        'items': _TILE_SCHEMA,
+                        'additionalItems': False
+                    },
+                    'ming': {
+                        'title': '流し満貫達成者の副露牌',
+                        'description': '"shunzi(X,Y,Z)": チー, "kezi(X,Y,Z)": ポン, "minggang(X,Y,Z,W)": 明槓, "angang(X,Y,Z,W)": 暗槓',
+                        '$comment': '雀魂の流し満貫は面前でなくても良い．',
+                        'type': 'array',
+                        'maxItems': 4,
+                        'items': {
+                            'type': 'string'
+                        },
+                        'additionalItems': False
+                    },
+                    'doras': {
+                        'title': '流し満貫達成時の表ドラ表示牌',
+                        'description': '通常の荒牌平局では空配列．',
+                        '$comment': '流し満貫にドラは関係ないが，和了の演出を流用しているために便宜上必要と思われる．',
+                        'type': 'array',
+                        'maxItems': 5,
+                        'items': _TILE_SCHEMA,
+                        'additionalItems': False
+                    },
+                    'score': {
+                        'title': '流し満貫達成時の得点',
+                        'description': '通常の荒牌平局では0．',
+                        '$comment': '流し満貫達成の演出（和了の演出を流用）で右下に表示される数字．',
+                        'enum': [
+                            0,
+                            8000,
+                            12000
+                        ]
+                    }
+                },
+                'additionalProperties': False
+            },
+            'additionalItems': False
+        },
+        'gameend': {
+            '$comment': 'TODO: 詳細不明．',
+            'const': False
+        },
+        'hules_history': {
+            '$comment': 'TODO: 詳細不明．',
+            'type': 'array',
+            'maxItems': 0,
+            'additionalItems': False
         }
     },
     'additionalProperties': False
@@ -2465,141 +2531,160 @@ _NO_TILE_SCHEMA = {
 
 _LIU_JU_SCHEMA = {
     'title': '途中流局',
-    'type': 'object',
-    'required': [
-        'header',
-        'content'
-    ],
-    'properties': {
-        'header': {
-            'const': '.lq.RecordLiuJu'
-        },
-        'content': {
-            'oneOf': [
-                {
-                    'title': '九種九牌',
-                    'type': 'object',
-                    'required': [
-                        'type',
-                        'seat',
-                        'hand',
-                        'allplayertiles'
-                    ],
-                    'properties': {
-                        'type': {
-                            'const': 1
-                        },
-                        'seat': _SEAT_SCHEMA,
-                        'hand': {
-                            'title': '九種九牌の場合の手牌',
-                            'type': 'array',
-                            'minItems': 14,
-                            'maxItems': 14,
-                            'items': _TILE_SCHEMA,
-                            'additionalItems': False
-                        },
-                        'allplayertiles': {
-                            '$comment': 'TODO: 詳細不明．',
-                            'type': 'array',
-                            'maxItems': 0
-                        }
-                    },
-                    'additionalProperties': False
+    'oneOf': [
+        {
+            'title': '九種九牌',
+            'type': 'object',
+            'required': [
+                'type',
+                'seat',
+                'tiles',
+                'allplayertiles',
+                'hules_history'
+            ],
+            'properties': {
+                'type': {
+                    'const': 1
                 },
-                {
-                    'title': '四風連打',
-                    'type': 'object',
-                    'required': [
-                        'type',
-                        'seat',
-                        'hand',
-                        'allplayertiles'
-                    ],
-                    'properties': {
-                        'type': {
-                            'const': 2
-                        },
-                        'seat': {
-                            'const': 0
-                        },
-                        'hand': {
-                            'type': 'array',
-                            'maxItems': 0
-                        },
-                        'allplayertiles': {
-                            '$comment': 'TODO: 詳細不明．',
-                            'type': 'array',
-                            'maxItems': 0
-                        }
-                    },
-                    'additionalProperties': False
+                'seat': _SEAT_SCHEMA,
+                'tiles': {
+                    'title': '九種九牌の場合の手牌',
+                    'type': 'array',
+                    'minItems': 14,
+                    'maxItems': 14,
+                    'items': _TILE_SCHEMA,
+                    'additionalItems': False
                 },
-                {
-                    'title': '四槓散了',
-                    'type': 'object',
-                    'required': [
-                        'type',
-                        'seat',
-                        'hand',
-                        'allplayertiles'
-                    ],
-                    'properties': {
-                        'type': {
-                            'const': 3
-                        },
-                        'seat': {
-                            'const': 0
-                        },
-                        'hand': {
-                            'type': 'array',
-                            'maxItems': 0
-                        },
-                        'allplayertiles': {
-                            'type': 'array',
-                            'maxItems': 0
-                        }
-                    },
-                    'additionalProperties': False
+                'allplayertiles': {
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 },
-                {
-                    'title': '四家立直',
-                    'type': 'object',
-                    'required': [
-                        'type',
-                        'seat',
-                        'hand',
-                        'allplayertiles'
-                    ],
-                    'properties': {
-                        'type': {
-                            'const': 4
-                        },
-                        'seat': {
-                            'const': 0
-                        },
-                        'hand': {
-                            'type': 'array',
-                            'maxItems': 0
-                        },
-                        'allplayertiles': {
-                            'title': '四家立直成立時の全員の手牌',
-                            'description': '手牌は牌を "|" で区切った文字列として表される．'
-                                           '例えば "4m|5m|6m|1p|1p|0p|6p|7p|3s|4s|5s|5s|7s"．',
-                            'type': 'array',
-                            'minItems': 3,
-                            'maxItems': 4,
-                            'items': {
-                                'type': 'string'
-                            },
-                            'additionalItems': False
-                        }
-                    },
-                    'additionalProperties': False
+                'hules_history': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
                 }
-            ]
+            },
+            'additionalProperties': False
+        },
+        {
+            'title': '四風連打',
+            'type': 'object',
+            'required': [
+                'type',
+                'seat',
+                'tiles',
+                'allplayertiles',
+                'hules_history'
+            ],
+            'properties': {
+                'type': {
+                    'const': 2
+                },
+                'seat': {
+                    'const': 0
+                },
+                'tiles': {
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'allplayertiles': {
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'hules_history': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                }
+            },
+            'additionalProperties': False
+        },
+        {
+            'title': '四槓散了',
+            'type': 'object',
+            'required': [
+                'type',
+                'seat',
+                'tiles',
+                'allplayertiles',
+                'hules_history'
+            ],
+            'properties': {
+                'type': {
+                    'const': 3
+                },
+                'seat': {
+                    'const': 0
+                },
+                'tiles': {
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'allplayertiles': {
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'hules_history': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                }
+            },
+            'additionalProperties': False
+        },
+        {
+            'title': '四家立直',
+            'type': 'object',
+            'required': [
+                'type',
+                'seat',
+                'tiles',
+                'allplayertiles',
+                'hules_history'
+            ],
+            'properties': {
+                'type': {
+                    'const': 4
+                },
+                'seat': {
+                    'const': 0
+                },
+                'tiles': {
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                },
+                'allplayertiles': {
+                    'title': '四家立直成立時の全員の手牌',
+                    'description': '手牌は牌を "|" で区切った文字列として表される．'
+                                   '例えば "4m|5m|6m|1p|1p|0p|6p|7p|3s|4s|5s|5s|7s"．',
+                    'type': 'array',
+                    'minItems': 3,
+                    'maxItems': 4,
+                    'items': {
+                        'type': 'string'
+                    },
+                    'additionalItems': False
+                },
+                'hules_history': {
+                    '$comment': 'TODO: 詳細不明．',
+                    'type': 'array',
+                    'maxItems': 0,
+                    'additionalItems': False
+                }
+            },
+            'additionalProperties': False
         }
-    },
-    'additionalProperties': False
+    ]
 }
 
 
@@ -2632,8 +2717,14 @@ json: {json.dumps(message_json)}''')
 
 
 def validate(message: bytes) -> None:
-    response = FetchGameRecordResponse()
-    response.ParseFromString(message[3:])
+    wrapper = Wrapper()
+    wrapper.ParseFromString(message[3:])
+
+    if wrapper.name != '':
+        raise RuntimeError(f'''{wrapper.name}: An unexpected name.''')
+
+    response = ResGameRecord()
+    response.ParseFromString(wrapper.data)
 
     response_json = google.protobuf.json_format.MessageToDict(
         response, including_default_value_fields=True,
@@ -2643,14 +2734,21 @@ def validate(message: bytes) -> None:
             instance=response_json, schema=_GAME_RECORD_SCHEMA)
     except jsonschema.exceptions.ValidationError as e:
         logging.exception('Failed to validate the detail of a game.')
-        uuid = response.content.summary.uuid
+        uuid = response.head.uuid
         raise ValidationError(
             uuid, None, None, None, None, None, message, response_json)
 
-    uuid = response.content.summary.uuid
+    uuid = response.head.uuid
+
+    wrapper = Wrapper()
+    wrapper.ParseFromString(response.data)
+
+    if wrapper.name != '.lq.GameDetailRecords':
+        raise ValidationError(uuid, None, None, None, None, message,
+                              response_json)
 
     records = GameDetailRecords()
-    records.ParseFromString(response.content.detail.data)
+    records.ParseFromString(wrapper.data)
 
     schema_list = [
         (b'^\n\x12\\.lq\\.RecordNewRound\x12', '.lq.RecordNewRound',
@@ -2677,33 +2775,39 @@ def validate(message: bytes) -> None:
     index = 0
 
     for record in records.records:
-        header = None
-        constructor = None
+        name = None
+        message_type = None
         schema = None
-        for pattern, h, c, s in schema_list:
+        for pattern, n, t, s in schema_list:
             m = re.search(pattern, record, re.DOTALL)
             if m is not None:
-                header = h
-                constructor = c
+                name = n
+                message_type = t
                 schema = s
                 break
-        if header is None:
-            assert(constructor is None)
+        if name is None:
+            assert(message_type is None)
             assert(schema is None)
             raise RuntimeError(f'An unknown record: {record}')
 
-        assert(header is not None)
-        assert(constructor is not None)
+        assert(name is not None)
+        assert(message_type is not None)
         assert(schema is not None)
 
-        parse = constructor()
-        parse.ParseFromString(record)
+        wrapper = Wrapper()
+        wrapper.ParseFromString(record)
 
-        if header == '.lq.RecordNewRound':
-            chang = parse.content.chang
+        if wrapper.name != name:
+            raise RuntimeError(f'''{wrapper.name}: An unexpected name.''')
+
+        parse = message_type()
+        parse.ParseFromString(wrapper.data)
+
+        if name == '.lq.RecordNewRound':
+            chang = parse.chang
             chang = ['東', '南', '西'][chang]
-            ju = parse.content.ju
-            ben = parse.content.ben
+            ju = parse.ju
+            ben = parse.ben
 
         parse_json = google.protobuf.json_format.MessageToDict(
             parse, including_default_value_fields=True,
@@ -2712,21 +2816,27 @@ def validate(message: bytes) -> None:
             jsonschema.validate(instance=parse_json, schema=schema)
         except jsonschema.exceptions.ValidationError as e:
             logging.exception(f'''Failed to validate the record\
- `{header}` of the game {uuid}:
+ `{name}` of the game {uuid}:
 record: {record}
 json: {json.dumps(parse_json)}''')
-            raise ValidationError(uuid, chang, ju, ben, index, header,
+            raise ValidationError(uuid, chang, ju, ben, index, name,
                                   message, response_json)
 
         index += 1
 
 
-def get_game_abstract(message: bytes) -> None:
-    parse = FetchGameRecordResponse()
-    parse.ParseFromString(message[3:])
+def get_game_abstract(message: bytes) -> dict:
+    wrapper = Wrapper()
+    wrapper.ParseFromString(message[3:])
 
-    uuid = parse.content.summary.uuid
-    start_time = parse.content.summary.start_time
+    if wrapper.name != '':
+        raise RuntimeError(f'''{wrapper.name}: An unexpected name.''')
+
+    parse = ResGameRecord()
+    parse.ParseFromString(wrapper.data)
+
+    uuid = parse.head.uuid
+    start_time = parse.head.start_time
     start_time = datetime.datetime.fromtimestamp(
         start_time, tz=datetime.timezone.utc)
 
