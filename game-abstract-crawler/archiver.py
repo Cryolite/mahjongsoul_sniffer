@@ -10,7 +10,7 @@ import mahjongsoul_sniffer.logging as logging_
 import mahjongsoul_sniffer.redis as redis_
 import mahjongsoul_sniffer.s3 as s3_
 from mahjongsoul_sniffer.mahjongsoul_pb2 \
-    import FetchGameLiveListResponse
+    import (Wrapper, ResGameLiveList)
 
 
 _GAME_LIVE_LIST_SCHEMA = {
@@ -154,7 +154,7 @@ _GAME_LIVE_LIST_SCHEMA = {
                             'type': 'object',
                             'required': [
                                 'id',
-                                'grading_point'
+                                'score'
                             ],
                             'properties': {
                                 'id': {
@@ -168,7 +168,7 @@ _GAME_LIVE_LIST_SCHEMA = {
                                     'type': 'integer',
                                     'minimum': 0
                                 },
-                                'grading_point': {
+                                'score': {
                                     'title': '四人戦昇段ポイント',
                                     'type': 'integer',
                                     'minimum': 0
@@ -179,7 +179,7 @@ _GAME_LIVE_LIST_SCHEMA = {
                         'character': {
                             'type': 'object',
                             'required': [
-                                'id',
+                                'charid',
                                 'level',
                                 'exp',
                                 'views',
@@ -188,7 +188,7 @@ _GAME_LIVE_LIST_SCHEMA = {
                                 'extra_emoji'
                             ],
                             'properties': {
-                                'id': {
+                                'charid': {
                                     'type': 'integer',
                                     'minimum': 0,
                                 },
@@ -230,7 +230,7 @@ _GAME_LIVE_LIST_SCHEMA = {
                             'type': 'object',
                             'required': [
                                 'id',
-                                'grading_point'
+                                'score'
                             ],
                             'properties': {
                                 'id': {
@@ -244,7 +244,7 @@ _GAME_LIVE_LIST_SCHEMA = {
                                     'type': 'integer',
                                     'minimum': 0
                                 },
-                                'grading_point': {
+                                'score': {
                                     'title': '三人戦昇段ポイント',
                                     'type': 'integer',
                                     'minimum': 0
@@ -307,9 +307,14 @@ _GAME_LIVE_LIST_SCHEMA = {
 
 
 def _parse(message: bytes) -> typing.List[dict]:
-    result = FetchGameLiveListResponse()
-    result.ParseFromString(message[3:])
-    result = result.content
+    wrapper = Wrapper()
+    wrapper.ParseFromString(message[3:])
+
+    if wrapper.name != '':
+        raise RuntimeError(f'''{wrapper.name}: An unexpected name.''')
+
+    result = ResGameLiveList()
+    result.ParseFromString(wrapper.data)
 
     result_json = google.protobuf.json_format.MessageToDict(
         result, including_default_value_fields=True,
@@ -320,7 +325,8 @@ def _parse(message: bytes) -> typing.List[dict]:
     except jsonschema.exceptions.ValidationError:
         raise RuntimeError(
             f'''Failed to validate the following WebSocket message:
-{{'protobuf': message, 'json': result_json}}''')
+protobuf: {message}
+JSON: {result_json}''')
 
     game_abstract_list = []
 
