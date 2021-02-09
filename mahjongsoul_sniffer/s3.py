@@ -77,7 +77,7 @@ class Bucket:
 
     def get_game_abstracts(self, max_keys: int=1000) -> List[dict]:
         key_prefix = self.__config['game_abstract_key_prefix']
-        key_prefix = re.sub('/*$', '', key_prefix)
+        key_prefix = key_prefix.rstrip('/') + '/'
 
         # https://github.com/boto/boto3/issues/2186
         game_abstract_objects = self.__bucket.objects.filter(
