@@ -23,7 +23,7 @@ import mahjongsoul_sniffer.logging as logging_
 from mahjongsoul_sniffer.yostar_login import YostarLogin
 import mahjongsoul_sniffer.redis as redis_
 import mahjongsoul_sniffer.s3 as s3_
-from mahjongsoul_sniffer.mahjongsoul_pb2 import FetchGameRecordResponse
+from mahjongsoul_sniffer.mahjongsoul_pb2 import (ResGameRecord, Wrapper)
 
 
 class RefreshRequest(Exception):
@@ -157,9 +157,15 @@ def _after_login(
             time.sleep(60)
             raise RefreshRequest
 
-        response = FetchGameRecordResponse()
-        response.ParseFromString(game_detail['response'][3:])
-        error_code = response.content.error.code
+        wrapper = Wrapper()
+        wrapper.ParseFromString(game_detail['response'][3:])
+        if wrapper.name != '':
+            raise RuntimeError(
+                f'''{wrapper.name}: An unexpected name.''')
+
+        response = ResGameRecord()
+        response.ParseFromString(wrapper.data)
+        error_code = response.error.code
 
         if error_code == 1203:
             # 「対戦が存在しません」

@@ -7,8 +7,9 @@ import json
 import base64
 import jsonschema
 import wsproto.frame_protocol
-import mitmproxy.websocket
+from mitmproxy.websocket import WebSocketFlow
 import mahjongsoul_sniffer.redis as redis_
+from mahjongsoul_sniffer import mahjongsoul_pb2
 
 
 _NOP_ACTION_CONFIG_SCHEMA = {
@@ -159,7 +160,8 @@ _WEBSOCKET_MESSAGE_CONFIG_SCHEMA = {
         'request_direction': {
             'enum': [
                 'inbound',
-                'outbound'
+                'outbound',
+                'both'
             ]
         },
         'action': _ACTION_CONFIG_SCHEMA
@@ -168,46 +170,28 @@ _WEBSOCKET_MESSAGE_CONFIG_SCHEMA = {
 }
 
 
+_METHOD_NAMES = []
+for sdesc in mahjongsoul_pb2.DESCRIPTOR.services_by_name.values():
+    for mdesc in sdesc.methods:
+        _METHOD_NAMES.append('.' + mdesc.full_name)
+
+
+_MESSAGE_TYPE_NAMES = []
+for tdesc in mahjongsoul_pb2.DESCRIPTOR.message_types_by_name.values():
+    _MESSAGE_TYPE_NAMES.append('.' + tdesc.full_name)
+
+
 _WEBSOCKET_CONFIG_SCHEMA = {
     'type': 'object',
-    'properties': {
-        '.lq.Lobby.heatbeat': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.oauth2Auth': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.oauth2Check': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.oauth2Login': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchServerTime': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchServerSettings': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchConnectionInfo': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchPhoneLoginBind': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchClientValue': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchFriendList': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchFriendApplyList': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchMailInfo': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchDailyTask': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchReviveCoinInfo': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchTitleList': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchBagInfo': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchShopInfo': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchActivityList': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchAccountActivityData': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchVipReward': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchMonthTicketInfo': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchCommentSetting': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchAccountSettings': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchModNicknameTime': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchMisc': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchAnnouncement': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchRollingNotice': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchCharacterInfo': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchAllCommonViews': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchCollectedGameRecordList': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.loginBeat': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchGameLiveList': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchGameRecordList': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA,
-        '.lq.Lobby.fetchGameRecord': _WEBSOCKET_MESSAGE_CONFIG_SCHEMA
-    },
+    'properties': {},
     'additionalProperties': False
 }
+for mname in _METHOD_NAMES:
+    _WEBSOCKET_CONFIG_SCHEMA['properties'][mname] \
+        = _WEBSOCKET_MESSAGE_CONFIG_SCHEMA
+for tname in _MESSAGE_TYPE_NAMES:
+    _WEBSOCKET_CONFIG_SCHEMA['properties'][tname] \
+        = _WEBSOCKET_MESSAGE_CONFIG_SCHEMA
 
 
 _CONFIG_SCHEMA = {
@@ -257,8 +241,7 @@ class RedisMirroring(object):
         self.__config = config
         self.__websocket_message_queue = {}
 
-    def on_websocket_message(
-            self, flow: mitmproxy.websocket.WebSocketFlow) -> None:
+    def on_websocket_message(self, flow: WebSocketFlow) -> None:
         if len(flow.messages) == 0:
             raise RuntimeError(f'`len(flow.messages)` == 0')
         message = flow.messages[-1]
@@ -274,49 +257,72 @@ class RedisMirroring(object):
 
         content = message.content
 
-        # TODO: b'^\x01\n.(\\.lq\\.Lobby.*)\x12' というパタンの
-        # inbound WebSocket message が存在する．おそらく，レスポンスが
-        # 必要ない通知メッセージと思われる．
-
-        m = re.search(b'^(?:\x02|\x03)(..)\n.(\\.lq\\.Lobby.*?)\x12',
-                      content, flags=re.DOTALL)
+        m = re.search(b'^(?:\x01|\x02..)\n.(.*?)\x12', content,
+                      flags=re.DOTALL)
         if m is not None:
-            # リクエストメッセージの処理．
-            # 対応するレスポンスメッセージが検出されるまでメッセージを
-            # キューに保存しておく．
-            number = int.from_bytes(m.group(1), byteorder='little')
-            if number in self.__websocket_message_queue:
-                prev_request = self.__websocket_message_queue[number]
-                logging.warning(f'''There is not any response message\
+            type_ = content[0]
+            assert(type_ in [1, 2])
+
+            number = None
+            if type_ == 2:
+                number = int.from_bytes(content[1:2],
+                                        byteorder='little')
+
+            name = m.group(1).decode('UTF-8')
+
+            if type_ == 2:
+                # レスポンスメッセージを期待するリクエストメッセージの処理．
+                # 対応するレスポンスメッセージが検出されるまでメッセージを
+                # キューに保存しておく．
+                if number in self.__websocket_message_queue:
+                    prev_request = self.__websocket_message_queue[number]
+                    logging.warning(f'''There is not any response message\
  for the following WebSocket request message:
 direction: {prev_request['direction']}
 content: {prev_request['request']}''')
-            header = m.group(2).decode('UTF-8')
-            self.__websocket_message_queue[number] = {
-                'direction': direction,
-                'header': header,
-                'request': content
-            }
-            return
+
+                self.__websocket_message_queue[number] = {
+                    'direction': direction,
+                    'name': name,
+                    'request': content
+                }
+
+                return
+
+            # レスポンスを必要としないリクエストメッセージの処理．
+            assert(type_ == 1)
+            assert(number is None)
+
+            request_direction = direction
+            request = content
+
+            if request_direction == 'outbound':
+                direction = 'inbound'
+            else:
+                assert(request_direction == 'inbound')
+                direction = 'outbound'
+            response = None
         else:
             # レスポンスメッセージ．
             # キューから対応するリクエストメッセージを探し出す．
-            m = re.search(b'^(?:\x02|\x03)(..)\n\x00\x12', content,
+            m = re.search(b'^\x03..\n\x00\x12', content,
                           flags=re.DOTALL)
             if m is None:
                 raise RuntimeError(
-                    f'''An unsupported WebSocket message:
+                    f'''An unknown WebSocket message:
 direction: {direction}
 content: {content}''')
-            number = int.from_bytes(m.group(1), byteorder='little')
+
+            number = int.from_bytes(content[1:2], byteorder='little')
             if number not in self.__websocket_message_queue:
                 raise RuntimeError(f'''An WebSocket response message\
  that does not match to any request message:
 direction: {direction}
 content: {content}''')
+
             request_direction \
                 = self.__websocket_message_queue[number]['direction']
-            header = self.__websocket_message_queue[number]['header']
+            name = self.__websocket_message_queue[number]['name']
             request = self.__websocket_message_queue[number]['request']
             response = content
             del self.__websocket_message_queue[number]
@@ -334,16 +340,25 @@ content: {content}''')
             assert(direction == 'inbound')
 
         match = True
-        if 'websocket' not in self.__config:
-            match = False
-        if match and header not in self.__config['websocket']:
-            match = False
-        if match and request_direction != self.__config['websocket'][header]['request_direction']:
-            match = False
+        while True:
+            if 'websocket' not in self.__config:
+                match = False
+                break
+            websocket_config = self.__config['websocket']
+            if name not in websocket_config:
+                match = False
+                break
+            expected_request_direction \
+                = websocket_config[name]['request_direction']
+            if expected_request_direction not in [request_direction, 'both']:
+                match = False
+                break
+            break
 
         if match:
             request = base64.b64encode(request).decode('UTF-8')
-            response = base64.b64encode(response).decode('UTF-8')
+            if response is not None:
+                response = base64.b64encode(response).decode('UTF-8')
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             data = {
                 'request_direction': request_direction,
@@ -352,7 +367,7 @@ content: {content}''')
                 'timestamp': now.timestamp()
             }
             _execute_action(
-                data, self.__config['websocket'][header]['action'],
+                data, self.__config['websocket'][name]['action'],
                 self.__redis)
             return
 
