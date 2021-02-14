@@ -17,9 +17,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver import ActionChains
+import mahjongsoul_sniffer.config as config_
 import mahjongsoul_sniffer.logging as logging_
 import mahjongsoul_sniffer.redis as redis_
 from mahjongsoul_sniffer.yostar_login import YostarLogin
+
+
+_CONFIG = config_.get('game_abstract_crawler')['crawler']
 
 
 class RefreshRequest(Exception):
@@ -304,23 +308,28 @@ if __name__ == '__main__':
     logging_.initialize(module_name='game_abstract_crawler',
                         service_name='crawler')
 
-    options = Options()
-    options.headless = True
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--window-size=800,600')
+    while True:
+        options = Options()
+        options.headless = True
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--window-size=800,600')
 
-    proxy = Proxy()
-    proxy.http_proxy = 'localhost:8080'
-    proxy.https_proxy = 'localhost:8080'
-    capabilities = DesiredCapabilities.CHROME
-    proxy.add_to_capabilities(capabilities)
+        proxy = Proxy()
+        proxy.http_proxy = 'localhost:8080'
+        proxy.https_proxy = 'localhost:8080'
+        capabilities = DesiredCapabilities.CHROME
+        proxy.add_to_capabilities(capabilities)
 
-    with Chrome(options=options,
-                desired_capabilities=capabilities) as driver:
-        try:
-            main(driver)
-        except Exception as e:
-            _get_screenshot(driver, '99-エラー.png')
-            logging.exception('Abort with an unhandled exception.')
-            raise
+        with Chrome(options=options,
+                    desired_capabilities=capabilities) as driver:
+            try:
+                main(driver)
+                break
+            except Exception as e:
+                _get_screenshot(driver, '99-エラー.png')
+                logging.exception('Abort with an unhandled exception.')
+
+        logging.info(
+            f'''Sleep for {_CONFIG['retry_interval']} seconds.''')
+        time.sleep(_CONFIG['retry_interval'])
