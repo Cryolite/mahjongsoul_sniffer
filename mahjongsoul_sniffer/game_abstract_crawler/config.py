@@ -159,9 +159,14 @@ _CONFIG_SCHEMA = {
         'crawler': {
             'type': 'object',
             'required': [
+                'retry_interval',
                 'logging'
             ],
             'properties': {
+                'retry_interval': {
+                    'type': 'integer',
+                    'minimum': 0
+                },
                 'logging': _LOGGING_CONFIG_SCHEMA
             },
             'additionalProperties': False

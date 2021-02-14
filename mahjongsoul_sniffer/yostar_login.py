@@ -35,6 +35,24 @@ class YostarLogin:
                 continue
             date = datetime.datetime.strptime(
                 email['Date'], '%a, %d %b %Y %H:%M:%S %z')
+
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            if date < now - datetime.timedelta(minutes=30):
+                # 認証コードの有効期限が30分なので，30分以上前に送られた
+                # メールは無条件で削除する．
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+
+            if 'To' not in email:
+                self.__s3_bucket.delete_object(key)
+                logging.info(f'Deleted the object `{key}`.')
+                continue
+            if email['To'] != self.__email_address:
+                # 宛先が異なるメールは他のクローラに対して送られた
+                # メールの可能性があるので無視する．
+                continue
+
             if date < start_time:
                 self.__s3_bucket.delete_object(key)
                 logging.info(f'Deleted the object `{key}`.')
@@ -49,15 +67,6 @@ class YostarLogin:
                 logging.info(f'Deleted the object `{key}`.')
                 continue
             if email['From'] != 'info@mail.yostar.co.jp':
-                self.__s3_bucket.delete_object(key)
-                logging.info(f'Deleted the object `{key}`.')
-                continue
-
-            if 'To' not in email:
-                self.__s3_bucket.delete_object(key)
-                logging.info(f'Deleted the object `{key}`.')
-                continue
-            if email['To'] != self.__email_address:
                 self.__s3_bucket.delete_object(key)
                 logging.info(f'Deleted the object `{key}`.')
                 continue
