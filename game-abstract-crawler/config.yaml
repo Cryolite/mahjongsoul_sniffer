@@ -7,7 +7,7 @@ redis:
 s3:
   bucket_name: 98106a91-edae-4dbd-8fe3-daf39f28999b
   authentication_email_key_prefix: authentication-email
-  game_abstract_key_prefix: game-abstract-alcyone/%Y/%m/%d
+  game_abstract_key_prefix: game-abstract/%Y/%m/%d
 sniffer:
   logging:
     level: INFO

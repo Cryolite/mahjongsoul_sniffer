@@ -1,0 +1,63 @@
+version: '3.8'
+
+volumes:
+  opt:
+  log:
+
+services:
+  build:
+    build:
+      context: ..
+      dockerfile: crawler-batch/build.Dockerfile
+    image: mahjongsoul-crawler-batch-build
+    volumes:
+      - type: volume
+        source: opt
+        target: /opt/mahjongsoul-sniffer
+  redis:
+    image: redis
+  main:
+    build:
+      context: ..
+      dockerfile: crawler-batch/main.Dockerfile
+    image: mahjongsoul-crawler-batch-main
+    volumes:
+      - type: volume
+        source: opt
+        target: /opt/mahjongsoul-sniffer
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
+      - type: bind
+        source: ${DOT_AWS_DIR:-~/.aws}
+        target: /home/ubuntu/.aws
+        read_only: true
+      - type: bind
+        source: ${DOT_GOOGLEAPI_DIR:-~/.googleapi}
+        target: /home/ubuntu/.googleapi
+    environment:
+      AWS_PROFILE: "${AWS_PROFILE:-mahjongsoul-sniffer}"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - build
+      - redis
+  monitor:
+    build:
+      context: ..
+      dockerfile: crawler-batch/monitor.Dockerfile
+    image: mahjongsoul-crawler-batch-monitor
+    volumes:
+      - type: volume
+        source: opt
+        target: /opt/mahjongsoul-sniffer
+      - type: volume
+        source: log
+        target: /var/log/mahjongsoul-sniffer
+    depends_on:
+      - build
+      - redis
+    ports:
+      - target: 5000
+        published: ${MONITOR_PORT:-5002}
+        protocol: tcp
