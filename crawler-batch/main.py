@@ -729,7 +729,7 @@ def main():
     # この日付の1日前および2日前の detail をクローラが現在進行形で
     # 取得中と考えられる．ただし，3台ある Game Abstract Crawler の
     # 稼働状況によって abstract, abstract-alcyone, abstract-electra の
-    # オブジェクトの数に違いが生じている場合があるため，3日前までの
+    # オブジェクトの数に違いが生じている場合があるため，6日前までの
     # detail の数を計算している．
     ongoing_date_for_detail = None
     for date in rows.keys():
@@ -742,6 +742,9 @@ def main():
             ongoing_date_for_detail = date
 
     ongoing_dates_for_detail = [
+        ongoing_date_for_detail - datetime.timedelta(days=6),
+        ongoing_date_for_detail - datetime.timedelta(days=5),
+        ongoing_date_for_detail - datetime.timedelta(days=4),
         ongoing_date_for_detail - datetime.timedelta(days=3),
         ongoing_date_for_detail - datetime.timedelta(days=2),
         ongoing_date_for_detail - datetime.timedelta(days=1),
