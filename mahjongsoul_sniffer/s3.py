@@ -123,10 +123,26 @@ class Bucket:
         game_detail_object = self.__bucket.Object(key)
         try:
             game_detail_object.load()
+            return True
         except botocore.exceptions.ClientError as e:
-            return False
+            pass
 
-        return True
+        start_time += datetime.timedelta(days=1)
+
+        key_prefix = self.__config['game_detail_key_prefix']
+        key_prefix = re.sub('/*$', '', key_prefix)
+        key_prefix = start_time.strftime(key_prefix)
+
+        key = f'{key_prefix}/{uuid}'
+
+        game_detail_object = self.__bucket.Object(key)
+        try:
+            game_detail_object.load()
+            return True
+        except botocore.exceptions.ClientError as e:
+            pass
+
+        return False
 
     def put_game_detail(self, message: bytes) -> None:
         game_abstract = game_detail_.get_game_abstract(message)
