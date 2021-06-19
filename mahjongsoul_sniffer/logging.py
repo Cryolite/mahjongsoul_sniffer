@@ -3,8 +3,8 @@
 import pathlib
 import logging
 import logging.handlers
+from typing import Optional
 import mahjongsoul_sniffer.config as config_
-from mahjongsoul_sniffer.redis_log_handler import RedisLogHandler
 
 
 _module_name = None
@@ -12,7 +12,7 @@ _service_name = None
 _initialized = False
 
 
-def initialize(*, module_name: str, service_name: str) -> None:
+def initialize(*, module_name: str, service_name: Optional[str]=None) -> None:
     global _module_name
     global _service_name
     global _initialized
@@ -35,7 +35,8 @@ Current call: module_name = {module_name},\
         return
 
     config = config_.get(module_name)
-    config = config[service_name]
+    if service_name is not None:
+        config = config[service_name]
     config = config['logging']
 
     level = config['level']
@@ -59,6 +60,7 @@ Current call: module_name = {module_name},\
         handlers.append(file_handler)
 
     if 'redis' in config:
+        from mahjongsoul_sniffer.redis_log_handler import RedisLogHandler
         redis_handler = RedisLogHandler(
             module_name=module_name, service_name=service_name)
         handlers.append(redis_handler)
