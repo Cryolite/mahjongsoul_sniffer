@@ -2462,7 +2462,7 @@ _NO_TILE_SCHEMA = {
         'scores': {
             'type': 'array',
             'minItems': 1,
-            'maxItems': 1,
+            'maxItems': 2,
             'items': {
                 'type': 'object',
                 'required': [
