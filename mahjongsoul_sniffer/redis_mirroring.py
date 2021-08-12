@@ -7,7 +7,7 @@ import json
 import base64
 import jsonschema
 import wsproto.frame_protocol
-from mitmproxy.websocket import WebSocketFlow
+from mitmproxy.websocket import WebSocketData
 import mahjongsoul_sniffer.redis as redis_
 from mahjongsoul_sniffer import mahjongsoul_pb2
 
@@ -241,10 +241,10 @@ class RedisMirroring(object):
         self.__config = config
         self.__websocket_message_queue = {}
 
-    def on_websocket_message(self, flow: WebSocketFlow) -> None:
-        if len(flow.messages) == 0:
-            raise RuntimeError(f'`len(flow.messages)` == 0')
-        message = flow.messages[-1]
+    def on_websocket_message(self, websocket_data: WebSocketData) -> None:
+        if len(websocket_data.messages) == 0:
+            raise RuntimeError(f'`len(websocket_data.messages)` == 0')
+        message = websocket_data.messages[-1]
 
         if message.type != wsproto.frame_protocol.Opcode.BINARY:
             raise RuntimeError(f'{message.type}: An unsupported\
