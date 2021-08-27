@@ -26,7 +26,14 @@ import mahjongsoul_sniffer.s3 as s3_
 from mahjongsoul_sniffer.mahjongsoul_pb2 import (ResGameRecord, Wrapper)
 
 
-class RefreshRequest(Exception):
+_BROWSER_RESTARTS = 1000
+_BROWSER_RESTART_INTERVAL = 0
+
+_RETRY_COUNT = 3
+_RETRY_INTERVAL = 0
+
+
+class RetryRequest(Exception):
     pass
 
 
@@ -135,11 +142,11 @@ def _after_login(
         except TimeoutException:
             logging.warning(f'Timeout occurred while loading the URL\
  `https://game.mahjongsoul.com/?paipu={uuid}`.')
-            raise RefreshRequest
+            raise RetryRequest
 
         got = False
 
-        for i in range(60):
+        for i in range(180):
             game_detail = redis.get_websocket_message('game-detail')
 
             if game_detail is not None:
@@ -154,8 +161,7 @@ def _after_login(
             logging.warning(
                 f'Failed to get the detail of the game {uuid}.')
             _get_screenshot(driver, '98-ゲーム詳細取得タイムアウト.png')
-            time.sleep(60)
-            raise RefreshRequest
+            raise RetryRequest
 
         wrapper = Wrapper()
         wrapper.ParseFromString(game_detail['response'][3:])
@@ -239,21 +245,19 @@ def main(driver: WebDriver) -> None:
 
     redis = redis_.Redis(module_name='game_detail_crawler')
 
-    redis.delete('archiver.heartbeat')
-
-    failure_count = 0
-
+    retry_count = 0
     while True:
         try:
             _after_login(fetch_time, canvas, redis)
-        except RefreshRequest:
-            failure_count += 1
+        except RetryRequest:
+            retry_count += 1
 
             timestamp = redis.get_timestamp('archiver.heartbeat')
-
-            if timestamp is None:
-                if failure_count >= 3:
-                    # ログイン～観戦画面表示を3回試みても
+            now = datetime.datetime.now(tz=datetime.timezone.utc)
+            idle_threshold = datetime.timedelta(minutes=3)
+            if now - timestamp > idle_threshold:
+                if retry_count > _RETRY_COUNT:
+                    # 観戦画面表示を `_RETRY_COUNT` 回試みても
                     # `archiver` サービスがまったく動かなかった．つまり
                     #
                     #   - `archiver` サービスが停止している，
@@ -261,36 +265,16 @@ def main(driver: WebDriver) -> None:
                     #   - 観戦画面への画面遷移が不可能になっている
                     #
                     # などの場合．
-                    raise RuntimeError(
-                        '`archiver` service does not seem to run.')
+                    raise RuntimeError(f'The allowed number of retries\
+ ({_RETRY_COUNT}) has been exceeded.')
             else:
-                # 一度は観戦画面への画面遷移ができていた場合．
-                failure_count = 0
+                # `idle_threshold` 以内に一度は観戦画面への画面遷移が
+                # できていた場合．
+                retry_count = 0
 
-            # `archiver` サービスが10分以上動いていないならば
-            # 例外を投げて終了する．
-            now = datetime.datetime.now(tz=datetime.timezone.utc)
-            threshold = datetime.timedelta(minutes=10)
-            if timestamp is not None and now - timestamp > threshold:
-                raise RuntimeError(
-                    '`archiver` service seems stuck for 10 minutes.')
-
-            while True:
-                fetch_time = datetime.datetime.now(
-                    tz=datetime.timezone.utc)
-                try:
-                    logging.warning(
-                        'Requesting the driver to refresh the page...')
-                    driver.refresh()
-                    logging.info('The driver has refreshed the page.')
-                    break
-                except TimeoutException:
-                    logging.warning(
-                        'Failed to refresh the page.  Trying again\
- requesting the driver to refresh the page after 1-minute sleep...')
-                    time.sleep(60)
-            canvas = _wait_for_page_to_present(driver)
-            continue
+            logging.warning(
+                f'Retrying after {_RETRY_INTERVAL}-seconds sleep...')
+            time.sleep(_RETRY_INTERVAL)
 
 
 if __name__ == '__main__':
@@ -313,6 +297,7 @@ if __name__ == '__main__':
     capabilities = DesiredCapabilities.CHROME
     proxy.add_to_capabilities(capabilities)
 
+    browser_restarts = 0
     while True:
         with Chrome(options=options,
                     desired_capabilities=capabilities) as driver:
@@ -321,14 +306,14 @@ if __name__ == '__main__':
                 sys.exit()
             except RestartRequest as e:
                 logging.info(
-                    'Restarting the crawler after 1-minute sleep...')
-                time.sleep(60)
+                    'Restarting the crawler after 5-minutes sleep...')
+                time.sleep(300)
                 continue
             except UnexpectedAlertPresentException as e:
                 if e.alert_text == 'Laya3D init error,must support webGL!':
-                    logging.warning('`Laya3D init error` occurred.  So,\
- restarting the crawler after 1-minute sleep...')
-                    time.sleep(60)
+                    logging.warning(f'`Laya3D init error` occurred.  So,\
+ restarting the browser after {_BROWSER_RESTART_INTERVAL}-seconds sleep...')
+                    time.sleep(_BROWSER_RESTART_INTERVAL)
                     continue
                 _get_screenshot(driver, '99-エラー.png')
                 logging.exception('Abort with an unhandled exception.')
@@ -336,4 +321,12 @@ if __name__ == '__main__':
             except Exception as e:
                 _get_screenshot(driver, '99-エラー.png')
                 logging.exception('Abort with an unhandled exception.')
-                raise
+                browser_restarts += 1
+                if browser_restarts > _BROWSER_RESTARTS:
+                    logging.error(f'The allowed number of browser\
+ restarts ({_BROWSER_RESTARTS}) has been exceeded.')
+                    raise
+                logging.warning(f'Restarting the browser after\
+ {_BROWSER_RESTART_INTERVAL}-seconds sleep...')
+                time.sleep(_BROWSER_RESTART_INTERVAL)
+                continue
