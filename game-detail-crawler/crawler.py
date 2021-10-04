@@ -315,6 +315,11 @@ if __name__ == '__main__':
  restarting the browser after {_BROWSER_RESTART_INTERVAL}-seconds sleep...')
                     time.sleep(_BROWSER_RESTART_INTERVAL)
                     continue
+                if e.alert_text == 'open failed':
+                    logging.warning(f'`open failed` occurred. So, restarting\
+ the browser after {_BROWSER_RESTART_INTERVAL}-seconds sleep...')
+                    time.sleep(_BROWSER_RESTART_INTERVAL)
+                    continue
                 _get_screenshot(driver, '99-エラー.png')
                 logging.exception('Abort with an unhandled exception.')
                 raise
