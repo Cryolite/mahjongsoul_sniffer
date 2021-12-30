@@ -2,7 +2,6 @@ import os.path
 import logging
 import sys
 import inspect
-from mitmproxy.websocket import WebSocketFlow
 
 # This file is executed by `mitmdump' with `execfile'. Therefore, in
 # order to import submodules under the directory where this file exists,
@@ -56,7 +55,7 @@ _redis_mirroring = RedisMirroring(module_name='api_visualizer',
                                   config=_REDIS_MIRRORING_CONFIG)
 
 
-def websocket_message(flow: WebSocketFlow) -> None:
+def websocket_message(flow) -> None:
     try:
         _redis_mirroring.on_websocket_message(flow)
     except Exception as e:
