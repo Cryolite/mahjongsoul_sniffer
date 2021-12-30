@@ -7,7 +7,6 @@ import json
 import base64
 import jsonschema
 import wsproto.frame_protocol
-from mitmproxy.websocket import WebSocketFlow
 import mahjongsoul_sniffer.redis as redis_
 from mahjongsoul_sniffer import mahjongsoul_pb2
 
@@ -241,7 +240,11 @@ class RedisMirroring(object):
         self.__config = config
         self.__websocket_message_queue = {}
 
-    def on_websocket_message(self, flow: WebSocketFlow) -> None:
+    def on_websocket_message(self, flow) -> None:
+        if hasattr(flow, 'websocket'):
+            # Add support for mitmproxy 7.0.0 or above.
+            flow = flow.websocket
+
         if len(flow.messages) == 0:
             raise RuntimeError(f'`len(flow.messages)` == 0')
         message = flow.messages[-1]
