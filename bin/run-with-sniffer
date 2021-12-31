@@ -4,7 +4,7 @@ set -uxo pipefail
 
 # 第1引数に指定されたスクリプトを addon として mitmproxy を起動する．
 mitmdump -q -s "$1" &
-sleep 10
+sleep 15
 
 # 一度 mitmproxy を起動すると ~/.mitmproxy ディレクトリが作成されるので，そこに
 # 作成される mitmproxy の証明書をコピーする．
