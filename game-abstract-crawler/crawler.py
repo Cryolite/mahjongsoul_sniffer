@@ -321,6 +321,16 @@ if __name__ == '__main__':
         capabilities = DesiredCapabilities.CHROME
         proxy.add_to_capabilities(capabilities)
 
+        # If the user agent contains the string `HeadlessChrome`,
+        # the browser is rejected from the login process of Majsoul.
+        # Therefore, it is necessary to spoof the user agent.
+        with Chrome(options=options,
+                    desired_capabilities=capabilities) as driver:
+            driver.get('https://www.google.com/')
+            user_agent = driver.execute_script('return navigator.userAgent')
+            user_agent = user_agent.replace('HeadlessChrome', 'Chrome')
+        options.add_argument(f'--user-agent={user_agent}')
+
         with Chrome(options=options,
                     desired_capabilities=capabilities) as driver:
             try:
