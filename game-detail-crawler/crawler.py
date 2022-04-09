@@ -27,7 +27,7 @@ from mahjongsoul_sniffer.mahjongsoul_pb2 import (ResGameRecord, Wrapper)
 
 
 _BROWSER_RESTARTS = 1000
-_BROWSER_RESTART_INTERVAL = 0
+_BROWSER_RESTART_INTERVAL = 3600
 
 _RETRY_COUNT = 3
 _RETRY_INTERVAL = 0
@@ -296,6 +296,16 @@ if __name__ == '__main__':
     proxy.https_proxy = 'localhost:8080'
     capabilities = DesiredCapabilities.CHROME
     proxy.add_to_capabilities(capabilities)
+
+    # If the user agent contains the string `HeadlessChrome`,
+    # the browser is rejected from the login process of Majsoul.
+    # Therefore, it is necessary to spoof the user agent.
+    with Chrome(options=options,
+                desired_capabilities=capabilities) as driver:
+        driver.get('https://www.google.com/')
+        user_agent = driver.execute_script('return navigator.userAgent')
+        user_agent = user_agent.replace('HeadlessChrome', 'Chrome')
+    options.add_argument(f'--user-agent={user_agent}')
 
     browser_restarts = 0
     while True:
