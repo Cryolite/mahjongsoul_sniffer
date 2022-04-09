@@ -29,7 +29,7 @@ archiver:
       key: log.archiver
       max_entries: 100
 crawler:
-  retry_interval: 300
+  retry_interval: 600
   logging:
     level: INFO
     file:
