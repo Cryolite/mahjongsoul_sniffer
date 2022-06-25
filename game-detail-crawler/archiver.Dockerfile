@@ -22,4 +22,7 @@ WORKDIR /opt/mahjongsoul-sniffer
 
 ENV PYTHONPATH /opt/mahjongsoul-sniffer
 
+# Workaround until `build.Dockerfile` uses protoc 3.19.0 or above.
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION python
+
 ENTRYPOINT ["game-detail-crawler/archiver.py"]
