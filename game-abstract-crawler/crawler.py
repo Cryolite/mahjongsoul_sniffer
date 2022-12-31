@@ -48,6 +48,10 @@ def click_canvas_within(
         if top <= y and y < top + height:
             break
 
+    rect = canvas.rect
+    x -= rect['width'] / 2
+    y -= rect['height'] / 2
+
     ActionChains(driver).move_to_element_with_offset(canvas, x, y).click().perform()
 
 
@@ -207,7 +211,7 @@ def main(driver: WebDriver) -> None:
     yostar_login = YostarLogin(module_name='game_abstract_crawler')
 
     # 「ログイン」ボタンをクリック
-    click_canvas_within(driver, canvas, 540, 177, 167, 38)
+    click_canvas_within(driver, canvas, 541, 178, 164, 35)
     time.sleep(1)
     _get_screenshot(driver, '01-ログインボタンクリック.png')
 
@@ -308,17 +312,22 @@ if __name__ == '__main__':
     logging_.initialize(module_name='game_abstract_crawler',
                         service_name='crawler')
 
+    for screenshot_path in _SCREENSHOT_PREFIX.glob('*.png'):
+        screenshot_path.unlink()
+        logging.info(f'Deleted an old screenshot `{screenshot_path}`.')
+
     while True:
         options = Options()
         options.headless = True
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--headless')
         options.add_argument('--window-size=800,600')
 
         proxy = Proxy()
         proxy.http_proxy = 'localhost:8080'
         proxy.https_proxy = 'localhost:8080'
-        capabilities = DesiredCapabilities.CHROME
+        capabilities = DesiredCapabilities.CHROME.copy()
         proxy.add_to_capabilities(capabilities)
 
         # If the user agent contains the string `HeadlessChrome`,
