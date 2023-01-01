@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     pip3 install -U pip && pip3 install -U \
       boto3 \
       jsonschema \
-      protobuf \
+      protobuf==3.20.3 \
       pyyaml \
       redis && \
     useradd -ms /bin/bash ubuntu && \
