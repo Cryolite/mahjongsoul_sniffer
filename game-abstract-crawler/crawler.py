@@ -48,10 +48,6 @@ def click_canvas_within(
         if top <= y and y < top + height:
             break
 
-    rect = canvas.rect
-    x -= rect['width'] / 2
-    y -= rect['height'] / 2
-
     ActionChains(driver).move_to_element_with_offset(canvas, x, y).click().perform()
 
 
