@@ -34,15 +34,15 @@ export default {
   },
 
   created: function() {
-    var vm = this;
+    const vm = this;
 
-    var screenshots_xhr = new XMLHttpRequest();
+    const screenshots_xhr = new XMLHttpRequest();
     screenshots_xhr.onreadystatechange = function() {
       if (this.readyState == XMLHttpRequest.DONE) {
         if (this.status == 200) {
-          var screenshots = JSON.parse(this.responseText);
-          for (var i = 0; i < screenshots.length; ++i) {
-            var screenshot = screenshots[i];
+          const screenshots = JSON.parse(this.responseText);
+          for (let i = 0; i < screenshots.length; ++i) {
+            const screenshot = screenshots[i];
             screenshot.path = "/screenshot/" + screenshot.name;
             vm.screenshots.push(screenshot);
           }
@@ -53,7 +53,7 @@ export default {
     screenshots_xhr.send();
 
     setInterval(function () {
-      var log_xhr = new XMLHttpRequest();
+      const log_xhr = new XMLHttpRequest();
       log_xhr.onreadystatechange = function() {
         if (this.readyState == XMLHttpRequest.DONE && this.status == 200) {
           const log = JSON.parse(this.responseText);
