@@ -29,10 +29,10 @@ def top_page():
         _HTML_PREFIX, 'index.html', mimetype='text/html')
 
 
-@app.route('/js/<path:filename>')
-def js(filename):
+@app.route('/assets/<path:basename>.js')
+def js(basename):
     return flask.send_from_directory(
-        _HTML_PREFIX / 'js', filename, mimetype='text/javascript')
+        _HTML_PREFIX / 'assets', f'{basename}.js', mimetype='text/javascript')
 
 
 @app.route('/screenshots.json')
