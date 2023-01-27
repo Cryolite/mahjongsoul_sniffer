@@ -268,7 +268,7 @@ class RedisMirroring(object):
 
             number = None
             if type_ == 2:
-                number = int.from_bytes(content[1:2],
+                number = int.from_bytes(content[1:3],
                                         byteorder='little')
 
             name = m.group(1).decode('UTF-8')
@@ -316,7 +316,7 @@ content: {prev_request['request']}''')
 direction: {direction}
 content: {content}''')
 
-            number = int.from_bytes(content[1:2], byteorder='little')
+            number = int.from_bytes(content[1:3], byteorder='little')
             if number not in self.__websocket_message_queue:
                 raise RuntimeError(f'''An WebSocket response message\
  that does not match to any request message:
