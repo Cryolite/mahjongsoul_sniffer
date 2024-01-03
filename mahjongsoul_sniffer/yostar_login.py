@@ -66,7 +66,7 @@ class YostarLogin:
                 self.__s3_bucket.delete_object(key)
                 logging.info(f'Deleted the object `{key}`.')
                 continue
-            if email['From'] != 'passport@mail.yostar.co.jp':
+            if email['From'] != 'info@passport.yostar.co.jp':
                 self.__s3_bucket.delete_object(key)
                 logging.info(f'Deleted the object `{key}`.')
                 continue
