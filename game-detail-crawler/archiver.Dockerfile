@@ -1,5 +1,4 @@
 FROM ubuntu:latest
-ARG DISABLE_GAME_DETAIL_VALIDATION
 
 RUN apt-get update && apt-get install -y \
       python3 \
@@ -22,7 +21,6 @@ USER ubuntu
 WORKDIR /opt/mahjongsoul-sniffer
 
 ENV PYTHONPATH /opt/mahjongsoul-sniffer
-ENV MAHJONGSOUL_SNIFFER_DISABLE_GAME_DETAIL_VALIDATION ${DISABLE_GAME_DETAIL_VALIDATION}
 
 # Workaround until `build.Dockerfile` uses protoc 3.19.0 or above.
 ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION python

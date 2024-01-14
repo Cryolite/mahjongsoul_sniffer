@@ -3,6 +3,7 @@ FROM ubuntu:latest
 RUN apt-get update && apt-get install -y \
       ca-certificates \
       fonts-ipafont \
+      jq \
       libnss3-tools \
       python3 \
       python3-pip \
@@ -20,9 +21,9 @@ RUN apt-get update && apt-get install -y \
       pyyaml \
       redis \
       selenium && \
-    wget "https://chromedriver.storage.googleapis.com/`wget -O - https://chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip" && \
-    unzip chromedriver_linux64.zip -d /usr/local/bin && \
-    rm chromedriver_linux64.zip && \
+    wget `wget -O - 'https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json' | jq -r '.channels.Stable.downloads.chromedriver[] | select(.platform == "linux64").url'` && \
+    unzip chromedriver-linux64.zip -d /usr/local/bin && \
+    rm chromedriver-linux64.zip && \
     useradd -ms /bin/bash ubuntu && \
     mkdir -p /opt/mahjongsoul-sniffer && \
     chown -R ubuntu /opt/mahjongsoul-sniffer && \
@@ -34,5 +35,6 @@ USER ubuntu
 WORKDIR /opt/mahjongsoul-sniffer
 
 ENV PYTHONPATH /opt/mahjongsoul-sniffer
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 
 ENTRYPOINT ["bin/run-with-sniffer", "game-detail-crawler/sniffer.py", "game-detail-crawler/crawler.py"]

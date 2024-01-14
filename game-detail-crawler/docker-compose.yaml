@@ -38,6 +38,7 @@ services:
         read_only: true
     environment:
       - AWS_PROFILE
+      - MAHJONGSOUL_SNIFFER_GAME_DETAIL_DISABLE_VALIDATION
     depends_on:
       - build
       - redis

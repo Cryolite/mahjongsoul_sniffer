@@ -23,7 +23,7 @@ def main():
 
         message = message['response']
         try:
-            if 'MAHJONGSOUL_SNIFFER_DISABLE_GAME_DETAIL_VALIDATION' not in os.environ or os.environ['MAHJONGSOUL_SNIFFER_DISABLE_GAME_DETAIL_VALIDATION'] == '':
+            if 'MAHJONGSOUL_SNIFFER_GAME_DETAIL_DISABLE_VALIDATION' not in os.environ or os.environ['MAHJONGSOUL_SNIFFER_GAME_DETAIL_DISABLE_VALIDATION'] == '':
                 game_detail_.validate(message)
         except game_detail_.ValidationError as e:
             raise
