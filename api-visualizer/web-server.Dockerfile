@@ -25,5 +25,6 @@ WORKDIR /opt/mahjongsoul-sniffer
 
 ENV PYTHONPATH /opt/mahjongsoul-sniffer
 ENV FLASK_APP /opt/mahjongsoul-sniffer/api-visualizer/web-server
+ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
 
 ENTRYPOINT ["api-visualizer/run-web-server.sh"]
