@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import datetime
+import os
 import logging
 import mahjongsoul_sniffer.logging as logging_
 import mahjongsoul_sniffer.redis as redis_
@@ -22,7 +23,8 @@ def main():
 
         message = message['response']
         try:
-            game_detail_.validate(message)
+            if 'MAHJONGSOUL_SNIFFER_DISABLE_GAME_DETAIL_VALIDATION' not in os.environ or os.environ['MAHJONGSOUL_SNIFFER_DISABLE_GAME_DETAIL_VALIDATION'] == '':
+                game_detail_.validate(message)
         except game_detail_.ValidationError as e:
             raise
 
