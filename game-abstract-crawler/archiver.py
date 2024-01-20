@@ -185,7 +185,8 @@ _GAME_LIVE_LIST_SCHEMA = {
                                 'views',
                                 'skin',
                                 'is_upgraded',
-                                'extra_emoji'
+                                'extra_emoji',
+                                'rewarded_level'
                             ],
                             'properties': {
                                 'charid': {
@@ -215,6 +216,15 @@ _GAME_LIVE_LIST_SCHEMA = {
                                     'type': 'boolean'
                                 },
                                 'extra_emoji': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'integer',
+                                        'minimum': 0
+                                    },
+                                    'additionalItems': False
+                                },
+                                'rewarded_level': {
+                                    '$comment': 'TODO: 詳細不明',
                                     'type': 'array',
                                     'items': {
                                         'type': 'integer',
@@ -267,7 +277,9 @@ _GAME_LIVE_LIST_SCHEMA = {
                                 'type': 'object',
                                 'required': [
                                     'slot',
-                                    'item_id'
+                                    'item_id',
+                                    'type',
+                                    'item_id_list'
                                 ],
                                 'properties': {
                                     'slot': {
@@ -278,6 +290,18 @@ _GAME_LIVE_LIST_SCHEMA = {
                                     'item_id': {
                                         'type': 'integer',
                                         'minimum': 0
+                                    },
+                                    'type': {
+                                        'type': 'integer',
+                                        'minimum': 0
+                                    },
+                                    'item_id_list': {
+                                        'type': 'array',
+                                        'items': {
+                                            'type': 'integer',
+                                            'minimum': 0
+                                        },
+                                        'additionalItems': False
                                     }
                                 },
                                 'additionalProperties': False
