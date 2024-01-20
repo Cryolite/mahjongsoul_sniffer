@@ -323,25 +323,18 @@ if __name__ == '__main__':
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--headless')
         options.add_argument('--window-size=800,600')
-
-        proxy = Proxy()
-        proxy.http_proxy = 'localhost:8080'
-        proxy.https_proxy = 'localhost:8080'
-        capabilities = DesiredCapabilities.CHROME.copy()
-        proxy.add_to_capabilities(capabilities)
+        options.add_argument('--proxy-server=localhost:8080')
 
         # If the user agent contains the string `HeadlessChrome`,
         # the browser is rejected from the login process of Majsoul.
         # Therefore, it is necessary to spoof the user agent.
-        with Chrome(options=options,
-                    desired_capabilities=capabilities) as driver:
+        with Chrome(options=options) as driver:
             driver.get('https://www.google.com/')
             user_agent = driver.execute_script('return navigator.userAgent')
             user_agent = user_agent.replace('HeadlessChrome', 'Chrome')
         options.add_argument(f'--user-agent={user_agent}')
 
-        with Chrome(options=options,
-                    desired_capabilities=capabilities) as driver:
+        with Chrome(options=options) as driver:
             try:
                 main(driver)
                 break
