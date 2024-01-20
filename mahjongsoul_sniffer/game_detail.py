@@ -209,7 +209,8 @@ _SUMMARY_SCHEMA = {
                             'views',
                             'skin',
                             'is_upgraded',
-                            'extra_emoji'
+                            'extra_emoji',
+                            'rewarded_level'
                         ],
                         'properties': {
                             'charid': {
@@ -245,6 +246,15 @@ _SUMMARY_SCHEMA = {
                             },
                             'extra_emoji': {
                                 'title': '追加スタンプ？',
+                                'type': 'array',
+                                'items': {
+                                    'type': 'integer',
+                                    'minimum': 0
+                                },
+                                'additionalItems': False
+                            },
+                            'rewarded_level': {
+                                '$comment': 'TODO: 詳細不明',
                                 'type': 'array',
                                 'items': {
                                     'type': 'integer',
@@ -507,7 +517,9 @@ _SUMMARY_SCHEMA = {
                             'type': 'object',
                             'required': [
                                 'slot',
-                                'item_id'
+                                'item_id',
+                                'type',
+                                'item_id_list'
                             ],
                             'properties': {
                                 'slot': {
@@ -518,6 +530,18 @@ _SUMMARY_SCHEMA = {
                                 'item_id': {
                                     'type': 'integer',
                                     'minimum': 0
+                                },
+                                'type': {
+                                    'type': 'integer',
+                                    'minimum': 0
+                                },
+                                'item_id_list': {
+                                    'type': 'array',
+                                    'items': {
+                                        'type': 'integer',
+                                        'minimum': 0
+                                    },
+                                    'additionalItems': False
                                 }
                             },
                             'additionalProperties': False
