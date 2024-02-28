@@ -12,7 +12,13 @@ set -x
 
 # `api-visualizer/sniffer.py` を addon として mitmproxy を起動する．
 mitmdump -qs api-visualizer/sniffer.py &
-sleep 10
+
+set +x
+
+# mitmproxy の証明書が作成されるまで待つ
+while [[ ! -f ~/.mitmproxy/mitmproxy-ca-cert.pem ]]; do sleep 1; done
+
+set -x
 
 # 一度 mitmproxy を起動すると `~/.mitmproxy` ディレクトリが作成されるので，
 # そこに作成される mitmproxy の証明書を Web server が読める場所にコピーする．
