@@ -1,58 +1,54 @@
 #!/usr/bin/env python3
+# ruff: noqa: N999
 
-import pathlib
-import subprocess
 import base64
-from google.protobuf.message import DecodeError
-from google.protobuf.descriptor import FieldDescriptor
-from google.protobuf.message_factory import MessageFactory
+import os
+import subprocess
+from typing import TYPE_CHECKING, Any
+
 import flask
-from mahjongsoul_sniffer import mahjongsoul_pb2
+from google.protobuf.descriptor import FieldDescriptor
+from google.protobuf.message import DecodeError, Message
+from google.protobuf.message_factory import GetMessageClass
+
+if TYPE_CHECKING:
+    from google.protobuf.descriptor import Descriptor
+
 import mahjongsoul_sniffer.redis as redis_
+from mahjongsoul_sniffer import mahjongsoul_pb2
+
+app = flask.Flask(
+    __name__,
+    static_folder="vue/dist/assets",
+    template_folder="vue/dist",
+    static_url_path="/assets",
+)
 
 
-app = flask.Flask(__name__)
+_redis = redis_.Redis(module_name="api_visualizer")
 
 
-_HTML_PREFIX = pathlib.Path(
-    '/opt/mahjongsoul-sniffer/api-visualizer/web-server/vue/dist')
-
-
-_LOG_PREFIX = pathlib.Path(
-    '/var/log/mahjongsoul-sniffer/api-visualizer')
-
-
-_redis = redis_.Redis(module_name='api_visualizer')
-
-
-@app.route('/')
-def top_page():
+@app.route("/")
+def top_page() -> flask.Response:
     return flask.send_from_directory(
-        _HTML_PREFIX, 'index.html', mimetype='text/html')
+        app.template_folder,
+        "index.html",
+        mimetype="text/html",
+    )
 
 
-@app.route('/css/<path:filename>')
-def css(filename):
-    return flask.send_from_directory(
-        _HTML_PREFIX / 'css', filename, mimetype='text/css')
+@app.route("/<path:path>")
+def assets(path: os.PathLike[str] | str) -> flask.Response:
+    return flask.send_from_directory(app.static_folder, path)
 
 
-@app.route('/img/<path:filename>')
-def img(filename):
-    return flask.send_from_directory(_HTML_PREFIX / 'img', filename)
-
-
-@app.route('/js/<path:filename>')
-def js(filename):
-    return flask.send_from_directory(
-        _HTML_PREFIX / 'js', filename, mimetype='text/javascript')
-
-
-@app.route('/mitmproxy-ca-cert.crt')
-def mitmproxy_certificate():
+@app.route("/mitmproxy-ca-cert.crt")
+def mitmproxy_certificate() -> flask.Response:
     response = flask.send_from_directory(
-        _HTML_PREFIX, 'mitmproxy-ca-cert.crt',
-        mimetype='application/x-x509-ca-cert')
+        app.template_folder,
+        "mitmproxy-ca-cert.crt",
+        mimetype="application/x-x509-ca-cert",
+    )
     response.cache_control.max_age = 0
     return response
 
@@ -60,279 +56,296 @@ def mitmproxy_certificate():
 _MESSAGE_TYPE_MAP = {}
 for sdesc in mahjongsoul_pb2.DESCRIPTOR.services_by_name.values():
     for mdesc in sdesc.methods:
-        _MESSAGE_TYPE_MAP['.' + mdesc.full_name] \
-            = (MessageFactory().GetPrototype(mdesc.input_type),
-               MessageFactory().GetPrototype(mdesc.output_type))
+        _MESSAGE_TYPE_MAP["." + mdesc.full_name] = (
+            GetMessageClass(mdesc.input_type),
+            GetMessageClass(mdesc.output_type),
+        )
 for tdesc in mahjongsoul_pb2.DESCRIPTOR.message_types_by_name.values():
-    _MESSAGE_TYPE_MAP['.' + tdesc.full_name] \
-        = (MessageFactory().GetPrototype(tdesc), None)
+    _MESSAGE_TYPE_MAP["." + tdesc.full_name] = (GetMessageClass(tdesc), None)
 
 
 _SCALAR_VALUE_TYPE_NAME_MAP = {
-    FieldDescriptor.TYPE_BOOL: 'bool',
-    FieldDescriptor.TYPE_BYTES: 'bytes',
-    FieldDescriptor.TYPE_DOUBLE: 'double',
-    FieldDescriptor.TYPE_ENUM: 'enum',
-    FieldDescriptor.TYPE_FIXED32: 'fixed32',
-    FieldDescriptor.TYPE_FIXED64: 'fixed64',
-    FieldDescriptor.TYPE_FLOAT: 'float',
-    FieldDescriptor.TYPE_INT32: 'int32',
-    FieldDescriptor.TYPE_INT64: 'int64',
-    FieldDescriptor.TYPE_SFIXED32: 'sfixed32',
-    FieldDescriptor.TYPE_SFIXED64: 'sfixed64',
-    FieldDescriptor.TYPE_SINT32: 'sint32',
-    FieldDescriptor.TYPE_SINT64: 'sint64',
-    FieldDescriptor.TYPE_STRING: 'string',
-    FieldDescriptor.TYPE_UINT32: 'uint32',
-    FieldDescriptor.TYPE_UINT64: 'uint64'
+    FieldDescriptor.TYPE_BOOL: "bool",
+    FieldDescriptor.TYPE_BYTES: "bytes",
+    FieldDescriptor.TYPE_DOUBLE: "double",
+    FieldDescriptor.TYPE_ENUM: "enum",
+    FieldDescriptor.TYPE_FIXED32: "fixed32",
+    FieldDescriptor.TYPE_FIXED64: "fixed64",
+    FieldDescriptor.TYPE_FLOAT: "float",
+    FieldDescriptor.TYPE_INT32: "int32",
+    FieldDescriptor.TYPE_INT64: "int64",
+    FieldDescriptor.TYPE_SFIXED32: "sfixed32",
+    FieldDescriptor.TYPE_SFIXED64: "sfixed64",
+    FieldDescriptor.TYPE_SINT32: "sint32",
+    FieldDescriptor.TYPE_SINT64: "sint64",
+    FieldDescriptor.TYPE_STRING: "string",
+    FieldDescriptor.TYPE_UINT32: "uint32",
+    FieldDescriptor.TYPE_UINT64: "uint64",
 }
 
 
-@app.route('/api-calls.json')
-def fetch_api_calls():
-    api_calls = []
-    while True:
-        api_call = _redis.lpop_websocket_message('api-call-queue')
-        if api_call is None:
-            break
+def _unwrap(data: bytes) -> tuple[str, bytes]:
+    parse = mahjongsoul_pb2.Wrapper()
+    parse.ParseFromString(data)
+    return (parse.name, parse.data)
 
-        request_direction = api_call['request_direction']
-        timestamp = api_call['timestamp']
 
-        def unwrap(data: bytes):
-            parse = mahjongsoul_pb2.Wrapper()
-            parse.ParseFromString(data)
-            return (parse.name, parse.data)
+def _get_field_type_name(desc: FieldDescriptor) -> str:
+    mdesc = desc.message_type
+    if mdesc is not None:
+        return mdesc.name
 
-        def get_field_type_name(desc: FieldDescriptor) -> str:
-            mdesc = desc.message_type
-            if mdesc is not None:
-                return mdesc.name
+    if desc.type not in _SCALAR_VALUE_TYPE_NAME_MAP:
+        msg = f"""{desc.type}: An unknown field type."""
+        raise RuntimeError(msg)
 
-            if desc.type not in _SCALAR_VALUE_TYPE_NAME_MAP:
-                raise RuntimeError(
-                    f'''{desc.type}: An unknown field type.''')
+    return _SCALAR_VALUE_TYPE_NAME_MAP[desc.type]
 
-            return _SCALAR_VALUE_TYPE_NAME_MAP[desc.type]
 
-        def parse_action_prototype(msg: mahjongsoul_pb2.ActionPrototype):
-            if not hasattr(mahjongsoul_pb2, msg.name):
-                return msg
+def _parse_action_prototype(msg: Message) -> Message | dict[str, Any]:
+    if not isinstance(msg, mahjongsoul_pb2.ActionPrototype):
+        return msg
 
-            wrapped_msg = getattr(mahjongsoul_pb2, msg.name)()
-            wrapped_msg.ParseFromString(msg.data)
+    wrapped_msg: Message = getattr(mahjongsoul_pb2, msg.name)()
+    wrapped_msg.ParseFromString(msg.data)
 
-            fields = {}
-            for fdesc, fval in wrapped_msg.ListFields():
-                fname = fdesc.name
-                if fdesc.label == FieldDescriptor.LABEL_REPEATED:
-                    fields[fname] = {
-                        'wrapped': False,
-                        'type': get_field_type_name(fdesc),
-                        'value': [
-                            parse_impl(fdesc, e)['value'] for e in fval]
-                    }
-                else:
-                    fields[fname] = parse_impl(fdesc, fval)
+    fields = {}
+    for fdesc, fval in wrapped_msg.ListFields():
+        fname = fdesc.name
+        if fdesc.label == FieldDescriptor.LABEL_REPEATED:
+            fields[fname] = {
+                "wrapped": False,
+                "type": _get_field_type_name(fdesc),
+                "value": [_parse_impl(fdesc, e)["value"] for e in fval],
+            }
+        else:
+            fields[fname] = _parse_impl(fdesc, fval)
 
+    return {
+        "wrapped": False,
+        "type": "ActionPrototype",
+        "value": {
+            "step": {
+                "wrapped": False,
+                "type": "uint32",
+                "value": msg.step,
+            },
+            "name": {
+                "wrapped": False,
+                "type": "string",
+                "value": msg.name,
+            },
+            "data": {
+                "wrapped": True,
+                "type": wrapped_msg.DESCRIPTOR.name,
+                "value": fields,
+            },
+        },
+    }
+
+
+def _parse_impl(  # noqa: C901
+    desc: FieldDescriptor,
+    val: bytes | Message,
+) -> Message | dict[str, Any]:
+    if desc.message_type is not None:
+        tdesc: Descriptor = desc.message_type
+        if tdesc.full_name == "lq.ActionPrototype":
+            return _parse_action_prototype(val)
+
+    if isinstance(val, bytes):
+        msg = mahjongsoul_pb2.Wrapper()
+        try:
+            msg.ParseFromString(val)
+        except DecodeError:
             return {
-                'wrapped': False,
-                'type': 'ActionPrototype',
-                'value': {
-                    'step': {
-                        'wrapped': False,
-                        'type': 'uint32',
-                        'value': msg.step
-                    },
-                    'name': {
-                        'wrapped': False,
-                        'type': 'string',
-                        'value': msg.name
-                    },
-                    'data': {
-                        'wrapped': True,
-                        'type': wrapped_msg.DESCRIPTOR.name,
-                        'value': fields
-                    }
-                }
+                "wrapped": False,
+                "type": "bytes",
+                "value": base64.b64encode(val).decode("UTF-8"),
             }
 
-        def parse_impl(desc, val):
-            if desc.message_type is not None:
-                tdesc = desc.message_type
-                if tdesc.full_name == 'lq.ActionPrototype':
-                    return parse_action_prototype(val)
+        name = msg.name
+        data = msg.data
 
-            if isinstance(val, bytes):
-                msg = mahjongsoul_pb2.Wrapper()
-                try:
-                    msg.ParseFromString(val)
-                except DecodeError:
-                    return {
-                        'wrapped': False,
-                        'type': 'bytes',
-                        'value': base64.b64encode(val).decode('UTF-8')
-                    }
-
-                name = msg.name
-                data = msg.data
-
-                if name in _MESSAGE_TYPE_MAP:
-                    wrapped_msg = _MESSAGE_TYPE_MAP[name][0]()
-                else:
-                    return {
-                        'wrapped': False,
-                        'type': 'bytes',
-                        'value': base64.b64encode(val).decode('UTF-8')
-                    }
-
-                wrapped_msg.ParseFromString(data)
-
-                fields = {}
-                for fdesc, fval in wrapped_msg.ListFields():
-                    fname = fdesc.name
-                    if fdesc.label == FieldDescriptor.LABEL_REPEATED:
-                        fields[fname] = {
-                            'wrapped': False,
-                            'type': get_field_type_name(fdesc),
-                            'value': [
-                                parse_impl(fdesc, e)['value'] for e in fval]
-                        }
-                    else:
-                        fields[fname] = parse_impl(fdesc, fval)
-
-                return {
-                    'wrapped': False,
-                    'type': 'Wrapper',
-                    'value': {
-                        'name': {
-                            'wrapped': False,
-                            'type': 'string',
-                            'value': name
-                        },
-                        'data': {
-                            'wrapped': True,
-                            'type': wrapped_msg.DESCRIPTOR.name,
-                            'value': fields
-                        }
-                    }
-                }
-
-            if desc.type == FieldDescriptor.TYPE_MESSAGE:
-                fields = {}
-                for fdesc, fval in val.ListFields():
-                    fname = fdesc.name
-                    if fdesc.label == FieldDescriptor.LABEL_REPEATED:
-                        fields[fname] = {
-                            'wrapped': False,
-                            'type': get_field_type_name(fdesc),
-                            'value': [
-                                parse_impl(fdesc, e)['value'] for e in fval]
-                        }
-                    else:
-                        fields[fname] = parse_impl(fdesc, fval)
-
-                return {
-                    'wrapped': False,
-                    'type': desc.message_type.name,
-                    'value': fields
-                }
-
-            if desc.type not in _SCALAR_VALUE_TYPE_NAME_MAP:
-                raise RuntimeError(
-                    f'''{desc.type}: An unknown field type.''')
-
+        if name in _MESSAGE_TYPE_MAP:
+            wrapped_msg: Message = _MESSAGE_TYPE_MAP[name][0]()
+        else:
             return {
-                'wrapped': False,
-                'type': _SCALAR_VALUE_TYPE_NAME_MAP[desc.type],
-                'value': val
+                "wrapped": False,
+                "type": "bytes",
+                "value": base64.b64encode(val).decode("UTF-8"),
             }
 
-        def parse_top_level(name: str, data: bytes, is_response: bool):
-            if not is_response:
-                msg = _MESSAGE_TYPE_MAP[name][0]()
+        wrapped_msg.ParseFromString(data)
+
+        fields = {}
+        for fdesc, fval in wrapped_msg.ListFields():
+            fname = fdesc.name
+            if fdesc.label == FieldDescriptor.LABEL_REPEATED:
+                fields[fname] = {
+                    "wrapped": False,
+                    "type": _get_field_type_name(fdesc),
+                    "value": [_parse_impl(fdesc, e)["value"] for e in fval],
+                }
             else:
-                msg = _MESSAGE_TYPE_MAP[name][1]()
+                fields[fname] = _parse_impl(fdesc, fval)
 
-            try:
-                msg.ParseFromString(data)
-            except DecodeError as e:
-                proc = subprocess.run(['protoc', '--decode_raw'],
-                                      input=data, capture_output=True)
-                rc = proc.returncode
-                stdout = proc.stdout.decode('UTF-8')
-                stderr = proc.stderr.decode('UTF-8')
-                raise RuntimeError(f'''name: {name}
+        return {
+            "wrapped": False,
+            "type": "Wrapper",
+            "value": {
+                "name": {
+                    "wrapped": False,
+                    "type": "string",
+                    "value": name,
+                },
+                "data": {
+                    "wrapped": True,
+                    "type": wrapped_msg.DESCRIPTOR.name,
+                    "value": fields,
+                },
+            },
+        }
+
+    if desc.type == FieldDescriptor.TYPE_MESSAGE:
+        fields = {}
+        for fdesc, fval in val.ListFields():
+            fname = fdesc.name
+            if fdesc.label == FieldDescriptor.LABEL_REPEATED:
+                fields[fname] = {
+                    "wrapped": False,
+                    "type": _get_field_type_name(fdesc),
+                    "value": [_parse_impl(fdesc, e)["value"] for e in fval],
+                }
+            else:
+                fields[fname] = _parse_impl(fdesc, fval)
+
+        return {
+            "wrapped": False,
+            "type": desc.message_type.name,
+            "value": fields,
+        }
+
+    if desc.type not in _SCALAR_VALUE_TYPE_NAME_MAP:
+        msg = f"""{desc.type}: An unknown field type."""
+        raise RuntimeError(msg)
+
+    return {
+        "wrapped": False,
+        "type": _SCALAR_VALUE_TYPE_NAME_MAP[desc.type],
+        "value": val,
+    }
+
+
+def _parse_top_level(
+    name: str,
+    data: bytes,
+    *,
+    is_response: bool,
+) -> Message | dict[str, Any]:
+    if not is_response:
+        msg: Message = _MESSAGE_TYPE_MAP[name][0]()
+    else:
+        msg: Message = _MESSAGE_TYPE_MAP[name][1]()
+
+    try:
+        msg.ParseFromString(data)
+    except DecodeError as e:
+        proc = subprocess.run(
+            ["protoc", "--decode_raw"],  # noqa: S603, S607
+            input=data,
+            capture_output=True,
+            check=False,
+        )
+        rc = proc.returncode
+        stdout = proc.stdout.decode("UTF-8")
+        stderr = proc.stderr.decode("UTF-8")
+        error_msg = f"""name: {name}
 is_response: {is_response}
 returncode: {rc}
 stdout: {stdout}
-stderr: {stderr}''')
+stderr: {stderr}"""
+        raise RuntimeError(error_msg) from e
 
-            if msg.DESCRIPTOR.full_name == 'lq.ActionPrototype':
-                return parse_action_prototype(msg)
+    if msg.DESCRIPTOR.full_name == "lq.ActionPrototype":
+        return _parse_action_prototype(msg)
 
-            fields = {}
-            for fdesc, fval in msg.ListFields():
-                fname = fdesc.name
-                if fdesc.label == FieldDescriptor.LABEL_REPEATED:
-                    fields[fname] = {
-                        'wrapped': False,
-                        'type': get_field_type_name(fdesc),
-                        'value': [
-                            parse_impl(fdesc, e)['value'] for e in fval]
-                    }
-                else:
-                    fields[fname] = parse_impl(fdesc, fval)
-
-            return {
-                'wrapped': False,
-                'type': 'Wrapper',
-                'value': {
-                    'name': {
-                        'wrapped': False,
-                        'type': 'string',
-                        'value': '' if is_response else name
-                    },
-                    'data': {
-                        'wrapped': True,
-                        'type': msg.DESCRIPTOR.name,
-                        'value': fields
-                    }
-                }
+    fields = {}
+    for fdesc, fval in msg.ListFields():
+        fname = fdesc.name
+        if fdesc.label == FieldDescriptor.LABEL_REPEATED:
+            fields[fname] = {
+                "wrapped": False,
+                "type": _get_field_type_name(fdesc),
+                "value": [_parse_impl(fdesc, e)["value"] for e in fval],
             }
-
-        request = api_call['request']
-        if request[0] == 1:
-            name, request_data = unwrap(request[1:])
-        elif request[0] == 2:
-            name, request_data = unwrap(request[3:])
         else:
-            raise RuntimeError(
-                f'''{request[0]}: An unknown type in a request.''')
-        request_parse = parse_top_level(name, request_data, False)
+            fields[fname] = _parse_impl(fdesc, fval)
 
-        response = api_call['response']
+    return {
+        "wrapped": False,
+        "type": "Wrapper",
+        "value": {
+            "name": {
+                "wrapped": False,
+                "type": "string",
+                "value": "" if is_response else name,
+            },
+            "data": {
+                "wrapped": True,
+                "type": msg.DESCRIPTOR.name,
+                "value": fields,
+            },
+        },
+    }
+
+
+@app.route("/api-calls.json")
+def fetch_api_calls() -> flask.Response:
+    api_calls = []
+    while True:
+        api_call = _redis.lpop_websocket_message("api-call-queue")
+        if api_call is None:
+            break
+
+        request_direction = api_call["request_direction"]
+        timestamp = api_call["timestamp"]
+
+        request = api_call["request"]
+        if request[0] == 1:
+            name, request_data = _unwrap(request[1:])
+        elif request[0] == 2:
+            name, request_data = _unwrap(request[3:])
+        else:
+            msg = f"""{request[0]}: An unknown type in a request."""
+            raise RuntimeError(msg)
+        request_parse = _parse_top_level(name, request_data, is_response=False)
+
+        response = api_call["response"]
         response_parse = None
         if response is not None:
             if response[0] != 3:
-                raise RuntimeError(
-                    f'''{response[0]}: An unknown type in a response.''')
-            _, response_data = unwrap(response[3:])
-            if _ != '':
-                raise RuntimeError(f'''{_}: A response has a name.''')
-            response_parse = parse_top_level(name, response_data, True)
-        else:
-            if request[0] != 1:
-                raise RuntimeError(
-                    f'''A request does not expect any response but has\
- one.''')
+                msg = f"""{response[0]}: An unknown type in a response."""
+                raise RuntimeError(msg)
+            _, response_data = _unwrap(response[3:])
+            if _ != "":
+                msg = f"""{_}: A response has a name."""
+                raise RuntimeError(msg)
+            response_parse = _parse_top_level(
+                name,
+                response_data,
+                is_response=True,
+            )
+        elif request[0] != 1:
+            msg = """A request does not expect any response but has one."""
+            raise RuntimeError(msg)
 
         api_call = {
-            'name': name,
-            'request_direction': request_direction,
-            'timestamp': int(timestamp.timestamp()),
-            'request': request_parse,
-            'response': response_parse
+            "name": name,
+            "request_direction": request_direction,
+            "timestamp": int(timestamp.timestamp()),
+            "request": request_parse,
+            "response": response_parse,
         }
         api_calls.append(api_call)
 
