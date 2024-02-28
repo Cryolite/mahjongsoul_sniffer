@@ -1,0 +1,60 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+	"name": "mahjongsoul_sniffer",
+	"runArgs": ["--name=mahjongsoul_sniffer-dev"],
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/base:jammy",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": 18
+		},
+		"ghcr.io/devcontainers/features/python:1": {
+			"installTools": false
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [
+		5000,
+		8080
+	],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "/bin/sh .devcontainer/post-create.sh",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"esbenp.prettier-vscode",
+				"vue.volar",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.mypy-type-checker",
+				"charliermarsh.ruff"
+			],
+			"settings": {
+				"[python]": {
+					"editor.defaultFormatter": "charliermarsh.ruff",
+					"editor.formatOnSave": true
+				},
+				"[javascript]": {
+					"editor.maxTokenizationLineLength": 2500,
+					"editor.defaultFormatter": "esbenp.prettier-vscode",
+					"editor.formatOnSave": true
+				},
+				"[vue]": {
+					"editor.defaultFormatter": "esbenp.prettier-vscode",
+					"editor.formatOnSave": true
+				}
+			}
+		}
+	}
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}
