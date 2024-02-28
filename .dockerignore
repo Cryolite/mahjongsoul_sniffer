@@ -1,2 +1,9 @@
-/.git/
-/.gitignore/
+.git/
+**/.gitignore
+
+.devcontainer/
+.mypy_cache/
+.ruff_cache/
+
+api-visualizer/web-server/vue/node_modules/
+api-visualizer/web-server/vue/dist/
