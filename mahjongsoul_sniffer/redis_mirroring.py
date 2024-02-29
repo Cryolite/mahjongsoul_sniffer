@@ -373,6 +373,8 @@ content: {content!r}"""
             decoded_request = base64.b64encode(request).decode("UTF-8")
             if response is not None:
                 decoded_response = base64.b64encode(response).decode("UTF-8")
+            else:
+                decoded_response = None
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             data = {
                 "request_direction": request_direction,
