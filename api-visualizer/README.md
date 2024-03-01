@@ -31,13 +31,15 @@ $ git clone https://github.com/Cryolite/mahjongsoul_sniffer.git
 $ cd mahjongsoul_sniffer
 ```
 
+[TortoiseGit](https://tortoisegit.org/) などの Windows の Git クライアントの場合，テキストファイルの改行の変換を行わない設定で git clone して，ローカルのテキストファイルの改行を LF のままにすること．
+
 ### 4. API Visualizer を実行する
 
 カレントディレクトが `api-visualizer` ディレクトリでないと実行に失敗する．
 
 ```bash
 $ cd api-visualizer
-$ docker-compose up
+$ docker compose up
 ```
 
 ビルドにしばらく時間がかかるので，以下のような出力が表示されて Web サーバが起動するまで待つ．
@@ -54,7 +56,7 @@ web_server_1  |  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 
 ### 5. Web サーバにアクセスしてルート証明書をインストールする
 
-雀魂のゲームクライアントを実行するホストから API Visualizer を実行したホストのポート番号5000に Web ブラウザでアクセスする．以下は API Visualizer を実行したホストの IP アドレスが 192.168.247.129 の場合の例．
+雀魂のゲームクライアントを実行するホストから API Visualizer を実行したホストのポート番号5000に Web ブラウザでアクセスする．以下は API Visualizer を実行した Linux ホストの IP アドレスが 192.168.247.129 の場合の例． Docker Desktop for Windows で API Visualizer を実行した場合は localhost:5000 に Web ブラウザでアクセスする．
 
 ![mahjongsoul-sniffer api-visualizer initial](https://user-images.githubusercontent.com/180041/106376020-950ff680-63d4-11eb-8df4-2145bbc54475.png)
 
@@ -62,4 +64,4 @@ web_server_1  |  * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
 
 ### 6. 雀魂を実行する
 
-API Visualizer を実行したホストのポート番号8080をプロキシとして雀魂のゲームクライアントを起動する．「5. Web サーバにアクセスしてサーバ証明書をダウンロードする」でアクセスした Web ページに雀魂 API のやり取りが表示される．
+API Visualizer を実行したホスト（Docker Desktop for Windows で API Visualizer を実行した場合は localhost）のポート番号8080をプロキシとして雀魂のゲームクライアントを起動する．以降，「5. Web サーバにアクセスしてサーバ証明書をダウンロードする」でアクセスした Web ページに雀魂 API のやり取りが表示される．

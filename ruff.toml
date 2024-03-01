@@ -1,0 +1,26 @@
+target-version = "py310"
+extend-exclude = [
+    "mahjongsoul_sniffer/mahjongsoul_pb2.py",
+    "mahjongsoul_sniffer/mahjongsoul_pb2.pyi"
+]
+line-length = 79
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "D",       # pydocstyle
+    "ANN002",  # missing-type-args
+    "ANN003",  # missing-type-kwargs
+    "ANN101",  # missing-type-self
+    "ANN102",  # missing-type-cls
+    "TD002",   # missing-todo-author
+    "TD003",   # missing-todo-link
+    "PLR0911", # too-many-return-statements
+    "PLR0912", # too-many-branches
+    "PLR0913", # too-many-arguments
+    "PLR0915", # too-many-statements
+
+    "T201",    # print
+    "SIM300",  # yoda-conditions
+    "PLR2004", # magic-value-comparison
+]

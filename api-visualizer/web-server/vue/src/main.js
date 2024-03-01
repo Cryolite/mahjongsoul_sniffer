@@ -1,18 +1,17 @@
-import Vue from 'vue'
-import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
-import App from './App.vue'
+import { createApp } from "vue";
+import { createBootstrap } from "bootstrap-vue-next";
+import App from "./App.vue";
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap-vue-next/dist/bootstrap-vue-next.css";
 
-// Make BootstrapVue available throughout your project
-Vue.use(BootstrapVue)
-// Optionally install the BootstrapVue icon components plugin
-Vue.use(IconsPlugin)
+import JsonViewer from "vue3-json-viewer";
+import "vue3-json-viewer/dist/index.css";
 
-Vue.config.productionTip = false
+const app = createApp(App);
 
-new Vue({
-  render: h => h(App),
-}).$mount('#app')
+app.use(createBootstrap());
+app.use(JsonViewer);
+
+app.mount("#app");
