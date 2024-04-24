@@ -191,13 +191,13 @@ _WEBSOCKET_CONFIG_SCHEMA = {
     "additionalProperties": False,
 }
 for mname in _METHOD_NAMES:
-    _WEBSOCKET_CONFIG_SCHEMA["properties"][
-        mname
-    ] = _WEBSOCKET_MESSAGE_CONFIG_SCHEMA
+    _WEBSOCKET_CONFIG_SCHEMA["properties"][mname] = (
+        _WEBSOCKET_MESSAGE_CONFIG_SCHEMA
+    )
 for tname in _MESSAGE_TYPE_NAMES:
-    _WEBSOCKET_CONFIG_SCHEMA["properties"][
-        tname
-    ] = _WEBSOCKET_MESSAGE_CONFIG_SCHEMA
+    _WEBSOCKET_CONFIG_SCHEMA["properties"][tname] = (
+        _WEBSOCKET_MESSAGE_CONFIG_SCHEMA
+    )
 
 
 _CONFIG_SCHEMA = {
