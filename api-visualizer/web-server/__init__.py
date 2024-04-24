@@ -117,12 +117,25 @@ def _message_to_fields(msg: Message) -> dict:
     return fields
 
 
+def _decode_bytes(buf: bytes) -> bytes:
+    keys = [132, 94, 78, 66, 57, 162, 31, 96, 28]
+    decode = bytearray()
+    for i, _byte in enumerate(buf):
+        mask = ((23 ^ len(buf)) + 5 * i + keys[i % len(keys)]) & 255
+        _byte ^= mask
+        decode += _byte.to_bytes(1, "little")
+    return bytes(decode)
+
+
 def _parse_action_prototype(msg: Message) -> Message | dict[str, Any]:
     if not isinstance(msg, mahjongsoul_pb2.ActionPrototype):
         return msg
 
     wrapped_msg: Message = getattr(mahjongsoul_pb2, msg.name)()
-    wrapped_msg.ParseFromString(msg.data)
+    try:
+        wrapped_msg.ParseFromString(msg.data)
+    except DecodeError:
+        wrapped_msg.ParseFromString(_decode_bytes(msg.data))
 
     fields = _message_to_fields(wrapped_msg)
 
