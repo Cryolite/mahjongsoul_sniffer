@@ -26,23 +26,24 @@ class Bucket:
         bucket_name = self.__config["bucket_name"]
         self.__bucket = s3.Bucket(bucket_name)
 
-    def get_authentication_emails(self) -> list[EmailMessage]:
+    def get_authentication_emails(self) -> dict[str, EmailMessage]:
         key_prefix = self.__config["authentication_email_key_prefix"]
 
         objects = self.__bucket.objects.filter(Prefix=key_prefix)
 
         emails = {}
 
-        for obj in objects:
-            key = obj.key
-            obj = obj.get()
-            obj = obj["Body"]
-            obj = obj.read()
+        for summary in objects:
+            key = summary.key
+            obj = summary.get()
+            body = obj["Body"]
+            obj_bytes = body.read()
             email_parser = email.parser.BytesParser(
                 policy=email.policy.default,
             )
-            obj = email_parser.parsebytes(obj)
-            emails[key] = obj
+            message = email_parser.parsebytes(obj_bytes)
+            assert isinstance(message, EmailMessage)  # noqa: S101
+            emails[key] = message
 
         return emails
 
