@@ -9,7 +9,7 @@ import mahjongsoul_sniffer.s3 as s3_
 
 
 class YostarLogin:
-    def __init__(self, *, module_name: str):
+    def __init__(self, *, module_name: str) -> None:
         config = config_.get(module_name)
 
         yostar_login_config = config["yostar_login"]

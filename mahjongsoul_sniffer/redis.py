@@ -41,7 +41,7 @@ _WEBSOCKET_MESSAGE_SCHEMA = {
 
 
 class Redis:
-    def __init__(self, *, module_name: str):
+    def __init__(self, *, module_name: str) -> None:
         config = config_.get(module_name)
         config = config["redis"]
 

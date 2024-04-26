@@ -2823,7 +2823,7 @@ class ValidationError(RuntimeError):
         header: Optional[str],
         message: bytes,
         message_json: dict,
-    ):
+    ) -> None:
         if chang is None:
             assert ju is None
             assert ben is None

@@ -16,7 +16,7 @@ import mahjongsoul_sniffer.game_detail as game_detail_
 
 
 class Bucket:
-    def __init__(self, *, module_name: str):
+    def __init__(self, *, module_name: str) -> None:
         self.__config = config_.get(module_name)
         self.__config = self.__config["s3"]
 

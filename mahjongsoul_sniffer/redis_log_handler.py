@@ -5,7 +5,7 @@ import mahjongsoul_sniffer.redis as redis_
 
 
 class RedisLogHandler(logging.Handler):
-    def __init__(self, *, module_name: str, service_name: str):
+    def __init__(self, *, module_name: str, service_name: str) -> None:
         config = config_.get(module_name)
         config = config[service_name]
         config = config["logging"]

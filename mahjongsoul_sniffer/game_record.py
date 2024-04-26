@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple, Union
 
 
 class GameRecordPlaceholder(object):
-    def __init__(self, *, uuid: str, start_time: datetime.datetime):
+    def __init__(self, *, uuid: str, start_time: datetime.datetime) -> None:
         self._uuid = (uuid,)
         self._start_time = start_time
 
@@ -24,7 +24,7 @@ class GameRecordPlaceholder(object):
 
 
 class AccountLevel(object):
-    def __init__(self, *, title: str, level: int, grading_point: int):
+    def __init__(self, *, title: str, level: int, grading_point: int) -> None:
         if title not in ["初心", "雀士", "雀傑", "雀豪", "雀聖", "魂天"]:
             msg = (
                 "`title` must be equal to either `初心`, `雀士`,"
@@ -63,7 +63,7 @@ class Account(object):
         final_total_score: int,
         delta_grading_point: int,
         delta_coin: int,
-    ):
+    ) -> None:
         if id < 0:
             msg = "`id` must be a non-negative integer"
             raise ValueError(msg)
@@ -97,7 +97,7 @@ class Account(object):
 
 
 class Seat(object):
-    def __init__(self, index: int):
+    def __init__(self, index: int) -> None:
         if index < 0 or 4 <= index:
             msg = "`index` must be equal to either `0`, `1`, `2`, or `3`."
             raise ValueError(msg)
@@ -114,7 +114,7 @@ class Seat(object):
 
 
 class Tile(object):
-    def __init__(self, code: str):
+    def __init__(self, code: str) -> None:
         if code not in [
             "0m", "1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m",
             "0p", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p",
@@ -148,7 +148,7 @@ class TingpaiInfo(object):
         fan_rong: int,
         damanguan_rong: bool,
         biao_dora_count: int,
-    ):
+    ) -> None:
         self._tile = tile
         self._has_yifan = has_yifan
 
@@ -196,7 +196,7 @@ class TingpaiInfo(object):
 
 
 class ZimoDapaiOption(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -204,7 +204,7 @@ class ZimoDapaiOption(object):
 
 
 class ZimoAngangOption(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -262,7 +262,7 @@ class ZimoAngangOption(object):
 
 
 class ZimoJiagangOption(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -320,7 +320,7 @@ class ZimoJiagangOption(object):
 
 
 class ZimoLizhiOption(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -331,7 +331,7 @@ class ZimoLizhiOption(object):
 
 
 class ZimoHuOption(object):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def to_json(self) -> object:
@@ -341,7 +341,7 @@ class ZimoHuOption(object):
 
 
 class ZimoKyushukyuhaiOption(object):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def to_json(self) -> object:
@@ -361,7 +361,7 @@ class ZimoOption(object):
             ZimoHuOption,
             ZimoKyushukyuhaiOption,
         ],
-    ):
+    ) -> None:
         self._option = option
 
     def to_json(self) -> object:
@@ -375,7 +375,7 @@ class ZimoOptionPresence(object):
         options: List[ZimoOption],
         main_time: int,
         overtime: int,
-    ):
+    ) -> None:
         self._seat = seat
         self._options = options
 
@@ -398,7 +398,7 @@ class ZimoOptionPresence(object):
 
 
 class ZhentingInfo(object):
-    def __init__(self, flags: List[bool]):
+    def __init__(self, flags: List[bool]) -> None:
         if len(flags) != 4:
             msg = "The length of `flags` must be equal to 4."
             raise ValueError(msg)
@@ -418,7 +418,7 @@ class Zimo(object):
         left_tile_count: int,
         option_presence: ZimoOptionPresence,
         zhenting: ZhentingInfo,
-    ):
+    ) -> None:
         self._seat = seat
 
         self._doras = doras
@@ -459,7 +459,7 @@ class Chi(object):
         froms: List[Seat],
         zhenting: ZhentingInfo,
         option_presence: ZimoOptionPresence,
-    ):
+    ) -> None:
         self._seat = seat
 
         if len(tiles) != 3:
@@ -593,7 +593,7 @@ class Peng(object):
         froms: List[Seat],
         zhenting: ZhentingInfo,
         option_presence: ZimoOptionPresence,
-    ):
+    ) -> None:
         self._seat = seat
 
         if len(tiles) != 3:
@@ -680,7 +680,7 @@ class Daminggang(object):
         tiles: List[Tile],
         froms: List[Seat],
         zhenting: ZhentingInfo,
-    ):
+    ) -> None:
         self._seat = seat
 
         if len(tiles) != 4:
@@ -755,7 +755,7 @@ class Daminggang(object):
 
 
 class Angang(object):
-    def __init__(self, *, seat: Seat, tile: Tile):
+    def __init__(self, *, seat: Seat, tile: Tile) -> None:
         self._seat = seat
 
         self._tile = tile
@@ -769,7 +769,7 @@ class Angang(object):
 
 
 class Jiagang(object):
-    def __init__(self, *, seat: Seat, tile: Tile):
+    def __init__(self, *, seat: Seat, tile: Tile) -> None:
         self._seat = seat
 
         self._tile = tile
@@ -783,7 +783,7 @@ class Jiagang(object):
 
 
 class DapaiChiOption(object):
-    def __init__(self, tiles_list: List[List[Tile]]):
+    def __init__(self, tiles_list: List[List[Tile]]) -> None:
         for tiles in tiles_list:
             if len(tiles) != 2:
                 msg = "The length of `tiles` must be equal to 2."
@@ -834,7 +834,7 @@ class DapaiChiOption(object):
 
 
 class DapaiPengOption(object):
-    def __init__(self, tiles_list: List[List[Tile]]):
+    def __init__(self, tiles_list: List[List[Tile]]) -> None:
         for tiles in tiles_list:
             if len(tiles) != 2:
                 msg = "The length of `tiles` must be equal to 2."
@@ -892,7 +892,7 @@ class DapaiPengOption(object):
 
 
 class DapaiDaminggangOption(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 2."
             raise ValueError(msg)
@@ -947,7 +947,7 @@ class DapaiDaminggangOption(object):
 
 
 class DapaiRongOption(object):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def to_json(self) -> object:
@@ -965,7 +965,7 @@ class DapaiOption(object):
             DapaiDaminggangOption,
             DapaiRongOption,
         ],
-    ):
+    ) -> None:
         self._option = option
 
     def to_json(self) -> object:
@@ -980,7 +980,7 @@ class DapaiOptionPresence(object):
         options: List[DapaiOption],
         main_time: int,
         overtime: int,
-    ):
+    ) -> None:
         self._seat = seat
 
         self._options = options
@@ -1017,7 +1017,7 @@ class Dapai(object):
         zhenting: ZhentingInfo,
         option_presence_list: List[DapaiOptionPresence],
         doras: List[Tile],
-    ):
+    ) -> None:
         self._seat = seat
         self._tile = tile
         self._moqie = moqie
@@ -1051,7 +1051,7 @@ class Dapai(object):
 
 
 class Shunzi(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 3."
             raise ValueError(msg)
@@ -1159,7 +1159,7 @@ class Shunzi(object):
 
 
 class Kezi(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 3."
             raise ValueError(msg)
@@ -1217,7 +1217,7 @@ class Kezi(object):
 
 
 class Minggangzi(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -1272,7 +1272,7 @@ class Minggangzi(object):
 
 
 class Angangzi(object):
-    def __init__(self, tiles: List[Tile]):
+    def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -1327,7 +1327,10 @@ class Angangzi(object):
 
 
 class Ming(object):
-    def __init__(self, ming: Union[Shunzi, Kezi, Minggangzi, Angangzi]):
+    def __init__(
+        self,
+        ming: Union[Shunzi, Kezi, Minggangzi, Angangzi],
+    ) -> None:
         self._ming = ming
 
     def to_json(self) -> object:
@@ -1335,7 +1338,7 @@ class Ming(object):
 
 
 class Hupai(object):
-    def __init__(self, *, title: str, fan: int):
+    def __init__(self, *, title: str, fan: int) -> None:
         if title == "門前清自摸和":
             if fan != 1:
                 msg = (
@@ -1658,7 +1661,7 @@ class Hule(object):
         point_rong: Optional[int],
         point_zimo_zhuangjia: Optional[int],
         point_zimo_sanjia: Optional[int],
-    ):
+    ) -> None:
         self._seat = seat
         self._zhuangjia = zhuangjia
 
@@ -1759,7 +1762,7 @@ class RoundEndByHule(object):
         old_scores: List[int],
         delta_scores: List[int],
         new_scores: List[int],
-    ):
+    ) -> None:
         self._hule_list = hule_list
 
         if len(old_scores) != 4:
@@ -1798,7 +1801,7 @@ class PlayerResultOnNoTile(object):
         tingpai_list: List[TingpaiInfo],
         old_score: int,
         delta_score: int,
-    ):
+    ) -> None:
         self._tingpai = tingpai
 
         if tingpai != (hand is not None):
@@ -1835,7 +1838,7 @@ class NoTile(object):
         *,
         liujumanguan: bool,
         player_results: List[PlayerResultOnNoTile],
-    ):
+    ) -> None:
         self._liujumanguan = liujumanguan
 
         if len(player_results) != 4:
@@ -1855,7 +1858,7 @@ class NoTile(object):
 
 
 class Kyushukyuhai(object):
-    def __init__(self, *, seat: Seat, hand: List[Tile]):
+    def __init__(self, *, seat: Seat, hand: List[Tile]) -> None:
         self._seat = seat
 
         if len(hand) != 14:
@@ -1871,7 +1874,7 @@ class Kyushukyuhai(object):
 
 
 class Sifengzilianda(object):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
     def to_json(self) -> object:
@@ -1896,7 +1899,7 @@ class Turn(object):
             Kyushukyuhai,
             Sifengzilianda,
         ],
-    ):
+    ) -> None:
         self._turn = turn
 
     def to_json(self) -> object:
@@ -1919,7 +1922,7 @@ class GameRound(object):
         left_tile_count: int,
         tingpai_list: List[Tuple[Seat, TingpaiInfo]],
         option_presence: ZimoOptionPresence,
-    ):
+    ) -> None:
         if chang not in ["東", "南", "西"]:
             msg = "`chang` must be equal to either `東`, `南`, or `西`."
             raise ValueError(msg)
@@ -2038,7 +2041,7 @@ class GameRecord(object):
         end_time: datetime.datetime,
         mode: str,
         account_list: List[Account],
-    ):
+    ) -> None:
         self._uuid = (placeholder.uuid,)
 
         self._start_time = placeholder.start_time
