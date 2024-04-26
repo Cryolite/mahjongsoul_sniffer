@@ -2006,7 +2006,7 @@ class GameRound:
         ]
 
         tingpai_list = []
-        for seat, tingpai in tingpai_list:
+        for seat, tingpai in self._tingpai_list:
             tingpai_list.append(
                 {
                     "seat": seat.to_json(),
