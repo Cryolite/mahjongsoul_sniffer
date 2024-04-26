@@ -381,7 +381,8 @@ class ZimoOptionPresence:
         self._main_time = main_time
 
         if overtime < 0:
-            raise VaueError("`overtime` must be a non-negative integer.")
+            msg = "`overtime` must be a non-negative integer."
+            raise ValueError(msg)
         self._overtime = overtime
 
     def to_json(self) -> object:
