@@ -2000,9 +2000,9 @@ class GameRound:
         self._turns.append(turn)
 
     def to_json(self) -> object:
-        qipai_list = []
-        for qipai in self._qipai_list:
-            qipai_list.append([tile.to_json() for tile in qipai])
+        qipai_list = [
+            [tile.to_json() for tile in qipai] for qipai in self._qipai_list
+        ]
 
         tingpai_list = []
         for seat, tingpai in tingpai_list:
