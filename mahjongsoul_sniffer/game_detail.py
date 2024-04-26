@@ -2998,10 +2998,15 @@ def validate(message: bytes) -> None:  # noqa: C901
         try:
             jsonschema.validate(instance=parse_json, schema=schema)
         except jsonschema.exceptions.ValidationError as e:
-            logging.exception(f"""Failed to validate the record\
- `{name}` of the game {uuid}:
-record: {record}
-json: {json.dumps(parse_json)}""")
+            logging.exception(
+                "Failed to validate the record `%s` of the game %s:\n"
+                "record: %s\n"
+                "json: %s",
+                name,
+                uuid,
+                record,
+                json.dumps(parse_json),
+            )
             raise ValidationError(
                 uuid,
                 chang,
