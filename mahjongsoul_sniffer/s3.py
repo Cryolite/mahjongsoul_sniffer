@@ -131,7 +131,7 @@ class Bucket:
         try:
             game_detail_object.load()
             return True
-        except botocore.exceptions.ClientError as e:
+        except botocore.exceptions.ClientError:
             pass
 
         start_time += datetime.timedelta(days=1)
@@ -146,7 +146,7 @@ class Bucket:
         try:
             game_detail_object.load()
             return True
-        except botocore.exceptions.ClientError as e:
+        except botocore.exceptions.ClientError:
             pass
 
         return False
