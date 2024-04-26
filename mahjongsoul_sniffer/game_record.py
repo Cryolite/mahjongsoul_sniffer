@@ -1334,296 +1334,297 @@ class Ming:
 
 class Hupai:
     def __init__(self, *, title: str, fan: int) -> None:  # noqa: C901
-        if title == "門前清自摸和":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
+        match title:
+            case "門前清自摸和":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "立直":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "槍槓":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "嶺上開花":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "海底摸月":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "河底撈魚":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "役牌白":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "役牌發":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "役牌中":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "役牌:自風牌":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "役牌:場風牌":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "断幺九":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "一盃口":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "平和":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "混全帯幺九":
+                if fan not in [2, 1]:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "一気通貫":
+                if fan not in [2, 1]:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "三色同順":
+                if fan not in [2, 1]:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "ダブル立直":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "三色同刻":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "三槓子":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "対々和":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "三暗刻":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "小三元":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "混老頭":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "七対子":
+                if fan != 2:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "純全帯幺九":
+                if fan not in [3, 2]:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "混一色":
+                if fan not in [3, 2]:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "二盃口":
+                if fan != 3:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "清一色":
+                if fan not in [6, 5]:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "一発":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "ドラ":
+                if fan < 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "赤ドラ":
+                if fan < 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "裏ドラ":
+                if fan < 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "流し満貫":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "天和":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "地和":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "大三元":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "四暗刻":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "字一色":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "緑一色":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "清老頭":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "国士無双":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "小四喜":
+                if fan != 1:
+                    msg = (
+                        f"title == {title}, fan == {fan}:"
+                        " An invalid combination."
+                    )
+                    raise ValueError(msg)
+            case "四槓子":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "九蓮宝燈":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "純正九蓮宝燈":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "四暗刻単騎":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "国士無双十三面待ち":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case "大四喜":
+                msg = f"title == {title}, fan == {fan}"
+                raise NotImplementedError(msg)
+            case _:
+                msg = f"{title}: An invalid value for `title`."
                 raise ValueError(msg)
-        elif title == "立直":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "槍槓":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "嶺上開花":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "海底摸月":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "河底撈魚":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "役牌白":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "役牌發":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "役牌中":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "役牌:自風牌":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "役牌:場風牌":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "断幺九":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "一盃口":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "平和":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "混全帯幺九":
-            if fan not in [2, 1]:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "一気通貫":
-            if fan not in [2, 1]:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "三色同順":
-            if fan not in [2, 1]:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "ダブル立直":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "三色同刻":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "三槓子":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "対々和":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "三暗刻":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "小三元":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "混老頭":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "七対子":
-            if fan != 2:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "純全帯幺九":
-            if fan not in [3, 2]:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "混一色":
-            if fan not in [3, 2]:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "二盃口":
-            if fan != 3:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "清一色":
-            if fan not in [6, 5]:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "一発":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "ドラ":
-            if fan < 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "赤ドラ":
-            if fan < 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "裏ドラ":
-            if fan < 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "流し満貫":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "天和":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "地和":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "大三元":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "四暗刻":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "字一色":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "緑一色":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "清老頭":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "国士無双":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "小四喜":
-            if fan != 1:
-                msg = (
-                    f"title == {title}, fan == {fan}:"
-                    " An invalid combination."
-                )
-                raise ValueError(msg)
-        elif title == "四槓子":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "九蓮宝燈":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "純正九蓮宝燈":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "四暗刻単騎":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "国士無双十三面待ち":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        elif title == "大四喜":
-            msg = f"title == {title}, fan == {fan}"
-            raise NotImplementedError(msg)
-        else:
-            msg = f"{title}: An invalid value for `title`."
-            raise ValueError(msg)
 
         self._title = title
         self._fan = fan
