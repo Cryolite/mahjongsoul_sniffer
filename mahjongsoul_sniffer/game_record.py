@@ -3,7 +3,7 @@ import logging
 from typing import List, Optional, Tuple, Union
 
 
-class GameRecordPlaceholder(object):
+class GameRecordPlaceholder:
     def __init__(self, *, uuid: str, start_time: datetime.datetime) -> None:
         self._uuid = (uuid,)
         self._start_time = start_time
@@ -23,7 +23,7 @@ class GameRecordPlaceholder(object):
         }
 
 
-class AccountLevel(object):
+class AccountLevel:
     def __init__(self, *, title: str, level: int, grading_point: int) -> None:
         if title not in ["初心", "雀士", "雀傑", "雀豪", "雀聖", "魂天"]:
             msg = (
@@ -51,7 +51,7 @@ class AccountLevel(object):
         }
 
 
-class Account(object):
+class Account:
     def __init__(
         self,
         *,
@@ -96,7 +96,7 @@ class Account(object):
         }
 
 
-class Seat(object):
+class Seat:
     def __init__(self, index: int) -> None:
         if index < 0 or 4 <= index:
             msg = "`index` must be equal to either `0`, `1`, `2`, or `3`."
@@ -113,7 +113,7 @@ class Seat(object):
         return self._index
 
 
-class Tile(object):
+class Tile:
     def __init__(self, code: str) -> None:
         if code not in [
             "0m", "1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m",
@@ -135,7 +135,7 @@ class Tile(object):
         return self._code
 
 
-class TingpaiInfo(object):
+class TingpaiInfo:
     def __init__(
         self,
         *,
@@ -195,7 +195,7 @@ class TingpaiInfo(object):
         }
 
 
-class ZimoDapaiOption(object):
+class ZimoDapaiOption:
     def __init__(self, tiles: List[Tile]) -> None:
         self._tiles = tiles
 
@@ -203,7 +203,7 @@ class ZimoDapaiOption(object):
         return {"type": "打牌", "tiles": [t.to_json() for t in self._tiles]}
 
 
-class ZimoAngangOption(object):
+class ZimoAngangOption:
     def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
@@ -261,7 +261,7 @@ class ZimoAngangOption(object):
         }
 
 
-class ZimoJiagangOption(object):
+class ZimoJiagangOption:
     def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
@@ -319,7 +319,7 @@ class ZimoJiagangOption(object):
         }
 
 
-class ZimoLizhiOption(object):
+class ZimoLizhiOption:
     def __init__(self, tiles: List[Tile]) -> None:
         self._tiles = tiles
 
@@ -330,7 +330,7 @@ class ZimoLizhiOption(object):
         }
 
 
-class ZimoHuOption(object):
+class ZimoHuOption:
     def __init__(self) -> None:
         pass
 
@@ -340,7 +340,7 @@ class ZimoHuOption(object):
         }
 
 
-class ZimoKyushukyuhaiOption(object):
+class ZimoKyushukyuhaiOption:
     def __init__(self) -> None:
         pass
 
@@ -350,7 +350,7 @@ class ZimoKyushukyuhaiOption(object):
         }
 
 
-class ZimoOption(object):
+class ZimoOption:
     def __init__(
         self,
         option: Union[
@@ -368,7 +368,7 @@ class ZimoOption(object):
         return self._option.to_json()
 
 
-class ZimoOptionPresence(object):
+class ZimoOptionPresence:
     def __init__(
         self,
         seat: Seat,
@@ -397,7 +397,7 @@ class ZimoOptionPresence(object):
         }
 
 
-class ZhentingInfo(object):
+class ZhentingInfo:
     def __init__(self, flags: List[bool]) -> None:
         if len(flags) != 4:
             msg = "The length of `flags` must be equal to 4."
@@ -408,7 +408,7 @@ class ZhentingInfo(object):
         return self._flags
 
 
-class Zimo(object):
+class Zimo:
     def __init__(
         self,
         *,
@@ -450,7 +450,7 @@ class Zimo(object):
         return result
 
 
-class Chi(object):
+class Chi:
     def __init__(
         self,
         *,
@@ -584,7 +584,7 @@ class Chi(object):
         }
 
 
-class Peng(object):
+class Peng:
     def __init__(
         self,
         *,
@@ -673,7 +673,7 @@ class Peng(object):
         }
 
 
-class Daminggang(object):
+class Daminggang:
     def __init__(
         self,
         seat: Seat,
@@ -754,7 +754,7 @@ class Daminggang(object):
         }
 
 
-class Angang(object):
+class Angang:
     def __init__(self, *, seat: Seat, tile: Tile) -> None:
         self._seat = seat
 
@@ -768,7 +768,7 @@ class Angang(object):
         }
 
 
-class Jiagang(object):
+class Jiagang:
     def __init__(self, *, seat: Seat, tile: Tile) -> None:
         self._seat = seat
 
@@ -782,7 +782,7 @@ class Jiagang(object):
         }
 
 
-class DapaiChiOption(object):
+class DapaiChiOption:
     def __init__(self, tiles_list: List[List[Tile]]) -> None:
         for tiles in tiles_list:
             if len(tiles) != 2:
@@ -833,7 +833,7 @@ class DapaiChiOption(object):
         }
 
 
-class DapaiPengOption(object):
+class DapaiPengOption:
     def __init__(self, tiles_list: List[List[Tile]]) -> None:
         for tiles in tiles_list:
             if len(tiles) != 2:
@@ -891,7 +891,7 @@ class DapaiPengOption(object):
         }
 
 
-class DapaiDaminggangOption(object):
+class DapaiDaminggangOption:
     def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 2."
@@ -946,7 +946,7 @@ class DapaiDaminggangOption(object):
         }
 
 
-class DapaiRongOption(object):
+class DapaiRongOption:
     def __init__(self) -> None:
         pass
 
@@ -956,7 +956,7 @@ class DapaiRongOption(object):
         }
 
 
-class DapaiOption(object):
+class DapaiOption:
     def __init__(
         self,
         option: Union[
@@ -972,7 +972,7 @@ class DapaiOption(object):
         return self._option.to_json()
 
 
-class DapaiOptionPresence(object):
+class DapaiOptionPresence:
     def __init__(
         self,
         *,
@@ -1004,7 +1004,7 @@ class DapaiOptionPresence(object):
         }
 
 
-class Dapai(object):
+class Dapai:
     def __init__(
         self,
         *,
@@ -1050,7 +1050,7 @@ class Dapai(object):
         return result
 
 
-class Shunzi(object):
+class Shunzi:
     def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 3."
@@ -1158,7 +1158,7 @@ class Shunzi(object):
         }
 
 
-class Kezi(object):
+class Kezi:
     def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 3."
@@ -1216,7 +1216,7 @@ class Kezi(object):
         }
 
 
-class Minggangzi(object):
+class Minggangzi:
     def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
@@ -1271,7 +1271,7 @@ class Minggangzi(object):
         }
 
 
-class Angangzi(object):
+class Angangzi:
     def __init__(self, tiles: List[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
@@ -1326,7 +1326,7 @@ class Angangzi(object):
         }
 
 
-class Ming(object):
+class Ming:
     def __init__(
         self,
         ming: Union[Shunzi, Kezi, Minggangzi, Angangzi],
@@ -1337,7 +1337,7 @@ class Ming(object):
         return self._ming.to_json()
 
 
-class Hupai(object):
+class Hupai:
     def __init__(self, *, title: str, fan: int) -> None:
         if title == "門前清自摸和":
             if fan != 1:
@@ -1640,7 +1640,7 @@ class Hupai(object):
         }
 
 
-class Hule(object):
+class Hule:
     def __init__(
         self,
         *,
@@ -1754,7 +1754,7 @@ class Hule(object):
         return result
 
 
-class RoundEndByHule(object):
+class RoundEndByHule:
     def __init__(
         self,
         *,
@@ -1792,7 +1792,7 @@ class RoundEndByHule(object):
         }
 
 
-class PlayerResultOnNoTile(object):
+class PlayerResultOnNoTile:
     def __init__(
         self,
         *,
@@ -1832,7 +1832,7 @@ class PlayerResultOnNoTile(object):
         return result
 
 
-class NoTile(object):
+class NoTile:
     def __init__(
         self,
         *,
@@ -1857,7 +1857,7 @@ class NoTile(object):
         }
 
 
-class Kyushukyuhai(object):
+class Kyushukyuhai:
     def __init__(self, *, seat: Seat, hand: List[Tile]) -> None:
         self._seat = seat
 
@@ -1873,7 +1873,7 @@ class Kyushukyuhai(object):
         }
 
 
-class Sifengzilianda(object):
+class Sifengzilianda:
     def __init__(self) -> None:
         pass
 
@@ -1883,7 +1883,7 @@ class Sifengzilianda(object):
         }
 
 
-class Turn(object):
+class Turn:
     def __init__(
         self,
         turn: Union[
@@ -1906,7 +1906,7 @@ class Turn(object):
         return self._turn.to_json()
 
 
-class GameRound(object):
+class GameRound:
     def __init__(
         self,
         *,
@@ -2033,7 +2033,7 @@ class GameRound(object):
         }
 
 
-class GameRecord(object):
+class GameRecord:
     def __init__(
         self,
         *,
