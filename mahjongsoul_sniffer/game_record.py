@@ -1760,19 +1760,17 @@ class RoundEndByHule:
         self._hule_list = hule_list
 
         if len(old_scores) != 4:
-            msg = f"The length of `old_scores` must be equal to 4."
+            msg = "The length of `old_scores` must be equal to 4."
             raise ValueError(msg)
         self._old_scores = old_scores
 
         if len(delta_scores) != 4:
-            msg = f"The length of `delta_scores` must be equal to 4."
-            raise ValueError(
-                msg,
-            )
+            msg = "The length of `delta_scores` must be equal to 4."
+            raise ValueError(msg)
         self._delta_scores = delta_scores
 
         if len(new_scores) != 4:
-            msg = f"The length of `new_socres` must be equal to 4."
+            msg = "The length of `new_socres` must be equal to 4."
             raise ValueError(msg)
         self._new_scores = new_scores
 
