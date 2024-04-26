@@ -1,7 +1,6 @@
 import base64
 import datetime
 import json
-from typing import List, Optional
 
 import jsonschema
 import redis
@@ -175,7 +174,7 @@ class Redis:
 
         return timestamp
 
-    def get_all_log_records(self, key: str) -> List[str]:
+    def get_all_log_records(self, key: str) -> list[str]:
         key = key.encode("UTF-8")
         records = self.__redis.lrange(key, 0, -1)
         return [record.decode("UTF-8") for record in records]

@@ -1,6 +1,4 @@
 import datetime
-import logging
-from typing import List, Optional, Tuple
 
 
 class GameRecordPlaceholder:
@@ -196,7 +194,7 @@ class TingpaiInfo:
 
 
 class ZimoDapaiOption:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -204,7 +202,7 @@ class ZimoDapaiOption:
 
 
 class ZimoAngangOption:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -262,7 +260,7 @@ class ZimoAngangOption:
 
 
 class ZimoJiagangOption:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -320,7 +318,7 @@ class ZimoJiagangOption:
 
 
 class ZimoLizhiOption:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -370,7 +368,7 @@ class ZimoOptionPresence:
     def __init__(
         self,
         seat: Seat,
-        options: List[ZimoOption],
+        options: list[ZimoOption],
         main_time: int,
         overtime: int,
     ) -> None:
@@ -396,13 +394,13 @@ class ZimoOptionPresence:
 
 
 class ZhentingInfo:
-    def __init__(self, flags: List[bool]) -> None:
+    def __init__(self, flags: list[bool]) -> None:
         if len(flags) != 4:
             msg = "The length of `flags` must be equal to 4."
             raise ValueError(msg)
         self._flags = flags
 
-    def to_json(self) -> List[bool]:
+    def to_json(self) -> list[bool]:
         return self._flags
 
 
@@ -411,7 +409,7 @@ class Zimo:
         self,
         *,
         seat: Seat,
-        doras: List[Tile],
+        doras: list[Tile],
         tile: Tile,
         left_tile_count: int,
         option_presence: ZimoOptionPresence,
@@ -453,8 +451,8 @@ class Chi:
         self,
         *,
         seat: Seat,
-        tiles: List[Tile],
-        froms: List[Seat],
+        tiles: list[Tile],
+        froms: list[Seat],
         zhenting: ZhentingInfo,
         option_presence: ZimoOptionPresence,
     ) -> None:
@@ -587,8 +585,8 @@ class Peng:
         self,
         *,
         seat: Seat,
-        tiles: List[Tile],
-        froms: List[Seat],
+        tiles: list[Tile],
+        froms: list[Seat],
         zhenting: ZhentingInfo,
         option_presence: ZimoOptionPresence,
     ) -> None:
@@ -675,8 +673,8 @@ class Daminggang:
     def __init__(
         self,
         seat: Seat,
-        tiles: List[Tile],
-        froms: List[Seat],
+        tiles: list[Tile],
+        froms: list[Seat],
         zhenting: ZhentingInfo,
     ) -> None:
         self._seat = seat
@@ -781,7 +779,7 @@ class Jiagang:
 
 
 class DapaiChiOption:
-    def __init__(self, tiles_list: List[List[Tile]]) -> None:
+    def __init__(self, tiles_list: list[list[Tile]]) -> None:
         for tiles in tiles_list:
             if len(tiles) != 2:
                 msg = "The length of `tiles` must be equal to 2."
@@ -832,7 +830,7 @@ class DapaiChiOption:
 
 
 class DapaiPengOption:
-    def __init__(self, tiles_list: List[List[Tile]]) -> None:
+    def __init__(self, tiles_list: list[list[Tile]]) -> None:
         for tiles in tiles_list:
             if len(tiles) != 2:
                 msg = "The length of `tiles` must be equal to 2."
@@ -890,7 +888,7 @@ class DapaiPengOption:
 
 
 class DapaiDaminggangOption:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 2."
             raise ValueError(msg)
@@ -973,7 +971,7 @@ class DapaiOptionPresence:
         self,
         *,
         seat: Seat,
-        options: List[DapaiOption],
+        options: list[DapaiOption],
         main_time: int,
         overtime: int,
     ) -> None:
@@ -1009,10 +1007,10 @@ class Dapai:
         moqie: bool,
         lizhi: bool,
         double_lizhi: bool,
-        tingpai_list: List[TingpaiInfo],
+        tingpai_list: list[TingpaiInfo],
         zhenting: ZhentingInfo,
-        option_presence_list: List[DapaiOptionPresence],
-        doras: List[Tile],
+        option_presence_list: list[DapaiOptionPresence],
+        doras: list[Tile],
     ) -> None:
         self._seat = seat
         self._tile = tile
@@ -1047,7 +1045,7 @@ class Dapai:
 
 
 class Shunzi:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 3."
             raise ValueError(msg)
@@ -1155,7 +1153,7 @@ class Shunzi:
 
 
 class Kezi:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         if len(tiles) != 3:
             msg = "The length of `tiles` must be equal to 3."
             raise ValueError(msg)
@@ -1213,7 +1211,7 @@ class Kezi:
 
 
 class Minggangzi:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -1268,7 +1266,7 @@ class Minggangzi:
 
 
 class Angangzi:
-    def __init__(self, tiles: List[Tile]) -> None:
+    def __init__(self, tiles: list[Tile]) -> None:
         if len(tiles) != 4:
             msg = "The length of `tiles` must be equal to 4."
             raise ValueError(msg)
@@ -1642,15 +1640,15 @@ class Hule:
         *,
         seat: Seat,
         zhuangjia: bool,
-        hand: List[Tile],
-        ming_list: List[Ming],
+        hand: list[Tile],
+        ming_list: list[Ming],
         hupai: Tile,
         lizhi: bool,
         zimo: bool,
-        doras: List[Tile],
-        li_doras: List[Tile],
+        doras: list[Tile],
+        li_doras: list[Tile],
         fu: int,
-        hupai_list: List[Hupai],
+        hupai_list: list[Hupai],
         fan: int,
         fan_title: str | None,
         damanguan: bool,
@@ -1754,10 +1752,10 @@ class RoundEndByHule:
     def __init__(
         self,
         *,
-        hule_list: List[Hule],
-        old_scores: List[int],
-        delta_scores: List[int],
-        new_scores: List[int],
+        hule_list: list[Hule],
+        old_scores: list[int],
+        delta_scores: list[int],
+        new_scores: list[int],
     ) -> None:
         self._hule_list = hule_list
 
@@ -1793,8 +1791,8 @@ class PlayerResultOnNoTile:
         self,
         *,
         tingpai: bool,
-        hand: List[Tile] | None,
-        tingpai_list: List[TingpaiInfo],
+        hand: list[Tile] | None,
+        tingpai_list: list[TingpaiInfo],
         old_score: int,
         delta_score: int,
     ) -> None:
@@ -1833,7 +1831,7 @@ class NoTile:
         self,
         *,
         liujumanguan: bool,
-        player_results: List[PlayerResultOnNoTile],
+        player_results: list[PlayerResultOnNoTile],
     ) -> None:
         self._liujumanguan = liujumanguan
 
@@ -1854,7 +1852,7 @@ class NoTile:
 
 
 class Kyushukyuhai:
-    def __init__(self, *, seat: Seat, hand: List[Tile]) -> None:
+    def __init__(self, *, seat: Seat, hand: list[Tile]) -> None:
         self._seat = seat
 
         if len(hand) != 14:
@@ -1908,13 +1906,13 @@ class GameRound:
         ju: int,
         ben: int,
         lizhibang: int,
-        initial_scores: List[int],
-        qipai_list: List[List[Tile]],
-        paishan: List[Tile],
+        initial_scores: list[int],
+        qipai_list: list[list[Tile]],
+        paishan: list[Tile],
         paishan_code: str,
         dora: Tile,
         left_tile_count: int,
-        tingpai_list: List[Tuple[Seat, TingpaiInfo]],
+        tingpai_list: list[tuple[Seat, TingpaiInfo]],
         option_presence: ZimoOptionPresence,
     ) -> None:
         if chang not in ["東", "南", "西"]:
@@ -2034,7 +2032,7 @@ class GameRecord:
         placeholder: GameRecordPlaceholder,
         end_time: datetime.datetime,
         mode: str,
-        account_list: List[Account],
+        account_list: list[Account],
     ) -> None:
         self._uuid = (placeholder.uuid,)
 

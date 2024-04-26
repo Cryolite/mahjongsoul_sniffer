@@ -5,7 +5,6 @@ import json
 import logging
 import re
 from email.message import EmailMessage
-from typing import List
 
 import boto3
 import botocore.exceptions
@@ -26,7 +25,7 @@ class Bucket:
         bucket_name = self.__config["bucket_name"]
         self.__bucket = s3.Bucket(bucket_name)
 
-    def get_authentication_emails(self) -> List[EmailMessage]:
+    def get_authentication_emails(self) -> list[EmailMessage]:
         key_prefix = self.__config["authentication_email_key_prefix"]
 
         objects = self.__bucket.objects.filter(Prefix=key_prefix)
@@ -82,7 +81,7 @@ class Bucket:
         data = data.encode("UTF-8")
         self.__bucket.put_object(Key=key, Body=data)
 
-    def get_game_abstracts(self, max_keys: int = 1000) -> List[dict]:
+    def get_game_abstracts(self, max_keys: int = 1000) -> list[dict]:
         key_prefix = self.__config["game_abstract_key_prefix"]
         key_prefix = key_prefix.rstrip("/") + "/"
 

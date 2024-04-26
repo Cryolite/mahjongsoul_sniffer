@@ -1,7 +1,6 @@
 import logging
 import logging.handlers
 import pathlib
-from typing import Optional
 
 import mahjongsoul_sniffer.config as config_
 
