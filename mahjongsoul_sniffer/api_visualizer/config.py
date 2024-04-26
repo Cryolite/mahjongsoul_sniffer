@@ -119,7 +119,7 @@ def get() -> dict:
         msg = f"{_CONFIG_FILE_PATH}: Not a file."
         raise RuntimeError(msg)
 
-    with open(_CONFIG_FILE_PATH) as config_file:
+    with _CONFIG_FILE_PATH.open() as config_file:
         config = yaml.load(config_file, Loader=yaml.Loader)
     jsonschema.validate(instance=config, schema=_CONFIG_SCHEMA)
 

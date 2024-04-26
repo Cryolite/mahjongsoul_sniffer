@@ -5,6 +5,7 @@ import json
 import logging
 import re
 from email.message import EmailMessage
+from pathlib import Path
 
 import boto3
 import botocore.exceptions
@@ -47,7 +48,7 @@ class Bucket:
 
     def __get_game_abstract_schema(self) -> dict:
         if self.__game_abstract_schema is None:
-            with open("schema/game-abstract.json") as schema_file:
+            with Path("schema/game-abstract.json").open() as schema_file:
                 self.__game_abstract_schema = json.load(schema_file)
 
         return self.__game_abstract_schema
