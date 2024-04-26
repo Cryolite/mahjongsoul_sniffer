@@ -130,7 +130,7 @@ class Redis:
 
         return message
 
-    def lpop_websocket_message(self, key) -> dict | None:
+    def lpop_websocket_message(self, key: str) -> dict | None:
         message = self.lpop(key)
 
         if message is None:
