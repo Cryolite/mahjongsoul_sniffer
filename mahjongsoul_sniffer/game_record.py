@@ -1695,10 +1695,11 @@ class Hule:
             raise ValueError(msg)
         self._fan = fan
 
-        if fan_title is not None:
-            if fan_title not in ("満貫", "跳満", "倍満", "三倍満", "役満"):
-                msg = f"{fan_title}: An invalid value for `fan_title`."
-                raise ValueError(msg)
+        if (fan_title is not None) and (
+            fan_title not in ("満貫", "跳満", "倍満", "三倍満", "役満")
+        ):
+            msg = f"{fan_title}: An invalid value for `fan_title`."
+            raise ValueError(msg)
         self._fan_title = fan_title
 
         self._damanguan = damanguan
