@@ -1,8 +1,9 @@
+# ruff: noqa: RUF003
+
 import datetime
 import logging
 import re
 import time
-from typing import Optional
 
 import mahjongsoul_sniffer.config as config_
 import mahjongsoul_sniffer.s3 as s3_
@@ -20,7 +21,7 @@ class YostarLogin:
     def get_email_address(self) -> str:
         return self.__email_address
 
-    def __get_auth_code(
+    def __get_auth_code(  # noqa: C901
         self,
         *,
         start_time: datetime.datetime,

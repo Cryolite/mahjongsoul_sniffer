@@ -1332,7 +1332,7 @@ class Ming:
 
 
 class Hupai:
-    def __init__(self, *, title: str, fan: int) -> None:
+    def __init__(self, *, title: str, fan: int) -> None:  # noqa: C901
         if title == "門前清自摸和":
             if fan != 1:
                 msg = (
@@ -1635,7 +1635,7 @@ class Hupai:
 
 
 class Hule:
-    def __init__(
+    def __init__(  # noqa: C901
         self,
         *,
         seat: Seat,
@@ -1899,7 +1899,7 @@ class Turn:
 
 
 class GameRound:
-    def __init__(
+    def __init__(  # noqa: C901
         self,
         *,
         chang: str,

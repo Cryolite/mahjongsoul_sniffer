@@ -92,7 +92,7 @@ class Redis:
     def blpop(self, key: str) -> bytes:
         key = key.encode("UTF-8")
         key_, value = self.__redis.blpop(key)
-        assert key_ == key
+        assert key_ == key  # noqa: S101
         return value
 
     def delete(self, key: str) -> None:
