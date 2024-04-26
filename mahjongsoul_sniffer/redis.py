@@ -4,6 +4,7 @@ import json
 
 import jsonschema
 import redis
+from redis.typing import ExpiryT
 
 import mahjongsoul_sniffer.config as config_
 
@@ -53,10 +54,11 @@ class Redis:
         self,
         key: str,
         value: bytes,
-        ex=None,
-        px=None,
-        nx=False,
-        xx=False,
+        *,
+        ex: ExpiryT | None = None,
+        px: ExpiryT | None = None,
+        nx: bool = False,
+        xx: bool = False,
     ) -> None:
         key = key.encode("UTF-8")
         self.__redis.set(key, value, ex=ex, px=px, nx=nx, xx=xx)
