@@ -1,4 +1,5 @@
-# ruff: noqa: E402
+#!/usr/bin/env python3
+# ruff: noqa: E402, INP001
 import inspect
 import logging
 import sys
