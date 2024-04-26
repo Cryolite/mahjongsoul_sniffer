@@ -1983,7 +1983,7 @@ class GameRound:
 
         self._left_tile_count = left_tile_count
 
-        self._turns = []
+        self._turns: list[Turn] = []
 
     @property
     def chang(self) -> str:
@@ -2076,7 +2076,7 @@ class GameRecord:
             raise ValueError(msg)
         self._account_list = account_list
 
-        self._round_list = []
+        self._round_list: list[GameRound] = []
 
     @property
     def uuid(self) -> str:
