@@ -130,9 +130,10 @@ class Bucket:
         game_detail_object = self.__bucket.Object(key)
         try:
             game_detail_object.load()
-            return True
         except botocore.exceptions.ClientError:
             pass
+        else:
+            return True
 
         start_time += datetime.timedelta(days=1)
 
@@ -145,9 +146,10 @@ class Bucket:
         game_detail_object = self.__bucket.Object(key)
         try:
             game_detail_object.load()
-            return True
         except botocore.exceptions.ClientError:
             pass
+        else:
+            return True
 
         return False
 
