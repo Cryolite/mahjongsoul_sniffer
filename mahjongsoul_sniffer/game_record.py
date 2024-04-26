@@ -2005,14 +2005,13 @@ class GameRound:
             [tile.to_json() for tile in qipai] for qipai in self._qipai_list
         ]
 
-        tingpai_list = []
-        for seat, tingpai in self._tingpai_list:
-            tingpai_list.append(
-                {
-                    "seat": seat.to_json(),
-                    "tingpai": tingpai.to_json(),
-                },
-            )
+        tingpai_list = [
+            {
+                "seat": seat.to_json(),
+                "tingpai": tingpai.to_json(),
+            }
+            for seat, tingpai in self._tingpai_list
+        ]
 
         return {
             "chang": self._chang,
