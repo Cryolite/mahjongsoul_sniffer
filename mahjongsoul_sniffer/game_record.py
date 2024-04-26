@@ -53,7 +53,7 @@ class Account:
     def __init__(
         self,
         *,
-        id: int,
+        id: int,  # noqa: A002
         nickname: str,
         level4: AccountLevel,
         level3: AccountLevel,
