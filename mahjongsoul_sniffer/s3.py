@@ -32,15 +32,13 @@ class Bucket:
         objects = self.__bucket.objects.filter(Prefix=key_prefix)
 
         emails = {}
+        email_parser = email.parser.BytesParser(policy=email.policy.default)
 
         for summary in objects:
             key = summary.key
             obj = summary.get()
             body = obj["Body"]
             obj_bytes = body.read()
-            email_parser = email.parser.BytesParser(
-                policy=email.policy.default,
-            )
             message = email_parser.parsebytes(obj_bytes)
             assert isinstance(message, EmailMessage)  # noqa: S101
             emails[key] = message
