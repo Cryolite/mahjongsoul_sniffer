@@ -2878,7 +2878,7 @@ def validate(message: bytes) -> None:  # noqa: C901
             None,
             message,
             response_json,
-        )
+        ) from e
 
     uuid = response.head.uuid
 
@@ -3010,7 +3010,7 @@ json: {json.dumps(parse_json)}""")
                 name,
                 message,
                 response_json,
-            )
+            ) from e
 
         index += 1
 
