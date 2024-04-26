@@ -26,20 +26,21 @@ class GameRecordPlaceholder(object):
 class AccountLevel(object):
     def __init__(self, *, title: str, level: int, grading_point: int):
         if title not in ["初心", "雀士", "雀傑", "雀豪", "雀聖", "魂天"]:
-            raise ValueError(
+            msg = (
                 "`title` must be equal to either `初心`, `雀士`,"
-                " `雀傑`, `雀豪`, `雀聖`, or `魂天`.",
+                " `雀傑`, `雀豪`, `雀聖`, or `魂天`."
             )
+            raise ValueError(msg)
         self._title = title
 
         if level < 1 or level > 3:
-            raise ValueError(
-                "`level` must be equal to either `1`, `2`, or `3`.",
-            )
+            msg = "`level` must be equal to either `1`, `2`, or `3`."
+            raise ValueError(msg)
         self._level = level
 
         if grading_point < 0:
-            raise ValueError("`grading_point` must be a non-negative integer.")
+            msg = "`grading_point` must be a non-negative integer."
+            raise ValueError(msg)
         self._grading_point = grading_point
 
     def to_json(self) -> object:
@@ -64,7 +65,8 @@ class Account(object):
         delta_coin: int,
     ):
         if id < 0:
-            raise ValueError("`id` must be a non-negative integer")
+            msg = "`id` must be a non-negative integer"
+            raise ValueError(msg)
         self._id = id
 
         self._nickname = nickname
@@ -97,9 +99,8 @@ class Account(object):
 class Seat(object):
     def __init__(self, index: int):
         if index < 0 or 4 <= index:
-            raise ValueError(
-                "`index` must be equal to either `0`, `1`, `2`, or `3`.",
-            )
+            msg = "`index` must be equal to either `0`, `1`, `2`, or `3`."
+            raise ValueError(msg)
         self._index = index
 
     def __repr__(self) -> str:
@@ -120,7 +121,8 @@ class Tile(object):
             "0s", "1s", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s",
             "1z", "2z", "3z", "4z", "5z", "6z", "7z",
         ]:  # fmt: skip
-            raise ValueError(f"An invalid tile code `{code}`.")
+            msg = f"An invalid tile code `{code}`."
+            raise ValueError(msg)
         self._code = code
 
     def __repr__(self) -> str:
@@ -151,29 +153,32 @@ class TingpaiInfo(object):
         self._has_yifan = has_yifan
 
         if fu_zimo < 20:
-            raise ValueError(f"{fu_zimo}: An invalid value for `fu_zimo`.")
+            msg = f"{fu_zimo}: An invalid value for `fu_zimo`."
+            raise ValueError(msg)
         self._fu_zimo = fu_zimo
 
         if fan_zimo < 0:
-            raise ValueError("`fan_zimo` must be a non-negative integer.")
+            msg = "`fan_zimo` must be a non-negative integer."
+            raise ValueError(msg)
         self._fan_zimo = fan_zimo
 
         self._damanguan_zimo = damanguan_zimo
 
         if fu_rong < 25:
-            raise ValueError(f"{fu_rong}: An invalid value for `fu_rong`.")
+            msg = f"{fu_rong}: An invalid value for `fu_rong`."
+            raise ValueError(msg)
         self._fu_rong = fu_rong
 
         if fan_rong < 0:
-            raise ValueError("`fan_rong` must be a non-negative integer.")
+            msg = "`fan_rong` must be a non-negative integer."
+            raise ValueError(msg)
         self._fan_rong = fan_rong
 
         self._damanguan_rong = damanguan_rong
 
         if biao_dora_count < 0:
-            raise ValueError(
-                "`biao_dora_count` must be a non-negative integer.",
-            )
+            msg = "`biao_dora_count` must be a non-negative integer."
+            raise ValueError(msg)
         self._biao_dora_count = biao_dora_count
 
     def to_json(self) -> object:
@@ -201,7 +206,8 @@ class ZimoDapaiOption(object):
 class ZimoAngangOption(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError("The length of `tiles` must be equal to 4.")
+            msg = "The length of `tiles` must be equal to 4."
+            raise ValueError(msg)
         if tiles not in (
             ["0m", "0m", "0m", "0m"],
             ["1m", "1m", "1m", "1m"],
@@ -244,7 +250,8 @@ class ZimoAngangOption(object):
             ["6z", "6z", "6z", "6z"],
             ["7z", "7z", "7z", "7z"],
         ):
-            raise ValueError(f"{tiles}: An invalid combination for Angang.")
+            msg = f"{tiles}: An invalid combination for Angang."
+            raise ValueError(msg)
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -257,7 +264,8 @@ class ZimoAngangOption(object):
 class ZimoJiagangOption(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError("The length of `tiles` must be equal to 4.")
+            msg = "The length of `tiles` must be equal to 4."
+            raise ValueError(msg)
         if tiles not in (
             ["0m", "0m", "0m", "0m"],
             ["1m", "1m", "1m", "1m"],
@@ -300,7 +308,8 @@ class ZimoJiagangOption(object):
             ["6z", "6z", "6z", "6z"],
             ["7z", "7z", "7z", "7z"],
         ):
-            raise ValueError(f"{tiles}: An invalid combination for Jiagang.")
+            msg = f"{tiles}: An invalid combination for Jiagang."
+            raise ValueError(msg)
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -371,7 +380,8 @@ class ZimoOptionPresence(object):
         self._options = options
 
         if main_time <= 0:
-            raise ValueError("`main_time` must be a positive integer.")
+            msg = "`main_time` must be a positive integer."
+            raise ValueError(msg)
         self._main_time = main_time
 
         if overtime < 0:
@@ -390,7 +400,8 @@ class ZimoOptionPresence(object):
 class ZhentingInfo(object):
     def __init__(self, flags: List[bool]):
         if len(flags) != 4:
-            raise ValueError("The length of `flags` must be equal to 4.")
+            msg = "The length of `flags` must be equal to 4."
+            raise ValueError(msg)
         self._flags = flags
 
     def to_json(self) -> List[bool]:
@@ -415,9 +426,8 @@ class Zimo(object):
         self._tile = tile
 
         if left_tile_count < 0:
-            raise ValueError(
-                "`left_tile_count` must be a non-negative integer.",
-            )
+            msg = "`left_tile_count` must be a non-negative integer."
+            raise ValueError(msg)
         self._left_tile_count = left_tile_count
 
         self._option_presence = option_presence
@@ -453,7 +463,8 @@ class Chi(object):
         self._seat = seat
 
         if len(tiles) != 3:
-            raise ValueError("The length of `tiles` must be equal to 3.")
+            msg = "The length of `tiles` must be equal to 3."
+            raise ValueError(msg)
         if tiles not in (
             ["2m", "3m", "1m"],
             ["1m", "3m", "2m"],
@@ -546,13 +557,16 @@ class Chi(object):
             ["7s", "9s", "8s"],
             ["7s", "8s", "9s"],
         ):
-            raise ValueError(f"{tiles}: An invalid tile combination for Chi.")
+            msg = f"{tiles}: An invalid tile combination for Chi."
+            raise ValueError(msg)
         self._tiles = tiles
 
         if len(froms) != 3:
-            raise ValueError("The length of `froms` must be equal to 3.")
+            msg = "The length of `froms` must be equal to 3."
+            raise ValueError(msg)
         if froms not in ([0, 0, 3], [1, 1, 0], [2, 2, 1], [3, 3, 2]):
-            raise ValueError(f"{froms}: An invalid seat combination for Chi.")
+            msg = f"{froms}: An invalid seat combination for Chi."
+            raise ValueError(msg)
         self._froms = froms
 
         self._zhenting = zhenting
@@ -583,7 +597,8 @@ class Peng(object):
         self._seat = seat
 
         if len(tiles) != 3:
-            raise ValueError("The length of `tiles` must be equal to 3.")
+            msg = "The length of `tiles` must be equal to 3."
+            raise ValueError(msg)
         if tiles not in (
             ["1m", "1m", "1m"],
             ["2m", "2m", "2m"],
@@ -626,18 +641,21 @@ class Peng(object):
             ["6z", "6z", "6z"],
             ["7z", "7z", "7z"],
         ):
-            raise ValueError(f"{tiles}: An invalid tile combination for Peng.")
+            msg = f"{tiles}: An invalid tile combination for Peng."
+            raise ValueError(msg)
         self._tiles = tiles
 
         if len(froms) != 3:
-            raise ValueError("The length of `froms` must be equal to 3.")
+            msg = "The length of `froms` must be equal to 3."
+            raise ValueError(msg)
         if froms not in (
             [0, 0, 1], [0, 0, 2], [0, 0, 3],
             [1, 1, 0], [1, 1, 2], [1, 1, 3],
             [2, 2, 0], [2, 2, 1], [2, 2, 3],
             [3, 3, 0], [3, 3, 1], [3, 3, 2],
         ):  # fmt: skip
-            raise ValueError(f"{froms}: An invalid seat combination for Chi.")
+            msg = f"{froms}: An invalid seat combination for Chi."
+            raise ValueError(msg)
         self._froms = froms
 
         self._zhenting = zhenting
@@ -666,7 +684,8 @@ class Daminggang(object):
         self._seat = seat
 
         if len(tiles) != 4:
-            raise ValueError("The length of `tiles` must be equal to 4.")
+            msg = "The length of `tiles` must be equal to 4."
+            raise ValueError(msg)
         if tiles not in (
             ["1m", "1m", "1m", "1m"],
             ["2m", "2m", "2m", "2m"],
@@ -706,18 +725,21 @@ class Daminggang(object):
             ["6z", "6z", "6z", "6z"],
             ["7z", "7z", "7z", "7z"],
         ):
-            raise ValueError(f"{tiles}: An invalid tile combination for Gang.")
+            msg = f"{tiles}: An invalid tile combination for Gang."
+            raise ValueError(msg)
         self._tiles = tiles
 
         if len(froms) != 4:
-            raise ValueError("The length of `froms` must be equal to 4.")
+            msg = "The length of `froms` must be equal to 4."
+            raise ValueError(msg)
         if froms not in (
             [0, 0, 0, 1], [0, 0, 0, 2], [0, 0, 0, 3],
             [1, 1, 1, 0], [1, 1, 1, 2], [1, 1, 1, 3],
             [2, 2, 2, 0], [2, 2, 2, 1], [2, 2, 2, 3],
             [3, 3, 3, 0], [3, 3, 3, 1], [3, 3, 3, 2],
         ):  # fmt: skip
-            raise ValueError(f"{froms}: An invalid seat combination for Gang.")
+            msg = f"{froms}: An invalid seat combination for Gang."
+            raise ValueError(msg)
         self._froms = froms
 
         self._zhenting = zhenting
@@ -764,7 +786,8 @@ class DapaiChiOption(object):
     def __init__(self, tiles_list: List[List[Tile]]):
         for tiles in tiles_list:
             if len(tiles) != 2:
-                raise ValueError("The length of `tiles` must be equal to 2.")
+                msg = "The length of `tiles` must be equal to 2."
+                raise ValueError(msg)
             if tiles not in (
                 ["2m", "3m"],
                 ["1m", "3m"], ["3m", "4m"],
@@ -794,9 +817,8 @@ class DapaiChiOption(object):
                 ["6s", "7s"], ["7s", "9s"],
                 ["7s", "8s"],
             ):  # fmt: skip
-                raise ValueError(
-                    f"{tiles}: An invalid tile combination for Chi.",
-                )
+                msg = f"{tiles}: An invalid tile combination for Chi."
+                raise ValueError(msg)
         self._tiles_list = tiles_list
 
     def to_json(self) -> object:
@@ -815,7 +837,8 @@ class DapaiPengOption(object):
     def __init__(self, tiles_list: List[List[Tile]]):
         for tiles in tiles_list:
             if len(tiles) != 2:
-                raise ValueError("The length of `tiles` must be equal to 2.")
+                msg = "The length of `tiles` must be equal to 2."
+                raise ValueError(msg)
             if tiles not in (
                 ["1m", "1m"],
                 ["2m", "2m"],
@@ -852,9 +875,8 @@ class DapaiPengOption(object):
                 ["6z", "6z"],
                 ["7z", "7z"],
             ):  # fmt: skip
-                raise ValueError(
-                    f"{tiles}: An invalid tile combination for Peng.",
-                )
+                msg = f"{tiles}: An invalid tile combination for Peng."
+                raise ValueError(msg)
         self._tiles_list = tiles_list
 
     def to_json(self) -> object:
@@ -872,7 +894,8 @@ class DapaiPengOption(object):
 class DapaiDaminggangOption(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 3:
-            raise ValueError("The length of `tiles` must be equal to 2.")
+            msg = "The length of `tiles` must be equal to 2."
+            raise ValueError(msg)
         if tiles not in (
             ["1m", "1m", "1m"],
             ["2m", "2m", "2m"],
@@ -912,7 +935,8 @@ class DapaiDaminggangOption(object):
             ["6z", "6z", "6z"],
             ["7z", "7z", "7z"],
         ):
-            raise ValueError(f"{tiles}: An invalid tile combination for Peng.")
+            msg = f"{tiles}: An invalid tile combination for Peng."
+            raise ValueError(msg)
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -962,11 +986,13 @@ class DapaiOptionPresence(object):
         self._options = options
 
         if main_time <= 0:
-            raise ValueError("`main_time` must be a positive integer.")
+            msg = "`main_time` must be a positive integer."
+            raise ValueError(msg)
         self._main_time = main_time
 
         if overtime < 0:
-            raise ValueError("`overtime` must be a non-positive integer.")
+            msg = "`overtime` must be a non-positive integer."
+            raise ValueError(msg)
         self._overtime = overtime
 
     def to_json(self) -> object:
@@ -1027,7 +1053,8 @@ class Dapai(object):
 class Shunzi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 3:
-            raise ValueError("The length of `tiles` must be equal to 3.")
+            msg = "The length of `tiles` must be equal to 3."
+            raise ValueError(msg)
         if tiles not in (
             ["2m", "3m", "1m"],
             ["1m", "3m", "2m"],
@@ -1120,7 +1147,8 @@ class Shunzi(object):
             ["7s", "9s", "8s"],
             ["7s", "8s", "9s"],
         ):
-            raise ValueError(f"{tiles}: An invalid combination for Shunzi.")
+            msg = f"{tiles}: An invalid combination for Shunzi."
+            raise ValueError(msg)
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -1133,7 +1161,8 @@ class Shunzi(object):
 class Kezi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 3:
-            raise ValueError("The length of `tiles` must be equal to 3.")
+            msg = "The length of `tiles` must be equal to 3."
+            raise ValueError(msg)
         if tiles not in (
             ["1m", "1m", "1m"],
             ["2m", "2m", "2m"],
@@ -1176,7 +1205,8 @@ class Kezi(object):
             ["6z", "6z", "6z"],
             ["7z", "7z", "7z"],
         ):
-            raise ValueError(f"{tiles}: An invalid combination for Kezi.")
+            msg = f"{tiles}: An invalid combination for Kezi."
+            raise ValueError(msg)
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -1189,7 +1219,8 @@ class Kezi(object):
 class Minggangzi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError("The length of `tiles` must be equal to 4.")
+            msg = "The length of `tiles` must be equal to 4."
+            raise ValueError(msg)
         if tiles not in (
             ["1m", "1m", "1m", "1m"],
             ["2m", "2m", "2m", "2m"],
@@ -1229,9 +1260,8 @@ class Minggangzi(object):
             ["6z", "6z", "6z", "6z"],
             ["7z", "7z", "7z", "7z"],
         ):
-            raise ValueError(
-                f"{tiles}: An invalid combination for Minggangzi.",
-            )
+            msg = f"{tiles}: An invalid combination for Minggangzi."
+            raise ValueError(msg)
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -1244,7 +1274,8 @@ class Minggangzi(object):
 class Angangzi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError("The length of `tiles` must be equal to 4.")
+            msg = "The length of `tiles` must be equal to 4."
+            raise ValueError(msg)
         if tiles not in (
             ["1m", "1m", "1m", "1m"],
             ["2m", "2m", "2m", "2m"],
@@ -1284,7 +1315,8 @@ class Angangzi(object):
             ["6z", "6z", "6z", "6z"],
             ["7z", "7z", "7z", "7z"],
         ):
-            raise ValueError(f"{tiles}: An invalid combination for Angangzi.")
+            msg = f"{tiles}: An invalid combination for Angangzi."
+            raise ValueError(msg)
         self._tiles = tiles
 
     def to_json(self) -> object:
@@ -1306,244 +1338,294 @@ class Hupai(object):
     def __init__(self, *, title: str, fan: int):
         if title == "門前清自摸和":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "立直":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "槍槓":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "嶺上開花":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "海底摸月":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "河底撈魚":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "役牌白":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "役牌發":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "役牌中":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "役牌:自風牌":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "役牌:場風牌":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "断幺九":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "一盃口":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "平和":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "混全帯幺九":
             if fan not in [2, 1]:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "一気通貫":
             if fan not in [2, 1]:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "三色同順":
             if fan not in [2, 1]:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "ダブル立直":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "三色同刻":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "三槓子":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "対々和":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "三暗刻":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "小三元":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "混老頭":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "七対子":
             if fan != 2:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "純全帯幺九":
             if fan not in [3, 2]:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "混一色":
             if fan not in [3, 2]:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "二盃口":
             if fan != 3:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "清一色":
             if fan not in [6, 5]:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "一発":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "ドラ":
             if fan < 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "赤ドラ":
             if fan < 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "裏ドラ":
             if fan < 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "流し満貫":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "天和":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "地和":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "大三元":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "四暗刻":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "字一色":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "緑一色":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "清老頭":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "国士無双":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "小四喜":
             if fan != 1:
-                raise ValueError(
+                msg = (
                     f"title == {title}, fan == {fan}:"
-                    " An invalid combination.",
+                    " An invalid combination."
                 )
+                raise ValueError(msg)
         elif title == "四槓子":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "九蓮宝燈":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "純正九蓮宝燈":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "四暗刻単騎":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "国士無双十三面待ち":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         elif title == "大四喜":
-            raise NotImplementedError(f"title == {title}, fan == {fan}")
+            msg = f"title == {title}, fan == {fan}"
+            raise NotImplementedError(msg)
         else:
-            raise ValueError(f"{title}: An invalid value for `title`.")
+            msg = f"{title}: An invalid value for `title`."
+            raise ValueError(msg)
 
         self._title = title
         self._fan = fan
@@ -1581,16 +1663,19 @@ class Hule(object):
         self._zhuangjia = zhuangjia
 
         if len(hand) not in (13, 10, 7, 4, 1):
-            raise ValueError(f"An invalid value for `hand`: {hand}")
+            msg = f"An invalid value for `hand`: {hand}"
+            raise ValueError(msg)
         self._hand = hand
 
         if len(ming_list) not in (0, 1, 2, 3, 4):
-            raise ValueError(f"An invalid value for `ming_list`: {ming_list})")
+            msg = f"An invalid value for `ming_list`: {ming_list})"
+            raise ValueError(msg)
         if len(hand) + 3 * len(ming_list) != 13:
-            raise ValueError(
+            msg = (
                 "An invalid combination of `hand` and `ming_list`:"
-                f" hand == {hand}, ming_list == {ming_list}",
+                f" hand == {hand}, ming_list == {ming_list}"
             )
+            raise ValueError(msg)
         self._ming_list = ming_list
 
         self._hupai = hupai
@@ -1600,20 +1685,21 @@ class Hule(object):
         self._li_doras = li_doras
 
         if fu < 20:
-            raise ValueError(f"{fu}: An invalid value for `fu`.")
+            msg = f"{fu}: An invalid value for `fu`."
+            raise ValueError(msg)
         self._fu = fu
 
         self._hupai_list = hupai_list
 
         if fan < 1:
-            raise ValueError(f"{fan}: An invalid value for `fan`.")
+            msg = f"{fan}: An invalid value for `fan`."
+            raise ValueError(msg)
         self._fan = fan
 
         if fan_title is not None:
             if fan_title not in ("満貫", "跳満", "倍満", "三倍満", "役満"):
-                raise ValueError(
-                    f"{fan_title}: An invalid value for `fan_title`.",
-                )
+                msg = f"{fan_title}: An invalid value for `fan_title`."
+                raise ValueError(msg)
         self._fan_title = fan_title
 
         self._damanguan = damanguan
@@ -1677,17 +1763,20 @@ class RoundEndByHule(object):
         self._hule_list = hule_list
 
         if len(old_scores) != 4:
-            raise ValueError(f"The length of `old_scores` must be equal to 4.")
+            msg = f"The length of `old_scores` must be equal to 4."
+            raise ValueError(msg)
         self._old_scores = old_scores
 
         if len(delta_scores) != 4:
+            msg = f"The length of `delta_scores` must be equal to 4."
             raise ValueError(
-                f"The length of `delta_scores` must be equal to 4.",
+                msg,
             )
         self._delta_scores = delta_scores
 
         if len(new_scores) != 4:
-            raise ValueError(f"The length of `new_socres` must be equal to 4.")
+            msg = f"The length of `new_socres` must be equal to 4."
+            raise ValueError(msg)
         self._new_scores = new_scores
 
     def to_json(self) -> object:
@@ -1713,13 +1802,13 @@ class PlayerResultOnNoTile(object):
         self._tingpai = tingpai
 
         if tingpai != (hand is not None):
-            raise ValueError("Inconsistency between `tingpai` and `hand`.")
+            msg = "Inconsistency between `tingpai` and `hand`."
+            raise ValueError(msg)
         self._hand = hand
 
         if tingpai != (len(tingpai_list) >= 1):
-            raise ValueError(
-                "Inconsistency between `tingpai` and `tingpai_list`.",
-            )
+            msg = "Inconsistency between `tingpai` and `tingpai_list`."
+            raise ValueError(msg)
         self._tingpai_list = tingpai_list
 
         self._old_score = old_score
@@ -1750,9 +1839,8 @@ class NoTile(object):
         self._liujumanguan = liujumanguan
 
         if len(player_results) != 4:
-            raise ValueError(
-                "The length of `player_results` must be equal to 4.",
-            )
+            msg = "The length of `player_results` must be equal to 4."
+            raise ValueError(msg)
         self._player_results = player_results
 
     def to_json(self) -> object:
@@ -1771,7 +1859,8 @@ class Kyushukyuhai(object):
         self._seat = seat
 
         if len(hand) != 14:
-            raise ValueError("The length of `hand` must be equal to 14.")
+            msg = "The length of `hand` must be equal to 14."
+            raise ValueError(msg)
         self._hand = hand
 
     def to_json(self) -> object:
@@ -1832,50 +1921,53 @@ class GameRound(object):
         option_presence: ZimoOptionPresence,
     ):
         if chang not in ["東", "南", "西"]:
-            raise ValueError(
-                "`chang` must be equal to either `東`, `南`, or `西`.",
-            )
+            msg = "`chang` must be equal to either `東`, `南`, or `西`."
+            raise ValueError(msg)
         self._chang = chang
 
         if ju < 0 or ju >= 4:
-            raise ValueError(
-                "`ju` must be equal to either `0`, `1`, `2`, or `3`.",
-            )
+            msg = "`ju` must be equal to either `0`, `1`, `2`, or `3`."
+            raise ValueError(msg)
         self._ju = ju
 
         if ben < 0:
-            raise ValueError("`ben` must be a non-negative integer.")
+            msg = "`ben` must be a non-negative integer."
+            raise ValueError(msg)
         self._ben = ben
 
         if lizhibang < 0:
-            raise ValueError("`lizhibang` must be a non-negative integer.")
+            msg = "`lizhibang` must be a non-negative integer."
+            raise ValueError(msg)
         self._lizhibang = lizhibang
 
         if len(initial_scores) != 4:
-            raise ValueError(
-                "The length of `initial_scores` must be equal to 4.",
-            )
+            msg = "The length of `initial_scores` must be equal to 4."
+            raise ValueError(msg)
         for initial_score in initial_scores:
             if initial_score < 0:
-                raise ValueError(
+                msg = (
                     "All the elements in `initial_scores` must be"
-                    " a non-negative integer.",
+                    " a non-negative integer."
                 )
+                raise ValueError(msg)
         self._initial_scores = initial_scores
 
         if len(qipai_list) != 4:
-            raise ValueError("The length of `qipai_list` must be equal to 4.")
+            msg = "The length of `qipai_list` must be equal to 4."
+            raise ValueError(msg)
         for i in range(len(qipai_list)):
             if i == self._ju and len(qipai_list[i]) != 14:
-                raise ValueError(
+                msg = (
                     "The length of `qipai_list` for zhuangjia"
-                    " must be equal to 14.",
+                    " must be equal to 14."
                 )
+                raise ValueError(msg)
             if i != self._ju and len(qipai_list[i]) != 13:
-                raise ValueError(
+                msg = (
                     "The length of `qipai_list` for sanjia must"
-                    " be equal to 13.",
+                    " be equal to 13."
                 )
+                raise ValueError(msg)
         self._qipai_list = qipai_list
 
         self._paishan = paishan
@@ -1975,13 +2067,13 @@ class GameRecord(object):
             "段位戦・王座の間・三人東風戦",
             "段位戦・王座の間・三人半荘戦",
         ]:
-            raise ValueError(f"{mode}: An invalid value for `mode`.")
+            msg = f"{mode}: An invalid value for `mode`."
+            raise ValueError(msg)
         self._mode = mode
 
         if len(account_list) != 4:
-            raise ValueError(
-                "The length of `account_list` must be equal to 4.",
-            )
+            msg = "The length of `account_list` must be equal to 4."
+            raise ValueError(msg)
         self._account_list = account_list
 
         self._round_list = []

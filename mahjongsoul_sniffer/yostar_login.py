@@ -113,14 +113,12 @@ class YostarLogin:
 
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             if now > start_time + timeout:
-                raise RuntimeError(
-                    "Extraction of the authentication has timed out.",
-                )
+                msg = "Extraction of the authentication has timed out."
+                raise RuntimeError(msg)
             time.sleep(1)
             now = datetime.datetime.now(tz=datetime.timezone.utc)
             if now > start_time + timeout:
-                raise RuntimeError(
-                    "Extraction of the authentication has timed out.",
-                )
+                msg = "Extraction of the authentication has timed out."
+                raise RuntimeError(msg)
 
         return auth_code

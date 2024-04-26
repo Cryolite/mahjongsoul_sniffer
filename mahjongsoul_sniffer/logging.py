@@ -21,19 +21,21 @@ def initialize(
 
     if _initialized:
         if module_name != _module_name:
-            raise RuntimeError(f"""`initialize` is called with\
+            msg = f"""`initialize` is called with\
  different module names:
 Previous call: module_name = {_module_name},\
  service_name = {_service_name}
 Current call: module_name = {module_name},\
- service_name = {service_name}""")
+ service_name = {service_name}"""
+            raise RuntimeError(msg)
         if service_name != _service_name:
-            raise RuntimeError(f"""`initialize` is called with\
+            msg = f"""`initialize` is called with\
  different service names:
 Previous call: module_name = {_module_name},\
  service_name = {_service_name}
 Current call: module_name = {module_name},\
- service_name = {service_name}""")
+ service_name = {service_name}"""
+            raise RuntimeError(msg)
         return
 
     config = config_.get(module_name)
@@ -51,7 +53,8 @@ Current call: module_name = {module_name},\
         file_path = pathlib.Path(file_config["path"])
         file_path.parent.mkdir(parents=True, exist_ok=True)
         if file_path.exists() and not file_path.is_file():
-            raise RuntimeError(f"{file_path}: Not a file.")
+            msg = f"{file_path}: Not a file."
+            raise RuntimeError(msg)
 
         file_max_bytes = file_config["max_bytes"]
         file_backup_count = file_config["backup_count"]

@@ -2854,7 +2854,8 @@ def validate(message: bytes) -> None:  # noqa: C901
     wrapper.ParseFromString(message[3:])
 
     if wrapper.name != "":
-        raise RuntimeError(f"""{wrapper.name}: An unexpected name.""")
+        msg = f"""{wrapper.name}: An unexpected name."""
+        raise RuntimeError(msg)
 
     response = ResGameRecord()
     response.ParseFromString(wrapper.data)
@@ -2887,7 +2888,13 @@ def validate(message: bytes) -> None:  # noqa: C901
 
     if wrapper.name != ".lq.GameDetailRecords":
         raise ValidationError(
-            uuid, None, None, None, None, message, response_json
+            uuid,
+            None,
+            None,
+            None,
+            None,
+            message,
+            response_json,
         )
 
     records = GameDetailRecords()
@@ -2960,7 +2967,8 @@ def validate(message: bytes) -> None:  # noqa: C901
         if name is None:
             assert message_type is None
             assert schema is None
-            raise RuntimeError(f"An unknown record: {record}")
+            msg = f"An unknown record: {record}"
+            raise RuntimeError(msg)
 
         assert name is not None
         assert message_type is not None
@@ -2970,7 +2978,8 @@ def validate(message: bytes) -> None:  # noqa: C901
         wrapper.ParseFromString(record)
 
         if wrapper.name != name:
-            raise RuntimeError(f"""{wrapper.name}: An unexpected name.""")
+            msg = f"""{wrapper.name}: An unexpected name."""
+            raise RuntimeError(msg)
 
         parse = message_type()
         parse.ParseFromString(wrapper.data)
@@ -3012,7 +3021,8 @@ def get_game_abstract(message: bytes) -> dict:
     wrapper.ParseFromString(message[3:])
 
     if wrapper.name != "":
-        raise RuntimeError(f"""{wrapper.name}: An unexpected name.""")
+        msg = f"""{wrapper.name}: An unexpected name."""
+        raise RuntimeError(msg)
 
     parse = ResGameRecord()
     parse.ParseFromString(wrapper.data)

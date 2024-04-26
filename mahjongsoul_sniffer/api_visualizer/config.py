@@ -113,9 +113,11 @@ def get() -> dict:
         return _config
 
     if not _CONFIG_FILE_PATH.exists():
-        raise RuntimeError(f"{_CONFIG_FILE_PATH}: File does not exist.")
+        msg = f"{_CONFIG_FILE_PATH}: File does not exist."
+        raise RuntimeError(msg)
     if not _CONFIG_FILE_PATH.is_file():
-        raise RuntimeError(f"{_CONFIG_FILE_PATH}: Not a file.")
+        msg = f"{_CONFIG_FILE_PATH}: Not a file."
+        raise RuntimeError(msg)
 
     with open(_CONFIG_FILE_PATH) as config_file:
         config = yaml.load(config_file, Loader=yaml.Loader)
