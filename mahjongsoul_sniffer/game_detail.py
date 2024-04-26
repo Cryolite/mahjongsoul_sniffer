@@ -2861,7 +2861,7 @@ def validate(message: bytes) -> None:  # noqa: C901
 
     response_json = google.protobuf.json_format.MessageToDict(
         response,
-        including_default_value_fields=True,
+        always_print_fields_with_no_presence=True,
         preserving_proto_field_name=True,
     )
     try:
@@ -2991,7 +2991,7 @@ def validate(message: bytes) -> None:  # noqa: C901
 
         parse_json = google.protobuf.json_format.MessageToDict(
             parse,
-            including_default_value_fields=True,
+            always_print_fields_with_no_presence=True,
             preserving_proto_field_name=True,
         )
         try:
