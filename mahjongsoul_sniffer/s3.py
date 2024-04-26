@@ -96,8 +96,11 @@ class Bucket:
                 game_abstract = game_abstract_object.get()
             except botocore.exceptions.ClientError as e:
                 if e.response["Error"]["Code"] == "NoSuchKey":
-                    logging.info(f"Skipped getting an already deleted\
- game abstract `{game_abstract_object.key}`.")
+                    logging.info(
+                        "Skipped getting an already deleted\
+ game abstract `%s`.",
+                        game_abstract_object.key,
+                    )
                     continue
                 raise
             game_abstract = game_abstract["Body"]

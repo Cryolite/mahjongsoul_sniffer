@@ -34,7 +34,7 @@ class YostarLogin:
         for key, email in emails.items():
             if "Date" not in email:
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
             date = datetime.datetime.strptime(
                 email["Date"],
@@ -46,12 +46,12 @@ class YostarLogin:
                 # 認証コードの有効期限が30分なので，30分以上前に送られた
                 # メールは無条件で削除する．
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
 
             if "To" not in email:
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
             if email["To"] != self.__email_address:
                 # 宛先が異なるメールは他のクローラに対して送られた
@@ -60,29 +60,29 @@ class YostarLogin:
 
             if date < start_time:
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
             if target_date is not None and date < target_date:
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
 
             if "From" not in email:
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
             if email["From"] != "info@passport.yostar.co.jp":
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
 
             if "Subject" not in email:
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
             if email["Subject"] != "Eメールアドレスの確認":
                 self.__s3_bucket.delete_object(key)
-                logging.info(f"Deleted the object `{key}`.")
+                logging.info("Deleted the object `%s`.", key)
                 continue
 
             target_date = date
@@ -90,7 +90,7 @@ class YostarLogin:
             target_content = body.get_content()
 
             self.__s3_bucket.delete_object(key)
-            logging.info(f"Deleted the object `{key}`.")
+            logging.info("Deleted the object `%s`.", key)
 
         if target_content is None:
             return None
