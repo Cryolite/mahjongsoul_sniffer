@@ -1,13 +1,11 @@
-#!/usr/bin/python3
-
 import datetime
 import logging
-from typing import (Optional, Tuple, List, Union)
+from typing import List, Optional, Tuple, Union
 
 
 class GameRecordPlaceholder(object):
     def __init__(self, *, uuid: str, start_time: datetime.datetime):
-        self._uuid = uuid,
+        self._uuid = (uuid,)
         self._start_time = start_time
 
     @property
@@ -20,21 +18,24 @@ class GameRecordPlaceholder(object):
 
     def to_json(self) -> object:
         return {
-            'uuid': self._uuid,
-            'start_time': self._start_time
+            "uuid": self._uuid,
+            "start_time": self._start_time,
         }
 
 
 class AccountLevel(object):
     def __init__(self, *, title: str, level: int, grading_point: int):
-        if title not in ['初心', '雀士', '雀傑', '雀豪', '雀聖', '魂天']:
-            raise ValueError("`title` must be equal to either `初心`, `雀士`,"
-                             " `雀傑`, `雀豪`, `雀聖`, or `魂天`.")
+        if title not in ["初心", "雀士", "雀傑", "雀豪", "雀聖", "魂天"]:
+            raise ValueError(
+                "`title` must be equal to either `初心`, `雀士`,"
+                " `雀傑`, `雀豪`, `雀聖`, or `魂天`.",
+            )
         self._title = title
 
         if level < 1 or level > 3:
             raise ValueError(
-                "`level` must be equal to either `1`, `2`, or `3`.")
+                "`level` must be equal to either `1`, `2`, or `3`.",
+            )
         self._level = level
 
         if grading_point < 0:
@@ -43,17 +44,25 @@ class AccountLevel(object):
 
     def to_json(self) -> object:
         return {
-            'title': self._title,
-            'level': self._level,
-            'grading_point': self._grading_point
+            "title": self._title,
+            "level": self._level,
+            "grading_point": self._grading_point,
         }
 
 
 class Account(object):
-    def __init__(self, *, id: int, nickname: str, level4: AccountLevel,
-                 level3: AccountLevel, final_base_score: int,
-                 final_total_score: int, delta_grading_point: int,
-                 delta_coin: int):
+    def __init__(
+        self,
+        *,
+        id: int,
+        nickname: str,
+        level4: AccountLevel,
+        level3: AccountLevel,
+        final_base_score: int,
+        final_total_score: int,
+        delta_grading_point: int,
+        delta_coin: int,
+    ):
         if id < 0:
             raise ValueError("`id` must be a non-negative integer")
         self._id = id
@@ -74,14 +83,14 @@ class Account(object):
 
     def to_json(self) -> object:
         return {
-            'id': self._id,
-            'nickname': self._nickname,
-            'level4': self._level4.to_json(),
-            'level3': self._level3.to_json(),
-            'final_base_score': self._final_base_score,
-            'final_total_score': self._final_total_score,
-            'delta_grading_point': self._delta_grading_point,
-            'delta_coin': self._delta_coin
+            "id": self._id,
+            "nickname": self._nickname,
+            "level4": self._level4.to_json(),
+            "level3": self._level3.to_json(),
+            "final_base_score": self._final_base_score,
+            "final_total_score": self._final_total_score,
+            "delta_grading_point": self._delta_grading_point,
+            "delta_coin": self._delta_coin,
         }
 
 
@@ -89,7 +98,8 @@ class Seat(object):
     def __init__(self, index: int):
         if index < 0 or 4 <= index:
             raise ValueError(
-                '`index` must be equal to either `0`, `1`, `2`, or `3`.')
+                "`index` must be equal to either `0`, `1`, `2`, or `3`.",
+            )
         self._index = index
 
     def __repr__(self) -> str:
@@ -104,12 +114,13 @@ class Seat(object):
 
 class Tile(object):
     def __init__(self, code: str):
-        if code not in ['0m', '1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m',
-                        '9m', '0p', '1p', '2p', '3p', '4p', '5p', '6p', '7p',
-                        '8p', '9p', '0s', '1s', '2s', '3s', '4s', '5s', '6s',
-                        '7s', '8s', '9s', '1z', '2z', '3z', '4z', '5z', '6z',
-                        '7z']:
-            raise ValueError(f'An invalid tile code `{code}`.')
+        if code not in [
+            "0m", "1m", "2m", "3m", "4m", "5m", "6m", "7m", "8m", "9m",
+            "0p", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p",
+            "0s", "1s", "2s", "3s", "4s", "5s", "6s", "7s", "8s", "9s",
+            "1z", "2z", "3z", "4z", "5z", "6z", "7z",
+        ]:  # fmt: skip
+            raise ValueError(f"An invalid tile code `{code}`.")
         self._code = code
 
     def __repr__(self) -> str:
@@ -123,48 +134,59 @@ class Tile(object):
 
 
 class TingpaiInfo(object):
-    def __init__(self, *, tile: Tile, has_yifan: bool, fu_zimo: int,
-                 fan_zimo: int, damanguan_zimo: bool, fu_rong: int,
-                 fan_rong: int, damanguan_rong: bool, biao_dora_count: int):
+    def __init__(
+        self,
+        *,
+        tile: Tile,
+        has_yifan: bool,
+        fu_zimo: int,
+        fan_zimo: int,
+        damanguan_zimo: bool,
+        fu_rong: int,
+        fan_rong: int,
+        damanguan_rong: bool,
+        biao_dora_count: int,
+    ):
         self._tile = tile
         self._has_yifan = has_yifan
 
         if fu_zimo < 20:
-            raise ValueError(f'{fu_zimo}: An invalid value for `fu_zimo`.')
+            raise ValueError(f"{fu_zimo}: An invalid value for `fu_zimo`.")
         self._fu_zimo = fu_zimo
 
         if fan_zimo < 0:
-            raise ValueError('`fan_zimo` must be a non-negative integer.')
+            raise ValueError("`fan_zimo` must be a non-negative integer.")
         self._fan_zimo = fan_zimo
 
         self._damanguan_zimo = damanguan_zimo
 
         if fu_rong < 25:
-            raise ValueError(f'{fu_rong}: An invalid value for `fu_rong`.')
+            raise ValueError(f"{fu_rong}: An invalid value for `fu_rong`.")
         self._fu_rong = fu_rong
 
         if fan_rong < 0:
-            raise ValueError('`fan_rong` must be a non-negative integer.')
+            raise ValueError("`fan_rong` must be a non-negative integer.")
         self._fan_rong = fan_rong
 
         self._damanguan_rong = damanguan_rong
 
         if biao_dora_count < 0:
             raise ValueError(
-                '`biao_dora_count` must be a non-negative integer.')
+                "`biao_dora_count` must be a non-negative integer.",
+            )
         self._biao_dora_count = biao_dora_count
 
     def to_json(self) -> object:
         return {
-            'tile': self._tile.to_json(),
-            'has_yifan': self._has_yifan,
-            'fu_zimo': self._fu_zimo,
-            'fan_zimo': self._fan_zimo,
-            'damanguan_zimo': self._damanguan_zimo,
-            'fu_rong': self._fu_rong,
-            'fan_rong': self._fan_rong,
-            'damanguan_rong': self._damanguan_rong,
-            'biao_dora_count': self._biao_dora_count
+            "tile": self._tile.to_json(),
+            "has_yifan": self._has_yifan,
+            "fu_zimo": self._fu_zimo,
+            "fan_zimo": self._fan_zimo,
+            "damanguan_zimo": self._damanguan_zimo,
+            "fu_rong": self._fu_rong,
+            "fan_rong": self._fan_rong,
+            "damanguan_rong": self._damanguan_rong,
+            "biao_dora_count": self._biao_dora_count,
         }
 
 
@@ -173,117 +195,118 @@ class ZimoDapaiOption(object):
         self._tiles = tiles
 
     def to_json(self) -> object:
-        return {
-            'type': '打牌',
-            'tiles': [t.to_json() for t in self._tiles]
-        }
+        return {"type": "打牌", "tiles": [t.to_json() for t in self._tiles]}
 
 
 class ZimoAngangOption(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError('The length of `tiles` must be equal to 4.')
-        if tiles not in (['0m', '0m', '0m', '0m'],
-                         ['1m', '1m', '1m', '1m'],
-                         ['2m', '2m', '2m', '2m'],
-                         ['3m', '3m', '3m', '3m'],
-                         ['4m', '4m', '4m', '4m'],
-                         ['0m', '5m', '5m', '5m'],
-                         ['5m', '5m', '5m', '0m'],
-                         ['6m', '6m', '6m', '6m'],
-                         ['7m', '7m', '7m', '7m'],
-                         ['8m', '8m', '8m', '8m'],
-                         ['9m', '9m', '9m', '9m'],
-                         ['0p', '0p', '0p', '0p'],
-                         ['1p', '1p', '1p', '1p'],
-                         ['2p', '2p', '2p', '2p'],
-                         ['3p', '3p', '3p', '3p'],
-                         ['4p', '4p', '4p', '4p'],
-                         ['0p', '5p', '5p', '5p'],
-                         ['5p', '5p', '5p', '0p'],
-                         ['6p', '6p', '6p', '6p'],
-                         ['7p', '7p', '7p', '7p'],
-                         ['8p', '8p', '8p', '8p'],
-                         ['9p', '9p', '9p', '9p'],
-                         ['0s', '0s', '0s', '0s'],
-                         ['1s', '1s', '1s', '1s'],
-                         ['2s', '2s', '2s', '2s'],
-                         ['3s', '3s', '3s', '3s'],
-                         ['4s', '4s', '4s', '4s'],
-                         ['0s', '5s', '5s', '5s'],
-                         ['5s', '5s', '5s', '0s'],
-                         ['6s', '6s', '6s', '6s'],
-                         ['7s', '7s', '7s', '7s'],
-                         ['8s', '8s', '8s', '8s'],
-                         ['9s', '9s', '9s', '9s'],
-                         ['1z', '1z', '1z', '1z'],
-                         ['2z', '2z', '2z', '2z'],
-                         ['3z', '3z', '3z', '3z'],
-                         ['4z', '4z', '4z', '4z'],
-                         ['5z', '5z', '5z', '5z'],
-                         ['6z', '6z', '6z', '6z'],
-                         ['7z', '7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid combination for Angang.')
+            raise ValueError("The length of `tiles` must be equal to 4.")
+        if tiles not in (
+            ["0m", "0m", "0m", "0m"],
+            ["1m", "1m", "1m", "1m"],
+            ["2m", "2m", "2m", "2m"],
+            ["3m", "3m", "3m", "3m"],
+            ["4m", "4m", "4m", "4m"],
+            ["0m", "5m", "5m", "5m"],
+            ["5m", "5m", "5m", "0m"],
+            ["6m", "6m", "6m", "6m"],
+            ["7m", "7m", "7m", "7m"],
+            ["8m", "8m", "8m", "8m"],
+            ["9m", "9m", "9m", "9m"],
+            ["0p", "0p", "0p", "0p"],
+            ["1p", "1p", "1p", "1p"],
+            ["2p", "2p", "2p", "2p"],
+            ["3p", "3p", "3p", "3p"],
+            ["4p", "4p", "4p", "4p"],
+            ["0p", "5p", "5p", "5p"],
+            ["5p", "5p", "5p", "0p"],
+            ["6p", "6p", "6p", "6p"],
+            ["7p", "7p", "7p", "7p"],
+            ["8p", "8p", "8p", "8p"],
+            ["9p", "9p", "9p", "9p"],
+            ["0s", "0s", "0s", "0s"],
+            ["1s", "1s", "1s", "1s"],
+            ["2s", "2s", "2s", "2s"],
+            ["3s", "3s", "3s", "3s"],
+            ["4s", "4s", "4s", "4s"],
+            ["0s", "5s", "5s", "5s"],
+            ["5s", "5s", "5s", "0s"],
+            ["6s", "6s", "6s", "6s"],
+            ["7s", "7s", "7s", "7s"],
+            ["8s", "8s", "8s", "8s"],
+            ["9s", "9s", "9s", "9s"],
+            ["1z", "1z", "1z", "1z"],
+            ["2z", "2z", "2z", "2z"],
+            ["3z", "3z", "3z", "3z"],
+            ["4z", "4z", "4z", "4z"],
+            ["5z", "5z", "5z", "5z"],
+            ["6z", "6z", "6z", "6z"],
+            ["7z", "7z", "7z", "7z"],
+        ):
+            raise ValueError(f"{tiles}: An invalid combination for Angang.")
         self._tiles = tiles
 
     def to_json(self) -> object:
         return {
-            'type': '暗槓',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "暗槓",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
 class ZimoJiagangOption(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError('The length of `tiles` must be equal to 4.')
-        if tiles not in (['0m', '0m', '0m', '0m'],
-                         ['1m', '1m', '1m', '1m'],
-                         ['2m', '2m', '2m', '2m'],
-                         ['3m', '3m', '3m', '3m'],
-                         ['4m', '4m', '4m', '4m'],
-                         ['0m', '5m', '5m', '5m'],
-                         ['5m', '5m', '5m', '0m'],
-                         ['6m', '6m', '6m', '6m'],
-                         ['7m', '7m', '7m', '7m'],
-                         ['8m', '8m', '8m', '8m'],
-                         ['9m', '9m', '9m', '9m'],
-                         ['0p', '0p', '0p', '0p'],
-                         ['1p', '1p', '1p', '1p'],
-                         ['2p', '2p', '2p', '2p'],
-                         ['3p', '3p', '3p', '3p'],
-                         ['4p', '4p', '4p', '4p'],
-                         ['0p', '5p', '5p', '5p'],
-                         ['5p', '5p', '5p', '0p'],
-                         ['6p', '6p', '6p', '6p'],
-                         ['7p', '7p', '7p', '7p'],
-                         ['8p', '8p', '8p', '8p'],
-                         ['9p', '9p', '9p', '9p'],
-                         ['0s', '0s', '0s', '0s'],
-                         ['1s', '1s', '1s', '1s'],
-                         ['2s', '2s', '2s', '2s'],
-                         ['3s', '3s', '3s', '3s'],
-                         ['4s', '4s', '4s', '4s'],
-                         ['0s', '5s', '5s', '5s'],
-                         ['5s', '5s', '5s', '0s'],
-                         ['6s', '6s', '6s', '6s'],
-                         ['7s', '7s', '7s', '7s'],
-                         ['8s', '8s', '8s', '8s'],
-                         ['9s', '9s', '9s', '9s'],
-                         ['1z', '1z', '1z', '1z'],
-                         ['2z', '2z', '2z', '2z'],
-                         ['3z', '3z', '3z', '3z'],
-                         ['4z', '4z', '4z', '4z'],
-                         ['5z', '5z', '5z', '5z'],
-                         ['6z', '6z', '6z', '6z'],
-                         ['7z', '7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid combination for Jiagang.')
+            raise ValueError("The length of `tiles` must be equal to 4.")
+        if tiles not in (
+            ["0m", "0m", "0m", "0m"],
+            ["1m", "1m", "1m", "1m"],
+            ["2m", "2m", "2m", "2m"],
+            ["3m", "3m", "3m", "3m"],
+            ["4m", "4m", "4m", "4m"],
+            ["0m", "5m", "5m", "5m"],
+            ["5m", "5m", "5m", "0m"],
+            ["6m", "6m", "6m", "6m"],
+            ["7m", "7m", "7m", "7m"],
+            ["8m", "8m", "8m", "8m"],
+            ["9m", "9m", "9m", "9m"],
+            ["0p", "0p", "0p", "0p"],
+            ["1p", "1p", "1p", "1p"],
+            ["2p", "2p", "2p", "2p"],
+            ["3p", "3p", "3p", "3p"],
+            ["4p", "4p", "4p", "4p"],
+            ["0p", "5p", "5p", "5p"],
+            ["5p", "5p", "5p", "0p"],
+            ["6p", "6p", "6p", "6p"],
+            ["7p", "7p", "7p", "7p"],
+            ["8p", "8p", "8p", "8p"],
+            ["9p", "9p", "9p", "9p"],
+            ["0s", "0s", "0s", "0s"],
+            ["1s", "1s", "1s", "1s"],
+            ["2s", "2s", "2s", "2s"],
+            ["3s", "3s", "3s", "3s"],
+            ["4s", "4s", "4s", "4s"],
+            ["0s", "5s", "5s", "5s"],
+            ["5s", "5s", "5s", "0s"],
+            ["6s", "6s", "6s", "6s"],
+            ["7s", "7s", "7s", "7s"],
+            ["8s", "8s", "8s", "8s"],
+            ["9s", "9s", "9s", "9s"],
+            ["1z", "1z", "1z", "1z"],
+            ["2z", "2z", "2z", "2z"],
+            ["3z", "3z", "3z", "3z"],
+            ["4z", "4z", "4z", "4z"],
+            ["5z", "5z", "5z", "5z"],
+            ["6z", "6z", "6z", "6z"],
+            ["7z", "7z", "7z", "7z"],
+        ):
+            raise ValueError(f"{tiles}: An invalid combination for Jiagang.")
         self._tiles = tiles
 
     def to_json(self) -> object:
         return {
-            'type': '加槓',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "加槓",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
@@ -293,8 +316,8 @@ class ZimoLizhiOption(object):
 
     def to_json(self) -> object:
         return {
-            'type': '立直',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "立直",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
@@ -304,7 +327,7 @@ class ZimoHuOption(object):
 
     def to_json(self) -> object:
         return {
-            'type': '自摸和'
+            "type": "自摸和",
         }
 
 
@@ -314,14 +337,22 @@ class ZimoKyushukyuhaiOption(object):
 
     def to_json(self) -> object:
         return {
-            'type': '九種九牌'
+            "type": "九種九牌",
         }
 
 
 class ZimoOption(object):
-    def __init__(self, option: Union[ZimoDapaiOption, ZimoAngangOption,
-                                     ZimoJiagangOption, ZimoLizhiOption,
-                                     ZimoHuOption, ZimoKyushukyuhaiOption]):
+    def __init__(
+        self,
+        option: Union[
+            ZimoDapaiOption,
+            ZimoAngangOption,
+            ZimoJiagangOption,
+            ZimoLizhiOption,
+            ZimoHuOption,
+            ZimoKyushukyuhaiOption,
+        ],
+    ):
         self._option = option
 
     def to_json(self) -> object:
@@ -329,32 +360,37 @@ class ZimoOption(object):
 
 
 class ZimoOptionPresence(object):
-    def __init__(self, seat: Seat, options: List[ZimoOption], main_time: int,
-                 overtime: int):
+    def __init__(
+        self,
+        seat: Seat,
+        options: List[ZimoOption],
+        main_time: int,
+        overtime: int,
+    ):
         self._seat = seat
         self._options = options
 
         if main_time <= 0:
-            raise ValueError('`main_time` must be a positive integer.')
+            raise ValueError("`main_time` must be a positive integer.")
         self._main_time = main_time
 
         if overtime < 0:
-            raise VaueError('`overtime` must be a non-negative integer.')
+            raise VaueError("`overtime` must be a non-negative integer.")
         self._overtime = overtime
 
     def to_json(self) -> object:
         return {
-            'seat': self._seat.to_json(),
-            'options': [option.to_json() for option in self._options],
-            'main_time': self._main_time,
-            'overtime': self._overtime
+            "seat": self._seat.to_json(),
+            "options": [option.to_json() for option in self._options],
+            "main_time": self._main_time,
+            "overtime": self._overtime,
         }
 
 
 class ZhentingInfo(object):
     def __init__(self, flags: List[bool]):
         if len(flags) != 4:
-            raise ValueError('The length of `flags` must be equal to 4.')
+            raise ValueError("The length of `flags` must be equal to 4.")
         self._flags = flags
 
     def to_json(self) -> List[bool]:
@@ -362,9 +398,16 @@ class ZhentingInfo(object):
 
 
 class Zimo(object):
-    def __init__(self, *, seat: Seat, doras: List[Tile], tile: Tile,
-                 left_tile_count: int, option_presence: ZimoOptionPresence,
-                 zhenting: ZhentingInfo):
+    def __init__(
+        self,
+        *,
+        seat: Seat,
+        doras: List[Tile],
+        tile: Tile,
+        left_tile_count: int,
+        option_presence: ZimoOptionPresence,
+        zhenting: ZhentingInfo,
+    ):
         self._seat = seat
 
         self._doras = doras
@@ -372,7 +415,9 @@ class Zimo(object):
         self._tile = tile
 
         if left_tile_count < 0:
-            raise ValueError('`left_tile_count` must be a non-negative integer.')
+            raise ValueError(
+                "`left_tile_count` must be a non-negative integer.",
+            )
         self._left_tile_count = left_tile_count
 
         self._option_presence = option_presence
@@ -381,124 +426,133 @@ class Zimo(object):
 
     def to_json(self) -> object:
         result = {
-            'type': '自摸',
-            'seat': self._seat.to_json(),
-            'tile': self._tile.to_json(),
-            'left_tile_count': self._left_tile_count,
-            'option_presence': self._option_presence.to_json(),
-            'zhenting': self._zhenting.to_json()
+            "type": "自摸",
+            "seat": self._seat.to_json(),
+            "tile": self._tile.to_json(),
+            "left_tile_count": self._left_tile_count,
+            "option_presence": self._option_presence.to_json(),
+            "zhenting": self._zhenting.to_json(),
         }
 
         if len(self._doras) > 0:
-            result['doras'] = [dora.to_json() for dora in self._doras]
+            result["doras"] = [dora.to_json() for dora in self._doras]
 
         return result
 
 
 class Chi(object):
-    def __init__(self, *, seat: Seat, tiles: List[Tile], froms: List[Seat],
-                 zhenting: ZhentingInfo, option_presence: ZimoOptionPresence):
+    def __init__(
+        self,
+        *,
+        seat: Seat,
+        tiles: List[Tile],
+        froms: List[Seat],
+        zhenting: ZhentingInfo,
+        option_presence: ZimoOptionPresence,
+    ):
         self._seat = seat
 
         if len(tiles) != 3:
-            raise ValueError('The length of `tiles` must be equal to 3.')
-        if tiles not in (['2m', '3m', '1m'],
-                         ['1m', '3m', '2m'],
-                         ['3m', '4m', '2m'],
-                         ['1m', '2m', '3m'],
-                         ['2m', '4m', '3m'],
-                         ['4m', '5m', '3m'],
-                         ['4m', '0m', '3m'],
-                         ['2m', '3m', '4m'],
-                         ['3m', '5m', '4m'],
-                         ['3m', '0m', '4m'],
-                         ['5m', '6m', '4m'],
-                         ['0m', '6m', '4m'],
-                         ['3m', '4m', '5m'],
-                         ['3m', '4m', '0m'],
-                         ['4m', '6m', '5m'],
-                         ['4m', '6m', '0m'],
-                         ['6m', '7m', '5m'],
-                         ['6m', '7m', '0m'],
-                         ['4m', '5m', '6m'],
-                         ['4m', '0m', '6m'],
-                         ['5m', '7m', '6m'],
-                         ['0m', '7m', '6m'],
-                         ['7m', '8m', '6m'],
-                         ['5m', '6m', '7m'],
-                         ['0m', '6m', '7m'],
-                         ['6m', '8m', '7m'],
-                         ['8m', '9m', '7m'],
-                         ['6m', '7m', '8m'],
-                         ['7m', '9m', '8m'],
-                         ['7m', '8m', '9m'],
-                         ['2p', '3p', '1p'],
-                         ['1p', '3p', '2p'],
-                         ['3p', '4p', '2p'],
-                         ['1p', '2p', '3p'],
-                         ['2p', '4p', '3p'],
-                         ['4p', '5p', '3p'],
-                         ['4p', '0p', '3p'],
-                         ['2p', '3p', '4p'],
-                         ['3p', '5p', '4p'],
-                         ['3p', '0p', '4p'],
-                         ['5p', '6p', '4p'],
-                         ['0p', '6p', '4p'],
-                         ['3p', '4p', '5p'],
-                         ['3p', '4p', '0p'],
-                         ['4p', '6p', '5p'],
-                         ['4p', '6p', '0p'],
-                         ['6p', '7p', '5p'],
-                         ['6p', '7p', '0p'],
-                         ['4p', '5p', '6p'],
-                         ['4p', '0p', '6p'],
-                         ['5p', '7p', '6p'],
-                         ['0p', '7p', '6p'],
-                         ['7p', '8p', '6p'],
-                         ['5p', '6p', '7p'],
-                         ['0p', '6p', '7p'],
-                         ['6p', '8p', '7p'],
-                         ['8p', '9p', '7p'],
-                         ['6p', '7p', '8p'],
-                         ['7p', '9p', '8p'],
-                         ['7p', '8p', '9p'],
-                         ['2s', '3s', '1s'],
-                         ['1s', '3s', '2s'],
-                         ['3s', '4s', '2s'],
-                         ['1s', '2s', '3s'],
-                         ['2s', '4s', '3s'],
-                         ['4s', '5s', '3s'],
-                         ['4s', '0s', '3s'],
-                         ['2s', '3s', '4s'],
-                         ['3s', '5s', '4s'],
-                         ['3s', '0s', '4s'],
-                         ['5s', '6s', '4s'],
-                         ['0s', '6s', '4s'],
-                         ['3s', '4s', '5s'],
-                         ['3s', '4s', '0s'],
-                         ['4s', '6s', '5s'],
-                         ['4s', '6s', '0s'],
-                         ['6s', '7s', '5s'],
-                         ['6s', '7s', '0s'],
-                         ['4s', '5s', '6s'],
-                         ['4s', '0s', '6s'],
-                         ['5s', '7s', '6s'],
-                         ['0s', '7s', '6s'],
-                         ['7s', '8s', '6s'],
-                         ['5s', '6s', '7s'],
-                         ['0s', '6s', '7s'],
-                         ['6s', '8s', '7s'],
-                         ['8s', '9s', '7s'],
-                         ['6s', '7s', '8s'],
-                         ['7s', '9s', '8s'],
-                         ['7s', '8s', '9s']):
-            raise ValueError(f'{tiles}: An invalid tile combination for Chi.')
+            raise ValueError("The length of `tiles` must be equal to 3.")
+        if tiles not in (
+            ["2m", "3m", "1m"],
+            ["1m", "3m", "2m"],
+            ["3m", "4m", "2m"],
+            ["1m", "2m", "3m"],
+            ["2m", "4m", "3m"],
+            ["4m", "5m", "3m"],
+            ["4m", "0m", "3m"],
+            ["2m", "3m", "4m"],
+            ["3m", "5m", "4m"],
+            ["3m", "0m", "4m"],
+            ["5m", "6m", "4m"],
+            ["0m", "6m", "4m"],
+            ["3m", "4m", "5m"],
+            ["3m", "4m", "0m"],
+            ["4m", "6m", "5m"],
+            ["4m", "6m", "0m"],
+            ["6m", "7m", "5m"],
+            ["6m", "7m", "0m"],
+            ["4m", "5m", "6m"],
+            ["4m", "0m", "6m"],
+            ["5m", "7m", "6m"],
+            ["0m", "7m", "6m"],
+            ["7m", "8m", "6m"],
+            ["5m", "6m", "7m"],
+            ["0m", "6m", "7m"],
+            ["6m", "8m", "7m"],
+            ["8m", "9m", "7m"],
+            ["6m", "7m", "8m"],
+            ["7m", "9m", "8m"],
+            ["7m", "8m", "9m"],
+            ["2p", "3p", "1p"],
+            ["1p", "3p", "2p"],
+            ["3p", "4p", "2p"],
+            ["1p", "2p", "3p"],
+            ["2p", "4p", "3p"],
+            ["4p", "5p", "3p"],
+            ["4p", "0p", "3p"],
+            ["2p", "3p", "4p"],
+            ["3p", "5p", "4p"],
+            ["3p", "0p", "4p"],
+            ["5p", "6p", "4p"],
+            ["0p", "6p", "4p"],
+            ["3p", "4p", "5p"],
+            ["3p", "4p", "0p"],
+            ["4p", "6p", "5p"],
+            ["4p", "6p", "0p"],
+            ["6p", "7p", "5p"],
+            ["6p", "7p", "0p"],
+            ["4p", "5p", "6p"],
+            ["4p", "0p", "6p"],
+            ["5p", "7p", "6p"],
+            ["0p", "7p", "6p"],
+            ["7p", "8p", "6p"],
+            ["5p", "6p", "7p"],
+            ["0p", "6p", "7p"],
+            ["6p", "8p", "7p"],
+            ["8p", "9p", "7p"],
+            ["6p", "7p", "8p"],
+            ["7p", "9p", "8p"],
+            ["7p", "8p", "9p"],
+            ["2s", "3s", "1s"],
+            ["1s", "3s", "2s"],
+            ["3s", "4s", "2s"],
+            ["1s", "2s", "3s"],
+            ["2s", "4s", "3s"],
+            ["4s", "5s", "3s"],
+            ["4s", "0s", "3s"],
+            ["2s", "3s", "4s"],
+            ["3s", "5s", "4s"],
+            ["3s", "0s", "4s"],
+            ["5s", "6s", "4s"],
+            ["0s", "6s", "4s"],
+            ["3s", "4s", "5s"],
+            ["3s", "4s", "0s"],
+            ["4s", "6s", "5s"],
+            ["4s", "6s", "0s"],
+            ["6s", "7s", "5s"],
+            ["6s", "7s", "0s"],
+            ["4s", "5s", "6s"],
+            ["4s", "0s", "6s"],
+            ["5s", "7s", "6s"],
+            ["0s", "7s", "6s"],
+            ["7s", "8s", "6s"],
+            ["5s", "6s", "7s"],
+            ["0s", "6s", "7s"],
+            ["6s", "8s", "7s"],
+            ["8s", "9s", "7s"],
+            ["6s", "7s", "8s"],
+            ["7s", "9s", "8s"],
+            ["7s", "8s", "9s"],
+        ):
+            raise ValueError(f"{tiles}: An invalid tile combination for Chi.")
         self._tiles = tiles
 
         if len(froms) != 3:
-            raise ValueError('The length of `froms` must be equal to 3.')
+            raise ValueError("The length of `froms` must be equal to 3.")
         if froms not in ([0, 0, 3], [1, 1, 0], [2, 2, 1], [3, 3, 2]):
-            raise ValueError(f'{froms}: An invalid seat combination for Chi.')
+            raise ValueError(f"{froms}: An invalid seat combination for Chi.")
         self._froms = froms
 
         self._zhenting = zhenting
@@ -507,72 +561,83 @@ class Chi(object):
 
     def to_json(self) -> object:
         return {
-            'type': 'チー',
-            'seat': self._seat.to_json(),
-            'tiles': [tile.to_json() for tile in self._tiles],
-            'froms': [s.to_json() for s in self._froms],
-            'zhenting': self._zhenting.to_json(),
-            'option_presence': self._option_presence.to_json()
+            "type": "チー",
+            "seat": self._seat.to_json(),
+            "tiles": [tile.to_json() for tile in self._tiles],
+            "froms": [s.to_json() for s in self._froms],
+            "zhenting": self._zhenting.to_json(),
+            "option_presence": self._option_presence.to_json(),
         }
 
 
 class Peng(object):
-    def __init__(self, *, seat: Seat, tiles: List[Tile], froms: List[Seat],
-                 zhenting: ZhentingInfo, option_presence: ZimoOptionPresence):
+    def __init__(
+        self,
+        *,
+        seat: Seat,
+        tiles: List[Tile],
+        froms: List[Seat],
+        zhenting: ZhentingInfo,
+        option_presence: ZimoOptionPresence,
+    ):
         self._seat = seat
 
         if len(tiles) != 3:
-            raise ValueError('The length of `tiles` must be equal to 3.')
-        if tiles not in (['1m', '1m', '1m'],
-                         ['2m', '2m', '2m'],
-                         ['3m', '3m', '3m'],
-                         ['4m', '4m', '4m'],
-                         ['5m', '5m', '5m'],
-                         ['0m', '5m', '5m'],
-                         ['5m', '5m', '0m'],
-                         ['6m', '6m', '6m'],
-                         ['7m', '7m', '7m'],
-                         ['8m', '8m', '8m'],
-                         ['9m', '9m', '9m'],
-                         ['1p', '1p', '1p'],
-                         ['2p', '2p', '2p'],
-                         ['3p', '3p', '3p'],
-                         ['4p', '4p', '4p'],
-                         ['5p', '5p', '5p'],
-                         ['0p', '5p', '5p'],
-                         ['5p', '5p', '0p'],
-                         ['6p', '6p', '6p'],
-                         ['7p', '7p', '7p'],
-                         ['8p', '8p', '8p'],
-                         ['9p', '9p', '9p'],
-                         ['1s', '1s', '1s'],
-                         ['2s', '2s', '2s'],
-                         ['3s', '3s', '3s'],
-                         ['4s', '4s', '4s'],
-                         ['5s', '5s', '5s'],
-                         ['0s', '5s', '5s'],
-                         ['5s', '5s', '0s'],
-                         ['6s', '6s', '6s'],
-                         ['7s', '7s', '7s'],
-                         ['8s', '8s', '8s'],
-                         ['9s', '9s', '9s'],
-                         ['1z', '1z', '1z'],
-                         ['2z', '2z', '2z'],
-                         ['3z', '3z', '3z'],
-                         ['4z', '4z', '4z'],
-                         ['5z', '5z', '5z'],
-                         ['6z', '6z', '6z'],
-                         ['7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid tile combination for Peng.')
+            raise ValueError("The length of `tiles` must be equal to 3.")
+        if tiles not in (
+            ["1m", "1m", "1m"],
+            ["2m", "2m", "2m"],
+            ["3m", "3m", "3m"],
+            ["4m", "4m", "4m"],
+            ["5m", "5m", "5m"],
+            ["0m", "5m", "5m"],
+            ["5m", "5m", "0m"],
+            ["6m", "6m", "6m"],
+            ["7m", "7m", "7m"],
+            ["8m", "8m", "8m"],
+            ["9m", "9m", "9m"],
+            ["1p", "1p", "1p"],
+            ["2p", "2p", "2p"],
+            ["3p", "3p", "3p"],
+            ["4p", "4p", "4p"],
+            ["5p", "5p", "5p"],
+            ["0p", "5p", "5p"],
+            ["5p", "5p", "0p"],
+            ["6p", "6p", "6p"],
+            ["7p", "7p", "7p"],
+            ["8p", "8p", "8p"],
+            ["9p", "9p", "9p"],
+            ["1s", "1s", "1s"],
+            ["2s", "2s", "2s"],
+            ["3s", "3s", "3s"],
+            ["4s", "4s", "4s"],
+            ["5s", "5s", "5s"],
+            ["0s", "5s", "5s"],
+            ["5s", "5s", "0s"],
+            ["6s", "6s", "6s"],
+            ["7s", "7s", "7s"],
+            ["8s", "8s", "8s"],
+            ["9s", "9s", "9s"],
+            ["1z", "1z", "1z"],
+            ["2z", "2z", "2z"],
+            ["3z", "3z", "3z"],
+            ["4z", "4z", "4z"],
+            ["5z", "5z", "5z"],
+            ["6z", "6z", "6z"],
+            ["7z", "7z", "7z"],
+        ):
+            raise ValueError(f"{tiles}: An invalid tile combination for Peng.")
         self._tiles = tiles
 
         if len(froms) != 3:
-            raise ValueError('The length of `froms` must be equal to 3.')
-        if froms not in ([0, 0, 1], [0, 0, 2], [0, 0, 3],
-                         [1, 1, 0], [1, 1, 2], [1, 1, 3],
-                         [2, 2, 0], [2, 2, 1], [2, 2, 3],
-                         [3, 3, 0], [3, 3, 1], [3, 3, 2]):
-            raise ValueError(f'{froms}: An invalid seat combination for Chi.')
+            raise ValueError("The length of `froms` must be equal to 3.")
+        if froms not in (
+            [0, 0, 1], [0, 0, 2], [0, 0, 3],
+            [1, 1, 0], [1, 1, 2], [1, 1, 3],
+            [2, 2, 0], [2, 2, 1], [2, 2, 3],
+            [3, 3, 0], [3, 3, 1], [3, 3, 2],
+        ):  # fmt: skip
+            raise ValueError(f"{froms}: An invalid seat combination for Chi.")
         self._froms = froms
 
         self._zhenting = zhenting
@@ -581,80 +646,89 @@ class Peng(object):
 
     def to_json(self) -> object:
         return {
-            'type': 'ポン',
-            'seat': self._seat.to_json(),
-            'tiles': [tile.to_json() for tile in self._tiles],
-            'froms': [s.to_json() for s in self._froms],
-            'zhenting': self._zhenting.to_json(),
-            'option_presence': self._option_presence.to_json()
+            "type": "ポン",
+            "seat": self._seat.to_json(),
+            "tiles": [tile.to_json() for tile in self._tiles],
+            "froms": [s.to_json() for s in self._froms],
+            "zhenting": self._zhenting.to_json(),
+            "option_presence": self._option_presence.to_json(),
         }
 
 
 class Daminggang(object):
-    def __init__(self, seat: Seat, tiles: List[Tile], froms: List[Seat],
-                 zhenting: ZhentingInfo):
+    def __init__(
+        self,
+        seat: Seat,
+        tiles: List[Tile],
+        froms: List[Seat],
+        zhenting: ZhentingInfo,
+    ):
         self._seat = seat
 
         if len(tiles) != 4:
-            raise ValueError('The length of `tiles` must be equal to 4.')
-        if tiles not in (['1m', '1m', '1m', '1m'],
-                         ['2m', '2m', '2m', '2m'],
-                         ['3m', '3m', '3m', '3m'],
-                         ['4m', '4m', '4m', '4m'],
-                         ['0m', '5m', '5m', '5m'],
-                         ['5m', '5m', '5m', '0m'],
-                         ['6m', '6m', '6m', '6m'],
-                         ['7m', '7m', '7m', '7m'],
-                         ['8m', '8m', '8m', '8m'],
-                         ['9m', '9m', '9m', '9m'],
-                         ['1p', '1p', '1p', '1p'],
-                         ['2p', '2p', '2p', '2p'],
-                         ['3p', '3p', '3p', '3p'],
-                         ['4p', '4p', '4p', '4p'],
-                         ['0p', '5p', '5p', '5p'],
-                         ['5p', '5p', '5p', '0p'],
-                         ['6p', '6p', '6p', '6p'],
-                         ['7p', '7p', '7p', '7p'],
-                         ['8p', '8p', '8p', '8p'],
-                         ['9p', '9p', '9p', '9p'],
-                         ['1s', '1s', '1s', '1s'],
-                         ['2s', '2s', '2s', '2s'],
-                         ['3s', '3s', '3s', '3s'],
-                         ['4s', '4s', '4s', '4s'],
-                         ['0s', '5s', '5s', '5s'],
-                         ['5s', '5s', '5s', '0s'],
-                         ['6s', '6s', '6s', '6s'],
-                         ['7s', '7s', '7s', '7s'],
-                         ['8s', '8s', '8s', '8s'],
-                         ['9s', '9s', '9s', '9s'],
-                         ['1z', '1z', '1z', '1z'],
-                         ['2z', '2z', '2z', '2z'],
-                         ['3z', '3z', '3z', '3z'],
-                         ['4z', '4z', '4z', '4z'],
-                         ['5z', '5z', '5z', '5z'],
-                         ['6z', '6z', '6z', '6z'],
-                         ['7z', '7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid tile combination for Gang.')
+            raise ValueError("The length of `tiles` must be equal to 4.")
+        if tiles not in (
+            ["1m", "1m", "1m", "1m"],
+            ["2m", "2m", "2m", "2m"],
+            ["3m", "3m", "3m", "3m"],
+            ["4m", "4m", "4m", "4m"],
+            ["0m", "5m", "5m", "5m"],
+            ["5m", "5m", "5m", "0m"],
+            ["6m", "6m", "6m", "6m"],
+            ["7m", "7m", "7m", "7m"],
+            ["8m", "8m", "8m", "8m"],
+            ["9m", "9m", "9m", "9m"],
+            ["1p", "1p", "1p", "1p"],
+            ["2p", "2p", "2p", "2p"],
+            ["3p", "3p", "3p", "3p"],
+            ["4p", "4p", "4p", "4p"],
+            ["0p", "5p", "5p", "5p"],
+            ["5p", "5p", "5p", "0p"],
+            ["6p", "6p", "6p", "6p"],
+            ["7p", "7p", "7p", "7p"],
+            ["8p", "8p", "8p", "8p"],
+            ["9p", "9p", "9p", "9p"],
+            ["1s", "1s", "1s", "1s"],
+            ["2s", "2s", "2s", "2s"],
+            ["3s", "3s", "3s", "3s"],
+            ["4s", "4s", "4s", "4s"],
+            ["0s", "5s", "5s", "5s"],
+            ["5s", "5s", "5s", "0s"],
+            ["6s", "6s", "6s", "6s"],
+            ["7s", "7s", "7s", "7s"],
+            ["8s", "8s", "8s", "8s"],
+            ["9s", "9s", "9s", "9s"],
+            ["1z", "1z", "1z", "1z"],
+            ["2z", "2z", "2z", "2z"],
+            ["3z", "3z", "3z", "3z"],
+            ["4z", "4z", "4z", "4z"],
+            ["5z", "5z", "5z", "5z"],
+            ["6z", "6z", "6z", "6z"],
+            ["7z", "7z", "7z", "7z"],
+        ):
+            raise ValueError(f"{tiles}: An invalid tile combination for Gang.")
         self._tiles = tiles
 
         if len(froms) != 4:
-            raise ValueError('The length of `froms` must be equal to 4.')
-        if froms not in ([0, 0, 0, 1], [0, 0, 0, 2], [0, 0, 0, 3],
-                         [1, 1, 1, 0], [1, 1, 1, 2], [1, 1, 1, 3],
-                         [2, 2, 2, 0], [2, 2, 2, 1], [2, 2, 2, 3],
-                         [3, 3, 3, 0], [3, 3, 3, 1], [3, 3, 3, 2]):
-            raise ValueError(f'{froms}: An invalid seat combination for Gang.')
+            raise ValueError("The length of `froms` must be equal to 4.")
+        if froms not in (
+            [0, 0, 0, 1], [0, 0, 0, 2], [0, 0, 0, 3],
+            [1, 1, 1, 0], [1, 1, 1, 2], [1, 1, 1, 3],
+            [2, 2, 2, 0], [2, 2, 2, 1], [2, 2, 2, 3],
+            [3, 3, 3, 0], [3, 3, 3, 1], [3, 3, 3, 2],
+        ):  # fmt: skip
+            raise ValueError(f"{froms}: An invalid seat combination for Gang.")
         self._froms = froms
 
         self._zhenting = zhenting
 
     def to_json(self) -> object:
         return {
-            'type': '大明槓',
-            'seat': self._seat.to_json(),
-            'tiles': [tile.to_json() for tile in self._tiles],
-            'froms': [s.to_json() for s in self._froms],
-            'zhenting': self._zhenting.to_json()
+            "type": "大明槓",
+            "seat": self._seat.to_json(),
+            "tiles": [tile.to_json() for tile in self._tiles],
+            "froms": [s.to_json() for s in self._froms],
+            "zhenting": self._zhenting.to_json(),
         }
 
 
@@ -666,9 +740,9 @@ class Angang(object):
 
     def to_json(self) -> object:
         return {
-            'type': '暗槓',
-            'seat': self._seat.to_json(),
-            'tile': self._tile.to_json()
+            "type": "暗槓",
+            "seat": self._seat.to_json(),
+            "tile": self._tile.to_json(),
         }
 
 
@@ -680,9 +754,9 @@ class Jiagang(object):
 
     def to_json(self) -> object:
         return {
-            'type': '加槓',
-            'seat': self._seat.to_json(),
-            'tile': self._tile.to_json()
+            "type": "加槓",
+            "seat": self._seat.to_json(),
+            "tile": self._tile.to_json(),
         }
 
 
@@ -690,35 +764,39 @@ class DapaiChiOption(object):
     def __init__(self, tiles_list: List[List[Tile]]):
         for tiles in tiles_list:
             if len(tiles) != 2:
-                raise ValueError('The length of `tiles` must be equal to 2.')
-            if tiles not in (['2m', '3m'],
-                             ['1m', '3m'], ['3m', '4m'],
-                             ['1m', '2m'], ['2m', '4m'], ['4m', '5m'], ['4m', '0m'],
-                             ['2m', '3m'], ['3m', '5m'], ['3m', '0m'], ['5m', '6m'], ['0m', '6m'],
-                             ['3m', '4m'], ['4m', '6m'], ['6m', '7m'],
-                             ['4m', '5m'], ['4m', '0m'], ['5m', '7m'], ['0m', '7m'], ['7m', '8m'],
-                             ['5m', '6m'], ['0m', '6m'], ['6m', '8m'], ['8m', '9m'],
-                             ['6m', '7m'], ['7m', '9m'],
-                             ['7m', '8m'],
-                             ['2p', '3p'],
-                             ['1p', '3p'], ['3p', '4p'],
-                             ['1p', '2p'], ['2p', '4p'], ['4p', '5p'], ['4p', '0p'],
-                             ['2p', '3p'], ['3p', '5p'], ['3p', '0p'], ['5p', '6p'], ['0p', '6p'],
-                             ['3p', '4p'], ['4p', '6p'], ['6p', '7p'],
-                             ['4p', '5p'], ['4p', '0p'], ['5p', '7p'], ['0p', '7p'], ['7p', '8p'],
-                             ['5p', '6p'], ['0p', '6p'], ['6p', '8p'], ['8p', '9p'],
-                             ['6p', '7p'], ['7p', '9p'],
-                             ['7p', '8p'],
-                             ['2s', '3s'],
-                             ['1s', '3s'], ['3s', '4s'],
-                             ['1s', '2s'], ['2s', '4s'], ['4s', '5s'], ['4s', '0s'],
-                             ['2s', '3s'], ['3s', '5s'], ['3s', '0s'], ['5s', '6s'], ['0s', '6s'],
-                             ['3s', '4s'], ['4s', '6s'], ['6s', '7s'],
-                             ['4s', '5s'], ['4s', '0s'], ['5s', '7s'], ['0s', '7s'], ['7s', '8s'],
-                             ['5s', '6s'], ['0s', '6s'], ['6s', '8s'], ['8s', '9s'],
-                             ['6s', '7s'], ['7s', '9s'],
-                             ['7s', '8s']):
-                raise ValueError(f'{tiles}: An invalid tile combination for Chi.')
+                raise ValueError("The length of `tiles` must be equal to 2.")
+            if tiles not in (
+                ["2m", "3m"],
+                ["1m", "3m"], ["3m", "4m"],
+                ["1m", "2m"], ["2m", "4m"], ["4m", "5m"], ["4m", "0m"],
+                ["2m", "3m"], ["3m", "5m"], ["3m", "0m"], ["5m", "6m"], ["0m", "6m"],  # noqa: E501
+                ["3m", "4m"], ["4m", "6m"], ["6m", "7m"],
+                ["4m", "5m"], ["4m", "0m"], ["5m", "7m"], ["0m", "7m"], ["7m", "8m"],  # noqa: E501
+                ["5m", "6m"], ["0m", "6m"], ["6m", "8m"], ["8m", "9m"],
+                ["6m", "7m"], ["7m", "9m"],
+                ["7m", "8m"],
+                ["2p", "3p"],
+                ["1p", "3p"], ["3p", "4p"],
+                ["1p", "2p"], ["2p", "4p"], ["4p", "5p"], ["4p", "0p"],
+                ["2p", "3p"], ["3p", "5p"], ["3p", "0p"], ["5p", "6p"], ["0p", "6p"],  # noqa: E501
+                ["3p", "4p"], ["4p", "6p"], ["6p", "7p"],
+                ["4p", "5p"], ["4p", "0p"], ["5p", "7p"], ["0p", "7p"], ["7p", "8p"],  # noqa: E501
+                ["5p", "6p"], ["0p", "6p"], ["6p", "8p"], ["8p", "9p"],
+                ["6p", "7p"], ["7p", "9p"],
+                ["7p", "8p"],
+                ["2s", "3s"],
+                ["1s", "3s"], ["3s", "4s"],
+                ["1s", "2s"], ["2s", "4s"], ["4s", "5s"], ["4s", "0s"],
+                ["2s", "3s"], ["3s", "5s"], ["3s", "0s"], ["5s", "6s"], ["0s", "6s"],  # noqa: E501
+                ["3s", "4s"], ["4s", "6s"], ["6s", "7s"],
+                ["4s", "5s"], ["4s", "0s"], ["5s", "7s"], ["0s", "7s"], ["7s", "8s"],  # noqa: E501
+                ["5s", "6s"], ["0s", "6s"], ["6s", "8s"], ["8s", "9s"],
+                ["6s", "7s"], ["7s", "9s"],
+                ["7s", "8s"],
+            ):  # fmt: skip
+                raise ValueError(
+                    f"{tiles}: An invalid tile combination for Chi.",
+                )
         self._tiles_list = tiles_list
 
     def to_json(self) -> object:
@@ -728,8 +806,8 @@ class DapaiChiOption(object):
             tiles_list.append(tiles)
 
         return {
-            'type': 'チー',
-            'tiles_list': tiles_list
+            "type": "チー",
+            "tiles_list": tiles_list,
         }
 
 
@@ -737,42 +815,46 @@ class DapaiPengOption(object):
     def __init__(self, tiles_list: List[List[Tile]]):
         for tiles in tiles_list:
             if len(tiles) != 2:
-                raise ValueError('The length of `tiles` must be equal to 2.')
-            if tiles not in (['1m', '1m'],
-                             ['2m', '2m'],
-                             ['3m', '3m'],
-                             ['4m', '4m'],
-                             ['5m', '5m'], ['0m', '5m'],
-                             ['6m', '6m'],
-                             ['7m', '7m'],
-                             ['8m', '8m'],
-                             ['9m', '9m'],
-                             ['1p', '1p'],
-                             ['2p', '2p'],
-                             ['3p', '3p'],
-                             ['4p', '4p'],
-                             ['5p', '5p'], ['0p', '5p'],
-                             ['6p', '6p'],
-                             ['7p', '7p'],
-                             ['8p', '8p'],
-                             ['9p', '9p'],
-                             ['1s', '1s'],
-                             ['2s', '2s'],
-                             ['3s', '3s'],
-                             ['4s', '4s'],
-                             ['5s', '5s'], ['0s', '5s'],
-                             ['6s', '6s'],
-                             ['7s', '7s'],
-                             ['8s', '8s'],
-                             ['9s', '9s'],
-                             ['1z', '1z'],
-                             ['2z', '2z'],
-                             ['3z', '3z'],
-                             ['4z', '4z'],
-                             ['5z', '5z'],
-                             ['6z', '6z'],
-                             ['7z', '7z']):
-                raise ValueError(f'{tiles}: An invalid tile combination for Peng.')
+                raise ValueError("The length of `tiles` must be equal to 2.")
+            if tiles not in (
+                ["1m", "1m"],
+                ["2m", "2m"],
+                ["3m", "3m"],
+                ["4m", "4m"],
+                ["5m", "5m"], ["0m", "5m"],
+                ["6m", "6m"],
+                ["7m", "7m"],
+                ["8m", "8m"],
+                ["9m", "9m"],
+                ["1p", "1p"],
+                ["2p", "2p"],
+                ["3p", "3p"],
+                ["4p", "4p"],
+                ["5p", "5p"], ["0p", "5p"],
+                ["6p", "6p"],
+                ["7p", "7p"],
+                ["8p", "8p"],
+                ["9p", "9p"],
+                ["1s", "1s"],
+                ["2s", "2s"],
+                ["3s", "3s"],
+                ["4s", "4s"],
+                ["5s", "5s"], ["0s", "5s"],
+                ["6s", "6s"],
+                ["7s", "7s"],
+                ["8s", "8s"],
+                ["9s", "9s"],
+                ["1z", "1z"],
+                ["2z", "2z"],
+                ["3z", "3z"],
+                ["4z", "4z"],
+                ["5z", "5z"],
+                ["6z", "6z"],
+                ["7z", "7z"],
+            ):  # fmt: skip
+                raise ValueError(
+                    f"{tiles}: An invalid tile combination for Peng.",
+                )
         self._tiles_list = tiles_list
 
     def to_json(self) -> object:
@@ -782,59 +864,61 @@ class DapaiPengOption(object):
             tiles_list.append(tiles)
 
         return {
-            'type': 'ポン',
-            'tiles': tiles_list
+            "type": "ポン",
+            "tiles": tiles_list,
         }
 
 
 class DapaiDaminggangOption(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 3:
-            raise ValueError('The length of `tiles` must be equal to 2.')
-        if tiles not in (['1m', '1m', '1m'],
-                         ['2m', '2m', '2m'],
-                         ['3m', '3m', '3m'],
-                         ['4m', '4m', '4m'],
-                         ['5m', '5m', '5m'],
-                         ['0m', '5m', '5m'],
-                         ['6m', '6m', '6m'],
-                         ['7m', '7m', '7m'],
-                         ['8m', '8m', '8m'],
-                         ['9m', '9m', '9m'],
-                         ['1p', '1p', '1p'],
-                         ['2p', '2p', '2p'],
-                         ['3p', '3p', '3p'],
-                         ['4p', '4p', '4p'],
-                         ['5p', '5p', '5p'],
-                         ['0p', '5p', '5p'],
-                         ['6p', '6p', '6p'],
-                         ['7p', '7p', '7p'],
-                         ['8p', '8p', '8p'],
-                         ['9p', '9p', '9p'],
-                         ['1s', '1s', '1s'],
-                         ['2s', '2s', '2s'],
-                         ['3s', '3s', '3s'],
-                         ['4s', '4s', '4s'],
-                         ['5s', '5s', '5s'],
-                         ['0s', '5s', '5s'],
-                         ['6s', '6s', '6s'],
-                         ['7s', '7s', '7s'],
-                         ['8s', '8s', '8s'],
-                         ['9s', '9s', '9s'],
-                         ['1z', '1z', '1z'],
-                         ['2z', '2z', '2z'],
-                         ['3z', '3z', '3z'],
-                         ['4z', '4z', '4z'],
-                         ['5z', '5z', '5z'],
-                         ['6z', '6z', '6z'],
-                         ['7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid tile combination for Peng.')
+            raise ValueError("The length of `tiles` must be equal to 2.")
+        if tiles not in (
+            ["1m", "1m", "1m"],
+            ["2m", "2m", "2m"],
+            ["3m", "3m", "3m"],
+            ["4m", "4m", "4m"],
+            ["5m", "5m", "5m"],
+            ["0m", "5m", "5m"],
+            ["6m", "6m", "6m"],
+            ["7m", "7m", "7m"],
+            ["8m", "8m", "8m"],
+            ["9m", "9m", "9m"],
+            ["1p", "1p", "1p"],
+            ["2p", "2p", "2p"],
+            ["3p", "3p", "3p"],
+            ["4p", "4p", "4p"],
+            ["5p", "5p", "5p"],
+            ["0p", "5p", "5p"],
+            ["6p", "6p", "6p"],
+            ["7p", "7p", "7p"],
+            ["8p", "8p", "8p"],
+            ["9p", "9p", "9p"],
+            ["1s", "1s", "1s"],
+            ["2s", "2s", "2s"],
+            ["3s", "3s", "3s"],
+            ["4s", "4s", "4s"],
+            ["5s", "5s", "5s"],
+            ["0s", "5s", "5s"],
+            ["6s", "6s", "6s"],
+            ["7s", "7s", "7s"],
+            ["8s", "8s", "8s"],
+            ["9s", "9s", "9s"],
+            ["1z", "1z", "1z"],
+            ["2z", "2z", "2z"],
+            ["3z", "3z", "3z"],
+            ["4z", "4z", "4z"],
+            ["5z", "5z", "5z"],
+            ["6z", "6z", "6z"],
+            ["7z", "7z", "7z"],
+        ):
+            raise ValueError(f"{tiles}: An invalid tile combination for Peng.")
         self._tiles = tiles
 
     def to_json(self) -> object:
         return {
-            'type': '大明槓',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "大明槓",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
@@ -844,13 +928,20 @@ class DapaiRongOption(object):
 
     def to_json(self) -> object:
         return {
-            'type': '栄和'
+            "type": "栄和",
         }
 
 
 class DapaiOption(object):
-    def __init__(self, option: Union[DapaiChiOption, DapaiPengOption,
-                                     DapaiDaminggangOption, DapaiRongOption]):
+    def __init__(
+        self,
+        option: Union[
+            DapaiChiOption,
+            DapaiPengOption,
+            DapaiDaminggangOption,
+            DapaiRongOption,
+        ],
+    ):
         self._option = option
 
     def to_json(self) -> object:
@@ -858,35 +949,49 @@ class DapaiOption(object):
 
 
 class DapaiOptionPresence(object):
-    def __init__(self, *, seat: Seat, options: List[DapaiOption],
-                 main_time: int, overtime: int):
+    def __init__(
+        self,
+        *,
+        seat: Seat,
+        options: List[DapaiOption],
+        main_time: int,
+        overtime: int,
+    ):
         self._seat = seat
 
         self._options = options
 
         if main_time <= 0:
-            raise ValueError('`main_time` must be a positive integer.')
+            raise ValueError("`main_time` must be a positive integer.")
         self._main_time = main_time
 
         if overtime < 0:
-            raise ValueError('`overtime` must be a non-positive integer.')
+            raise ValueError("`overtime` must be a non-positive integer.")
         self._overtime = overtime
 
     def to_json(self) -> object:
         return {
-            'seat': self._seat.to_json(),
-            'options': [option.to_json() for option in self._options],
-            'main_time': self._main_time,
-            'overtime': self._overtime
+            "seat": self._seat.to_json(),
+            "options": [option.to_json() for option in self._options],
+            "main_time": self._main_time,
+            "overtime": self._overtime,
         }
 
 
 class Dapai(object):
-    def __init__(self, *, seat: Seat, tile: Tile, moqie: bool, lizhi: bool,
-                 double_lizhi: bool, tingpai_list: List[TingpaiInfo],
-                 zhenting: ZhentingInfo,
-                 option_presence_list: List[DapaiOptionPresence],
-                 doras: List[Tile]):
+    def __init__(
+        self,
+        *,
+        seat: Seat,
+        tile: Tile,
+        moqie: bool,
+        lizhi: bool,
+        double_lizhi: bool,
+        tingpai_list: List[TingpaiInfo],
+        zhenting: ZhentingInfo,
+        option_presence_list: List[DapaiOptionPresence],
+        doras: List[Tile],
+    ):
         self._seat = seat
         self._tile = tile
         self._moqie = moqie
@@ -899,18 +1004,22 @@ class Dapai(object):
 
     def to_json(self) -> object:
         result = {
-            'type': '打牌',
-            'tile': self._tile.to_json(),
-            'moqie': self._moqie,
-            'lizhi': self._lizhi,
-            'double_lizhi': self._double_lizhi,
-            'tingpai_list': [tingpai.to_json() for tingpai in self._tingpai_list],
-            'zhenting': self._zhenting.to_json(),
-            'option_presence_list': [e.to_json() for e in self._option_presence_list]
+            "type": "打牌",
+            "tile": self._tile.to_json(),
+            "moqie": self._moqie,
+            "lizhi": self._lizhi,
+            "double_lizhi": self._double_lizhi,
+            "tingpai_list": [
+                tingpai.to_json() for tingpai in self._tingpai_list
+            ],
+            "zhenting": self._zhenting.to_json(),
+            "option_presence_list": [
+                e.to_json() for e in self._option_presence_list
+            ],
         }
 
         if len(self._doras) > 0:
-            result['doras'] = [t.to_json() for t in self._doras]
+            result["doras"] = [t.to_json() for t in self._doras]
 
         return result
 
@@ -918,260 +1027,270 @@ class Dapai(object):
 class Shunzi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 3:
-            raise ValueError('The length of `tiles` must be equal to 3.')
-        if tiles not in (['2m', '3m', '1m'],
-                         ['1m', '3m', '2m'],
-                         ['3m', '4m', '2m'],
-                         ['1m', '2m', '3m'],
-                         ['2m', '4m', '3m'],
-                         ['4m', '5m', '3m'],
-                         ['4m', '0m', '3m'],
-                         ['2m', '3m', '4m'],
-                         ['3m', '5m', '4m'],
-                         ['3m', '0m', '4m'],
-                         ['5m', '6m', '4m'],
-                         ['0m', '6m', '4m'],
-                         ['3m', '4m', '5m'],
-                         ['3m', '4m', '0m'],
-                         ['4m', '6m', '5m'],
-                         ['4m', '6m', '0m'],
-                         ['6m', '7m', '5m'],
-                         ['6m', '7m', '0m'],
-                         ['4m', '5m', '6m'],
-                         ['4m', '0m', '6m'],
-                         ['5m', '7m', '6m'],
-                         ['0m', '7m', '6m'],
-                         ['7m', '8m', '6m'],
-                         ['5m', '6m', '7m'],
-                         ['0m', '6m', '7m'],
-                         ['6m', '8m', '7m'],
-                         ['8m', '9m', '7m'],
-                         ['6m', '7m', '8m'],
-                         ['7m', '9m', '8m'],
-                         ['7m', '8m', '9m'],
-                         ['2p', '3p', '1p'],
-                         ['1p', '3p', '2p'],
-                         ['3p', '4p', '2p'],
-                         ['1p', '2p', '3p'],
-                         ['2p', '4p', '3p'],
-                         ['4p', '5p', '3p'],
-                         ['4p', '0p', '3p'],
-                         ['2p', '3p', '4p'],
-                         ['3p', '5p', '4p'],
-                         ['3p', '0p', '4p'],
-                         ['5p', '6p', '4p'],
-                         ['0p', '6p', '4p'],
-                         ['3p', '4p', '5p'],
-                         ['3p', '4p', '0p'],
-                         ['4p', '6p', '5p'],
-                         ['4p', '6p', '0p'],
-                         ['6p', '7p', '5p'],
-                         ['6p', '7p', '0p'],
-                         ['4p', '5p', '6p'],
-                         ['4p', '0p', '6p'],
-                         ['5p', '7p', '6p'],
-                         ['0p', '7p', '6p'],
-                         ['7p', '8p', '6p'],
-                         ['5p', '6p', '7p'],
-                         ['0p', '6p', '7p'],
-                         ['6p', '8p', '7p'],
-                         ['8p', '9p', '7p'],
-                         ['6p', '7p', '8p'],
-                         ['7p', '9p', '8p'],
-                         ['7p', '8p', '9p'],
-                         ['2s', '3s', '1s'],
-                         ['1s', '3s', '2s'],
-                         ['3s', '4s', '2s'],
-                         ['1s', '2s', '3s'],
-                         ['2s', '4s', '3s'],
-                         ['4s', '5s', '3s'],
-                         ['4s', '0s', '3s'],
-                         ['2s', '3s', '4s'],
-                         ['3s', '5s', '4s'],
-                         ['3s', '0s', '4s'],
-                         ['5s', '6s', '4s'],
-                         ['0s', '6s', '4s'],
-                         ['3s', '4s', '5s'],
-                         ['3s', '4s', '0s'],
-                         ['4s', '6s', '5s'],
-                         ['4s', '6s', '0s'],
-                         ['6s', '7s', '5s'],
-                         ['6s', '7s', '0s'],
-                         ['4s', '5s', '6s'],
-                         ['4s', '0s', '6s'],
-                         ['5s', '7s', '6s'],
-                         ['0s', '7s', '6s'],
-                         ['7s', '8s', '6s'],
-                         ['5s', '6s', '7s'],
-                         ['0s', '6s', '7s'],
-                         ['6s', '8s', '7s'],
-                         ['8s', '9s', '7s'],
-                         ['6s', '7s', '8s'],
-                         ['7s', '9s', '8s'],
-                         ['7s', '8s', '9s']):
-            raise ValueError(f'{tiles}: An invalid combination for Shunzi.')
+            raise ValueError("The length of `tiles` must be equal to 3.")
+        if tiles not in (
+            ["2m", "3m", "1m"],
+            ["1m", "3m", "2m"],
+            ["3m", "4m", "2m"],
+            ["1m", "2m", "3m"],
+            ["2m", "4m", "3m"],
+            ["4m", "5m", "3m"],
+            ["4m", "0m", "3m"],
+            ["2m", "3m", "4m"],
+            ["3m", "5m", "4m"],
+            ["3m", "0m", "4m"],
+            ["5m", "6m", "4m"],
+            ["0m", "6m", "4m"],
+            ["3m", "4m", "5m"],
+            ["3m", "4m", "0m"],
+            ["4m", "6m", "5m"],
+            ["4m", "6m", "0m"],
+            ["6m", "7m", "5m"],
+            ["6m", "7m", "0m"],
+            ["4m", "5m", "6m"],
+            ["4m", "0m", "6m"],
+            ["5m", "7m", "6m"],
+            ["0m", "7m", "6m"],
+            ["7m", "8m", "6m"],
+            ["5m", "6m", "7m"],
+            ["0m", "6m", "7m"],
+            ["6m", "8m", "7m"],
+            ["8m", "9m", "7m"],
+            ["6m", "7m", "8m"],
+            ["7m", "9m", "8m"],
+            ["7m", "8m", "9m"],
+            ["2p", "3p", "1p"],
+            ["1p", "3p", "2p"],
+            ["3p", "4p", "2p"],
+            ["1p", "2p", "3p"],
+            ["2p", "4p", "3p"],
+            ["4p", "5p", "3p"],
+            ["4p", "0p", "3p"],
+            ["2p", "3p", "4p"],
+            ["3p", "5p", "4p"],
+            ["3p", "0p", "4p"],
+            ["5p", "6p", "4p"],
+            ["0p", "6p", "4p"],
+            ["3p", "4p", "5p"],
+            ["3p", "4p", "0p"],
+            ["4p", "6p", "5p"],
+            ["4p", "6p", "0p"],
+            ["6p", "7p", "5p"],
+            ["6p", "7p", "0p"],
+            ["4p", "5p", "6p"],
+            ["4p", "0p", "6p"],
+            ["5p", "7p", "6p"],
+            ["0p", "7p", "6p"],
+            ["7p", "8p", "6p"],
+            ["5p", "6p", "7p"],
+            ["0p", "6p", "7p"],
+            ["6p", "8p", "7p"],
+            ["8p", "9p", "7p"],
+            ["6p", "7p", "8p"],
+            ["7p", "9p", "8p"],
+            ["7p", "8p", "9p"],
+            ["2s", "3s", "1s"],
+            ["1s", "3s", "2s"],
+            ["3s", "4s", "2s"],
+            ["1s", "2s", "3s"],
+            ["2s", "4s", "3s"],
+            ["4s", "5s", "3s"],
+            ["4s", "0s", "3s"],
+            ["2s", "3s", "4s"],
+            ["3s", "5s", "4s"],
+            ["3s", "0s", "4s"],
+            ["5s", "6s", "4s"],
+            ["0s", "6s", "4s"],
+            ["3s", "4s", "5s"],
+            ["3s", "4s", "0s"],
+            ["4s", "6s", "5s"],
+            ["4s", "6s", "0s"],
+            ["6s", "7s", "5s"],
+            ["6s", "7s", "0s"],
+            ["4s", "5s", "6s"],
+            ["4s", "0s", "6s"],
+            ["5s", "7s", "6s"],
+            ["0s", "7s", "6s"],
+            ["7s", "8s", "6s"],
+            ["5s", "6s", "7s"],
+            ["0s", "6s", "7s"],
+            ["6s", "8s", "7s"],
+            ["8s", "9s", "7s"],
+            ["6s", "7s", "8s"],
+            ["7s", "9s", "8s"],
+            ["7s", "8s", "9s"],
+        ):
+            raise ValueError(f"{tiles}: An invalid combination for Shunzi.")
         self._tiles = tiles
 
     def to_json(self) -> object:
         return {
-            'type': '順子',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "順子",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
 class Kezi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 3:
-            raise ValueError('The length of `tiles` must be equal to 3.')
-        if tiles not in (['1m', '1m', '1m'],
-                         ['2m', '2m', '2m'],
-                         ['3m', '3m', '3m'],
-                         ['4m', '4m', '4m'],
-                         ['5m', '5m', '5m'],
-                         ['0m', '5m', '5m'],
-                         ['5m', '5m', '0m'],
-                         ['6m', '6m', '6m'],
-                         ['7m', '7m', '7m'],
-                         ['8m', '8m', '8m'],
-                         ['9m', '9m', '9m'],
-                         ['1p', '1p', '1p'],
-                         ['2p', '2p', '2p'],
-                         ['3p', '3p', '3p'],
-                         ['4p', '4p', '4p'],
-                         ['5p', '5p', '5p'],
-                         ['0p', '5p', '5p'],
-                         ['5p', '5p', '0p'],
-                         ['6p', '6p', '6p'],
-                         ['7p', '7p', '7p'],
-                         ['8p', '8p', '8p'],
-                         ['9p', '9p', '9p'],
-                         ['1s', '1s', '1s'],
-                         ['2s', '2s', '2s'],
-                         ['3s', '3s', '3s'],
-                         ['4s', '4s', '4s'],
-                         ['5s', '5s', '5s'],
-                         ['0s', '5s', '5s'],
-                         ['5s', '5s', '0s'],
-                         ['6s', '6s', '6s'],
-                         ['7s', '7s', '7s'],
-                         ['8s', '8s', '8s'],
-                         ['9s', '9s', '9s'],
-                         ['1z', '1z', '1z'],
-                         ['2z', '2z', '2z'],
-                         ['3z', '3z', '3z'],
-                         ['4z', '4z', '4z'],
-                         ['5z', '5z', '5z'],
-                         ['6z', '6z', '6z'],
-                         ['7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid combination for Kezi.')
+            raise ValueError("The length of `tiles` must be equal to 3.")
+        if tiles not in (
+            ["1m", "1m", "1m"],
+            ["2m", "2m", "2m"],
+            ["3m", "3m", "3m"],
+            ["4m", "4m", "4m"],
+            ["5m", "5m", "5m"],
+            ["0m", "5m", "5m"],
+            ["5m", "5m", "0m"],
+            ["6m", "6m", "6m"],
+            ["7m", "7m", "7m"],
+            ["8m", "8m", "8m"],
+            ["9m", "9m", "9m"],
+            ["1p", "1p", "1p"],
+            ["2p", "2p", "2p"],
+            ["3p", "3p", "3p"],
+            ["4p", "4p", "4p"],
+            ["5p", "5p", "5p"],
+            ["0p", "5p", "5p"],
+            ["5p", "5p", "0p"],
+            ["6p", "6p", "6p"],
+            ["7p", "7p", "7p"],
+            ["8p", "8p", "8p"],
+            ["9p", "9p", "9p"],
+            ["1s", "1s", "1s"],
+            ["2s", "2s", "2s"],
+            ["3s", "3s", "3s"],
+            ["4s", "4s", "4s"],
+            ["5s", "5s", "5s"],
+            ["0s", "5s", "5s"],
+            ["5s", "5s", "0s"],
+            ["6s", "6s", "6s"],
+            ["7s", "7s", "7s"],
+            ["8s", "8s", "8s"],
+            ["9s", "9s", "9s"],
+            ["1z", "1z", "1z"],
+            ["2z", "2z", "2z"],
+            ["3z", "3z", "3z"],
+            ["4z", "4z", "4z"],
+            ["5z", "5z", "5z"],
+            ["6z", "6z", "6z"],
+            ["7z", "7z", "7z"],
+        ):
+            raise ValueError(f"{tiles}: An invalid combination for Kezi.")
         self._tiles = tiles
 
     def to_json(self) -> object:
         return {
-            'type': '刻子',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "刻子",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
 class Minggangzi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError('The length of `tiles` must be equal to 4.')
-        if tiles not in (['1m', '1m', '1m', '1m'],
-                         ['2m', '2m', '2m', '2m'],
-                         ['3m', '3m', '3m', '3m'],
-                         ['4m', '4m', '4m', '4m'],
-                         ['5m', '5m', '5m', '5m'],
-                         ['0m', '5m', '5m', '5m'],
-                         ['6m', '6m', '6m', '6m'],
-                         ['7m', '7m', '7m', '7m'],
-                         ['8m', '8m', '8m', '8m'],
-                         ['9m', '9m', '9m', '9m'],
-                         ['1p', '1p', '1p', '1p'],
-                         ['2p', '2p', '2p', '2p'],
-                         ['3p', '3p', '3p', '3p'],
-                         ['4p', '4p', '4p', '4p'],
-                         ['5p', '5p', '5p', '5p'],
-                         ['0p', '5p', '5p', '5p'],
-                         ['6p', '6p', '6p', '6p'],
-                         ['7p', '7p', '7p', '7p'],
-                         ['8p', '8p', '8p', '8p'],
-                         ['9p', '9p', '9p', '9p'],
-                         ['1s', '1s', '1s', '1s'],
-                         ['2s', '2s', '2s', '2s'],
-                         ['3s', '3s', '3s', '3s'],
-                         ['4s', '4s', '4s', '4s'],
-                         ['5s', '5s', '5s', '5s'],
-                         ['0s', '5s', '5s', '5s'],
-                         ['6s', '6s', '6s', '6s'],
-                         ['7s', '7s', '7s', '7s'],
-                         ['8s', '8s', '8s', '8s'],
-                         ['9s', '9s', '9s', '9s'],
-                         ['1z', '1z', '1z', '1z'],
-                         ['2z', '2z', '2z', '2z'],
-                         ['3z', '3z', '3z', '3z'],
-                         ['4z', '4z', '4z', '4z'],
-                         ['5z', '5z', '5z', '5z'],
-                         ['6z', '6z', '6z', '6z'],
-                         ['7z', '7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid combination for Minggangzi.')
+            raise ValueError("The length of `tiles` must be equal to 4.")
+        if tiles not in (
+            ["1m", "1m", "1m", "1m"],
+            ["2m", "2m", "2m", "2m"],
+            ["3m", "3m", "3m", "3m"],
+            ["4m", "4m", "4m", "4m"],
+            ["5m", "5m", "5m", "5m"],
+            ["0m", "5m", "5m", "5m"],
+            ["6m", "6m", "6m", "6m"],
+            ["7m", "7m", "7m", "7m"],
+            ["8m", "8m", "8m", "8m"],
+            ["9m", "9m", "9m", "9m"],
+            ["1p", "1p", "1p", "1p"],
+            ["2p", "2p", "2p", "2p"],
+            ["3p", "3p", "3p", "3p"],
+            ["4p", "4p", "4p", "4p"],
+            ["5p", "5p", "5p", "5p"],
+            ["0p", "5p", "5p", "5p"],
+            ["6p", "6p", "6p", "6p"],
+            ["7p", "7p", "7p", "7p"],
+            ["8p", "8p", "8p", "8p"],
+            ["9p", "9p", "9p", "9p"],
+            ["1s", "1s", "1s", "1s"],
+            ["2s", "2s", "2s", "2s"],
+            ["3s", "3s", "3s", "3s"],
+            ["4s", "4s", "4s", "4s"],
+            ["5s", "5s", "5s", "5s"],
+            ["0s", "5s", "5s", "5s"],
+            ["6s", "6s", "6s", "6s"],
+            ["7s", "7s", "7s", "7s"],
+            ["8s", "8s", "8s", "8s"],
+            ["9s", "9s", "9s", "9s"],
+            ["1z", "1z", "1z", "1z"],
+            ["2z", "2z", "2z", "2z"],
+            ["3z", "3z", "3z", "3z"],
+            ["4z", "4z", "4z", "4z"],
+            ["5z", "5z", "5z", "5z"],
+            ["6z", "6z", "6z", "6z"],
+            ["7z", "7z", "7z", "7z"],
+        ):
+            raise ValueError(
+                f"{tiles}: An invalid combination for Minggangzi.",
+            )
         self._tiles = tiles
 
     def to_json(self) -> object:
         return {
-            'type': '明槓子',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "明槓子",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
 class Angangzi(object):
     def __init__(self, tiles: List[Tile]):
         if len(tiles) != 4:
-            raise ValueError('The length of `tiles` must be equal to 4.')
-        if tiles not in (['1m', '1m', '1m', '1m'],
-                         ['2m', '2m', '2m', '2m'],
-                         ['3m', '3m', '3m', '3m'],
-                         ['4m', '4m', '4m', '4m'],
-                         ['5m', '5m', '5m', '5m'],
-                         ['0m', '5m', '5m', '5m'],
-                         ['6m', '6m', '6m', '6m'],
-                         ['7m', '7m', '7m', '7m'],
-                         ['8m', '8m', '8m', '8m'],
-                         ['9m', '9m', '9m', '9m'],
-                         ['1p', '1p', '1p', '1p'],
-                         ['2p', '2p', '2p', '2p'],
-                         ['3p', '3p', '3p', '3p'],
-                         ['4p', '4p', '4p', '4p'],
-                         ['5p', '5p', '5p', '5p'],
-                         ['0p', '5p', '5p', '5p'],
-                         ['6p', '6p', '6p', '6p'],
-                         ['7p', '7p', '7p', '7p'],
-                         ['8p', '8p', '8p', '8p'],
-                         ['9p', '9p', '9p', '9p'],
-                         ['1s', '1s', '1s', '1s'],
-                         ['2s', '2s', '2s', '2s'],
-                         ['3s', '3s', '3s', '3s'],
-                         ['4s', '4s', '4s', '4s'],
-                         ['5s', '5s', '5s', '5s'],
-                         ['0s', '5s', '5s', '5s'],
-                         ['6s', '6s', '6s', '6s'],
-                         ['7s', '7s', '7s', '7s'],
-                         ['8s', '8s', '8s', '8s'],
-                         ['9s', '9s', '9s', '9s'],
-                         ['1z', '1z', '1z', '1z'],
-                         ['2z', '2z', '2z', '2z'],
-                         ['3z', '3z', '3z', '3z'],
-                         ['4z', '4z', '4z', '4z'],
-                         ['5z', '5z', '5z', '5z'],
-                         ['6z', '6z', '6z', '6z'],
-                         ['7z', '7z', '7z', '7z']):
-            raise ValueError(f'{tiles}: An invalid combination for Angangzi.')
+            raise ValueError("The length of `tiles` must be equal to 4.")
+        if tiles not in (
+            ["1m", "1m", "1m", "1m"],
+            ["2m", "2m", "2m", "2m"],
+            ["3m", "3m", "3m", "3m"],
+            ["4m", "4m", "4m", "4m"],
+            ["5m", "5m", "5m", "5m"],
+            ["0m", "5m", "5m", "5m"],
+            ["6m", "6m", "6m", "6m"],
+            ["7m", "7m", "7m", "7m"],
+            ["8m", "8m", "8m", "8m"],
+            ["9m", "9m", "9m", "9m"],
+            ["1p", "1p", "1p", "1p"],
+            ["2p", "2p", "2p", "2p"],
+            ["3p", "3p", "3p", "3p"],
+            ["4p", "4p", "4p", "4p"],
+            ["5p", "5p", "5p", "5p"],
+            ["0p", "5p", "5p", "5p"],
+            ["6p", "6p", "6p", "6p"],
+            ["7p", "7p", "7p", "7p"],
+            ["8p", "8p", "8p", "8p"],
+            ["9p", "9p", "9p", "9p"],
+            ["1s", "1s", "1s", "1s"],
+            ["2s", "2s", "2s", "2s"],
+            ["3s", "3s", "3s", "3s"],
+            ["4s", "4s", "4s", "4s"],
+            ["5s", "5s", "5s", "5s"],
+            ["0s", "5s", "5s", "5s"],
+            ["6s", "6s", "6s", "6s"],
+            ["7s", "7s", "7s", "7s"],
+            ["8s", "8s", "8s", "8s"],
+            ["9s", "9s", "9s", "9s"],
+            ["1z", "1z", "1z", "1z"],
+            ["2z", "2z", "2z", "2z"],
+            ["3z", "3z", "3z", "3z"],
+            ["4z", "4z", "4z", "4z"],
+            ["5z", "5z", "5z", "5z"],
+            ["6z", "6z", "6z", "6z"],
+            ["7z", "7z", "7z", "7z"],
+        ):
+            raise ValueError(f"{tiles}: An invalid combination for Angangzi.")
         self._tiles = tiles
 
     def to_json(self) -> object:
         return {
-            'type': '暗槓子',
-            'tiles': [tile.to_json() for tile in self._tiles]
+            "type": "暗槓子",
+            "tiles": [tile.to_json() for tile in self._tiles],
         }
 
 
@@ -1185,209 +1304,293 @@ class Ming(object):
 
 class Hupai(object):
     def __init__(self, *, title: str, fan: int):
-        if title == '門前清自摸和':
+        if title == "門前清自摸和":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '立直':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "立直":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '槍槓':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "槍槓":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '嶺上開花':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "嶺上開花":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '海底摸月':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "海底摸月":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '河底撈魚':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "河底撈魚":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '役牌白':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "役牌白":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '役牌發':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "役牌發":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '役牌中':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "役牌中":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '役牌:自風牌':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "役牌:自風牌":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '役牌:場風牌':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "役牌:場風牌":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '断幺九':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "断幺九":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '一盃口':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "一盃口":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '平和':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "平和":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '混全帯幺九':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "混全帯幺九":
             if fan not in [2, 1]:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '一気通貫':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "一気通貫":
             if fan not in [2, 1]:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '三色同順':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "三色同順":
             if fan not in [2, 1]:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == 'ダブル立直':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "ダブル立直":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '三色同刻':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "三色同刻":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '三槓子':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "三槓子":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '対々和':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "対々和":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '三暗刻':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "三暗刻":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '小三元':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "小三元":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '混老頭':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "混老頭":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '七対子':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "七対子":
             if fan != 2:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '純全帯幺九':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "純全帯幺九":
             if fan not in [3, 2]:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '混一色':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "混一色":
             if fan not in [3, 2]:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '二盃口':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "二盃口":
             if fan != 3:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '清一色':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "清一色":
             if fan not in [6, 5]:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '一発':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "一発":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == 'ドラ':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "ドラ":
             if fan < 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '赤ドラ':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "赤ドラ":
             if fan < 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '裏ドラ':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "裏ドラ":
             if fan < 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '流し満貫':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '天和':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '地和':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '大三元':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '四暗刻':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "流し満貫":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "天和":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "地和":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "大三元":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "四暗刻":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '字一色':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '緑一色':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '清老頭':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '国士無双':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '小四喜':
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "字一色":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "緑一色":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "清老頭":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "国士無双":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "小四喜":
             if fan != 1:
-                raise ValueError(f'title == {title}, fan == {fan}:'
-                                 ' An invalid combination.')
-        elif title == '四槓子':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '九蓮宝燈':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '純正九蓮宝燈':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '四暗刻単騎':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '国士無双十三面待ち':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
-        elif title == '大四喜':
-            raise NotImplementedError(f'title == {title}, fan == {fan}')
+                raise ValueError(
+                    f"title == {title}, fan == {fan}:"
+                    " An invalid combination.",
+                )
+        elif title == "四槓子":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "九蓮宝燈":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "純正九蓮宝燈":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "四暗刻単騎":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "国士無双十三面待ち":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
+        elif title == "大四喜":
+            raise NotImplementedError(f"title == {title}, fan == {fan}")
         else:
-            raise ValueError(f'{title}: An invalid value for `title`.')
+            raise ValueError(f"{title}: An invalid value for `title`.")
 
         self._title = title
         self._fan = fan
 
     def to_json(self) -> object:
         return {
-            'title': self._title,
-            'fan': self._fan
+            "title": self._title,
+            "fan": self._fan,
         }
 
 
 class Hule(object):
-    def __init__(self, *, seat: Seat, zhuangjia: bool, hand: List[Tile],
-                 ming_list: List[Ming], hupai: Tile, lizhi: bool,
-                 zimo: bool, doras: List[Tile], li_doras: List[Tile],
-                 fu: int, hupai_list: List[Hupai], fan: int,
-                 fan_title: Optional[str], damanguan: bool,
-                 point_rong: Optional[int],
-                 point_zimo_zhuangjia: Optional[int],
-                 point_zimo_sanjia: Optional[int]):
+    def __init__(
+        self,
+        *,
+        seat: Seat,
+        zhuangjia: bool,
+        hand: List[Tile],
+        ming_list: List[Ming],
+        hupai: Tile,
+        lizhi: bool,
+        zimo: bool,
+        doras: List[Tile],
+        li_doras: List[Tile],
+        fu: int,
+        hupai_list: List[Hupai],
+        fan: int,
+        fan_title: Optional[str],
+        damanguan: bool,
+        point_rong: Optional[int],
+        point_zimo_zhuangjia: Optional[int],
+        point_zimo_sanjia: Optional[int],
+    ):
         self._seat = seat
         self._zhuangjia = zhuangjia
 
         if len(hand) not in (13, 10, 7, 4, 1):
-            raise ValueError(f'An invalid value for `hand`: {hand}')
+            raise ValueError(f"An invalid value for `hand`: {hand}")
         self._hand = hand
 
         if len(ming_list) not in (0, 1, 2, 3, 4):
-            raise ValueError(f'An invalid value for `ming_list`: {ming_list})')
+            raise ValueError(f"An invalid value for `ming_list`: {ming_list})")
         if len(hand) + 3 * len(ming_list) != 13:
             raise ValueError(
-                'An invalid combination of `hand` and `ming_list`:'
-                f' hand == {hand}, ming_list == {ming_list}')
+                "An invalid combination of `hand` and `ming_list`:"
+                f" hand == {hand}, ming_list == {ming_list}",
+            )
         self._ming_list = ming_list
 
         self._hupai = hupai
@@ -1397,111 +1600,126 @@ class Hule(object):
         self._li_doras = li_doras
 
         if fu < 20:
-            raise ValueError(f'{fu}: An invalid value for `fu`.')
+            raise ValueError(f"{fu}: An invalid value for `fu`.")
         self._fu = fu
 
         self._hupai_list = hupai_list
 
         if fan < 1:
-            raise ValueError(f'{fan}: An invalid value for `fan`.')
+            raise ValueError(f"{fan}: An invalid value for `fan`.")
         self._fan = fan
 
         if fan_title is not None:
-            if fan_title not in ('満貫', '跳満', '倍満', '三倍満', '役満'):
+            if fan_title not in ("満貫", "跳満", "倍満", "三倍満", "役満"):
                 raise ValueError(
-                    f'{fan_title}: An invalid value for `fan_title`.')
+                    f"{fan_title}: An invalid value for `fan_title`.",
+                )
         self._fan_title = fan_title
 
         self._damanguan = damanguan
 
         if zimo:
             if point_rong is not None:
-                raise ValueError('{point_rong}: An invalid value.')
+                raise ValueError("{point_rong}: An invalid value.")
             if point_zimo_sanjia is None:
-                raise ValueError('{point_zimo_sanjia}: An invalid value.')
+                raise ValueError("{point_zimo_sanjia}: An invalid value.")
             if zhuangjia and point_zimo_zhuangjia is not None:
-                raise ValueError('{point_zimo_zhuangjia}: An invalid value.')
+                raise ValueError("{point_zimo_zhuangjia}: An invalid value.")
         else:
             if point_zimo_zhuangjia is not None:
-                raise ValueError('{point_zimo_zhuangjia}: An invalid value.')
+                raise ValueError("{point_zimo_zhuangjia}: An invalid value.")
             if point_zimo_sanjia is not None:
-                raise ValueError('{point_zimo_sanjia}: An invalid value.')
+                raise ValueError("{point_zimo_sanjia}: An invalid value.")
             if point_rong is None:
-                raise ValueError('{point_rong}: An invalid value.')
+                raise ValueError("{point_rong}: An invalid value.")
         self._point_rong = point_rong
         self._point_zimo_zhuangjia = point_zimo_zhuangjia
         self._point_zimo_sanjia = point_zimo_sanjia
 
     def to_json(self) -> object:
         result = {
-            'seat': self._seat.to_json(),
-            'zhuangjia': self._zhuangjia,
-            'hand': [tile.to_json() for tile in self._hand],
-            'ming_list': [ming.to_json() for ming in self._ming_list],
-            'hupai': self._hupai.to_json(),
-            'lizhi': self._lizhi,
-            'zimo': self._zimo,
-            'doras': [dora.to_json() for dora in self._doras],
-            'li_doras': [li_dora.to_json() for li_dora in self._li_doras],
-            'fu': self._fu,
-            'hupai_list': [hupai.to_json() for hupai in self._hupai_list],
-            'fan': self._fan,
-            'damanguan': self._damanguan
+            "seat": self._seat.to_json(),
+            "zhuangjia": self._zhuangjia,
+            "hand": [tile.to_json() for tile in self._hand],
+            "ming_list": [ming.to_json() for ming in self._ming_list],
+            "hupai": self._hupai.to_json(),
+            "lizhi": self._lizhi,
+            "zimo": self._zimo,
+            "doras": [dora.to_json() for dora in self._doras],
+            "li_doras": [li_dora.to_json() for li_dora in self._li_doras],
+            "fu": self._fu,
+            "hupai_list": [hupai.to_json() for hupai in self._hupai_list],
+            "fan": self._fan,
+            "damanguan": self._damanguan,
         }
 
         if self._fan_title is not None:
-            result['fan_title'] = self._fan_title
+            result["fan_title"] = self._fan_title
         if self._point_rong is not None:
-            result['point_rong'] = self._point_rong
+            result["point_rong"] = self._point_rong
         if self._point_zimo_zhuangjia is not None:
-            result['point_zimo_zhuangjia'] = self._point_zimo_zhuangjia
+            result["point_zimo_zhuangjia"] = self._point_zimo_zhuangjia
         if self._point_zimo_sanjia is not None:
-            result['point_zimo_sanjia'] = self._point_zimo_sanjia
+            result["point_zimo_sanjia"] = self._point_zimo_sanjia
 
         return result
 
 
 class RoundEndByHule(object):
-    def __init__(self, *, hule_list: List[Hule], old_scores: List[int],
-                 delta_scores: List[int], new_scores: List[int]):
+    def __init__(
+        self,
+        *,
+        hule_list: List[Hule],
+        old_scores: List[int],
+        delta_scores: List[int],
+        new_scores: List[int],
+    ):
         self._hule_list = hule_list
 
         if len(old_scores) != 4:
-            raise ValueError(f'The length of `old_scores` must be equal to 4.')
+            raise ValueError(f"The length of `old_scores` must be equal to 4.")
         self._old_scores = old_scores
 
         if len(delta_scores) != 4:
             raise ValueError(
-                f'The length of `delta_scores` must be equal to 4.')
+                f"The length of `delta_scores` must be equal to 4.",
+            )
         self._delta_scores = delta_scores
 
         if len(new_scores) != 4:
-            raise ValueError(f'The length of `new_socres` must be equal to 4.')
+            raise ValueError(f"The length of `new_socres` must be equal to 4.")
         self._new_scores = new_scores
 
     def to_json(self) -> object:
         return {
-            'type': '和了',
-            'hule_list': [hule.to_json() for hule in self._hule_list],
-            'old_scores': self._old_scores,
-            'delta_scores': self._delta_scores,
-            'new_scores': self._new_scores
+            "type": "和了",
+            "hule_list": [hule.to_json() for hule in self._hule_list],
+            "old_scores": self._old_scores,
+            "delta_scores": self._delta_scores,
+            "new_scores": self._new_scores,
         }
 
 
 class PlayerResultOnNoTile(object):
-    def __init__(self, *, tingpai: bool, hand: Optional[List[Tile]],
-                 tingpai_list: List[TingpaiInfo], old_score: int,
-                 delta_score: int):
+    def __init__(
+        self,
+        *,
+        tingpai: bool,
+        hand: Optional[List[Tile]],
+        tingpai_list: List[TingpaiInfo],
+        old_score: int,
+        delta_score: int,
+    ):
         self._tingpai = tingpai
 
         if tingpai != (hand is not None):
-            raise ValueError('Inconsistency between `tingpai` and `hand`.')
+            raise ValueError("Inconsistency between `tingpai` and `hand`.")
         self._hand = hand
 
         if tingpai != (len(tingpai_list) >= 1):
             raise ValueError(
-                'Inconsistency between `tingpai` and `tingpai_list`.')
+                "Inconsistency between `tingpai` and `tingpai_list`.",
+            )
         self._tingpai_list = tingpai_list
 
         self._old_score = old_score
@@ -1510,33 +1728,41 @@ class PlayerResultOnNoTile(object):
     def to_json(self) -> object:
         tingpai_list = [tingpai.to_json() for tingpai in self._tingpai_list]
         result = {
-            'tingpai': self._tingpai,
-            'tingpai_list': tingpai_list,
-            'old_score': self._old_score,
-            'delta_score': self._delta_score
+            "tingpai": self._tingpai,
+            "tingpai_list": tingpai_list,
+            "old_score": self._old_score,
+            "delta_score": self._delta_score,
         }
 
         if self._hand is not None:
-            result['hand'] = [tile.to_json() for tile in self._hand]
+            result["hand"] = [tile.to_json() for tile in self._hand]
 
         return result
 
 
 class NoTile(object):
-    def __init__(self, *, liujumanguan: bool,
-                 player_results: List[PlayerResultOnNoTile]):
+    def __init__(
+        self,
+        *,
+        liujumanguan: bool,
+        player_results: List[PlayerResultOnNoTile],
+    ):
         self._liujumanguan = liujumanguan
 
         if len(player_results) != 4:
             raise ValueError(
-                'The length of `player_results` must be equal to 4.')
+                "The length of `player_results` must be equal to 4.",
+            )
         self._player_results = player_results
 
     def to_json(self) -> object:
         return {
-            'type': '荒牌平局',
-            'liujumanguan': self._liujumanguan,
-            'player_results': [player_result.to_json() for player_result in self._player_results]
+            "type": "荒牌平局",
+            "liujumanguan": self._liujumanguan,
+            "player_results": [
+                player_result.to_json()
+                for player_result in self._player_results
+            ],
         }
 
 
@@ -1545,13 +1771,13 @@ class Kyushukyuhai(object):
         self._seat = seat
 
         if len(hand) != 14:
-            raise ValueError('The length of `hand` must be equal to 14.')
+            raise ValueError("The length of `hand` must be equal to 14.")
         self._hand = hand
 
     def to_json(self) -> object:
         return {
-            'type': '九種九牌',
-            'hand': [tile.to_json() for tile in self._hand]
+            "type": "九種九牌",
+            "hand": [tile.to_json() for tile in self._hand],
         }
 
 
@@ -1561,14 +1787,27 @@ class Sifengzilianda(object):
 
     def to_json(self) -> object:
         return {
-            'type': '四風子連打'
+            "type": "四風子連打",
         }
 
 
 class Turn(object):
-    def __init__(self, turn: Union[Zimo, Chi, Peng, Daminggang, Dapai, Angang,
-                                   Jiagang, RoundEndByHule, NoTile,
-                                   Kyushukyuhai, Sifengzilianda]):
+    def __init__(
+        self,
+        turn: Union[
+            Zimo,
+            Chi,
+            Peng,
+            Daminggang,
+            Dapai,
+            Angang,
+            Jiagang,
+            RoundEndByHule,
+            NoTile,
+            Kyushukyuhai,
+            Sifengzilianda,
+        ],
+    ):
         self._turn = turn
 
     def to_json(self) -> object:
@@ -1576,48 +1815,67 @@ class Turn(object):
 
 
 class GameRound(object):
-    def __init__(self, *, chang: str, ju: int, ben: int, lizhibang: int,
-                 initial_scores: List[int], qipai_list: List[List[Tile]],
-                 paishan: List[Tile], paishan_code: str, dora: Tile,
-                 left_tile_count: int,
-                 tingpai_list: List[Tuple[Seat, TingpaiInfo]],
-                 option_presence: ZimoOptionPresence):
-        if chang not in ['東', '南', '西']:
+    def __init__(
+        self,
+        *,
+        chang: str,
+        ju: int,
+        ben: int,
+        lizhibang: int,
+        initial_scores: List[int],
+        qipai_list: List[List[Tile]],
+        paishan: List[Tile],
+        paishan_code: str,
+        dora: Tile,
+        left_tile_count: int,
+        tingpai_list: List[Tuple[Seat, TingpaiInfo]],
+        option_presence: ZimoOptionPresence,
+    ):
+        if chang not in ["東", "南", "西"]:
             raise ValueError(
-                "`chang` must be equal to either `東`, `南`, or `西`.")
+                "`chang` must be equal to either `東`, `南`, or `西`.",
+            )
         self._chang = chang
 
         if ju < 0 or ju >= 4:
             raise ValueError(
-                '`ju` must be equal to either `0`, `1`, `2`, or `3`.')
+                "`ju` must be equal to either `0`, `1`, `2`, or `3`.",
+            )
         self._ju = ju
 
         if ben < 0:
-            raise ValueError('`ben` must be a non-negative integer.')
+            raise ValueError("`ben` must be a non-negative integer.")
         self._ben = ben
 
         if lizhibang < 0:
-            raise ValueError('`lizhibang` must be a non-negative integer.')
+            raise ValueError("`lizhibang` must be a non-negative integer.")
         self._lizhibang = lizhibang
 
         if len(initial_scores) != 4:
             raise ValueError(
-                'The length of `initial_scores` must be equal to 4.')
+                "The length of `initial_scores` must be equal to 4.",
+            )
         for initial_score in initial_scores:
             if initial_score < 0:
-                raise ValueError('All the elements in `initial_scores` must be'
-                                 ' a non-negative integer.')
+                raise ValueError(
+                    "All the elements in `initial_scores` must be"
+                    " a non-negative integer.",
+                )
         self._initial_scores = initial_scores
 
         if len(qipai_list) != 4:
-            raise ValueError('The length of `qipai_list` must be equal to 4.')
+            raise ValueError("The length of `qipai_list` must be equal to 4.")
         for i in range(len(qipai_list)):
             if i == self._ju and len(qipai_list[i]) != 14:
-                raise ValueError('The length of `qipai_list` for zhuangjia'
-                                 ' must be equal to 14.')
+                raise ValueError(
+                    "The length of `qipai_list` for zhuangjia"
+                    " must be equal to 14.",
+                )
             if i != self._ju and len(qipai_list[i]) != 13:
-                raise ValueError('The length of `qipai_list` for sanjia must'
-                                 ' be equal to 13.')
+                raise ValueError(
+                    "The length of `qipai_list` for sanjia must"
+                    " be equal to 13.",
+                )
         self._qipai_list = qipai_list
 
         self._paishan = paishan
@@ -1656,64 +1914,74 @@ class GameRound(object):
 
         tingpai_list = []
         for seat, tingpai in tingpai_list:
-            tingpai_list.append({
-                'seat': seat.to_json(),
-                'tingpai': tingpai.to_json()
-            })
+            tingpai_list.append(
+                {
+                    "seat": seat.to_json(),
+                    "tingpai": tingpai.to_json(),
+                },
+            )
 
         return {
-            'chang': self._chang,
-            'ju': self._ju,
-            'ben': self._ben,
-            'lizhibang': self._lizhibang,
-            'initial_scores': self._initial_scores,
-            'qipai_list': qipai_list,
-            'paishan': [tile.to_json() for tile in self._paishan],
-            'paishan_code': self._paishan_code,
-            'dora': self._dora.to_json(),
-            'tingpai_list': tingpai_list,
-            'option_presence': self._option_presence.to_json(),
-            'left_tile_count': self._left_tile_count,
-            'turns': [t.to_json() for t in self._turns]
+            "chang": self._chang,
+            "ju": self._ju,
+            "ben": self._ben,
+            "lizhibang": self._lizhibang,
+            "initial_scores": self._initial_scores,
+            "qipai_list": qipai_list,
+            "paishan": [tile.to_json() for tile in self._paishan],
+            "paishan_code": self._paishan_code,
+            "dora": self._dora.to_json(),
+            "tingpai_list": tingpai_list,
+            "option_presence": self._option_presence.to_json(),
+            "left_tile_count": self._left_tile_count,
+            "turns": [t.to_json() for t in self._turns],
         }
 
 
 class GameRecord(object):
-    def __init__(self, *, placeholder: GameRecordPlaceholder,
-                 end_time: datetime.datetime, mode: str,
-                 account_list: List[Account]):
-        self._uuid = placeholder.uuid,
+    def __init__(
+        self,
+        *,
+        placeholder: GameRecordPlaceholder,
+        end_time: datetime.datetime,
+        mode: str,
+        account_list: List[Account],
+    ):
+        self._uuid = (placeholder.uuid,)
 
         self._start_time = placeholder.start_time
 
         self._end_time = end_time
 
-        if mode not in ['段位戦・銅の間・四人東風戦',
-                        '段位戦・銅の間・四人半荘戦',
-                        '段位戦・銀の間・四人東風戦',
-                        '段位戦・銀の間・四人半荘戦',
-                        '段位戦・金の間・四人東風戦',
-                        '段位戦・金の間・四人半荘戦',
-                        '段位戦・玉の間・四人東風戦',
-                        '段位戦・玉の間・四人半荘戦',
-                        '段位戦・王座の間・四人東風戦',
-                        '段位戦・王座の間・四人半荘戦',
-                        '段位戦・銅の間・三人東風戦',
-                        '段位戦・銅の間・三人半荘戦',
-                        '段位戦・銀の間・三人東風戦',
-                        '段位戦・銀の間・三人半荘戦',
-                        '段位戦・金の間・三人東風戦',
-                        '段位戦・金の間・三人半荘戦',
-                        '段位戦・玉の間・三人東風戦',
-                        '段位戦・玉の間・三人半荘戦',
-                        '段位戦・王座の間・三人東風戦',
-                        '段位戦・王座の間・三人半荘戦']:
-            raise ValueError(f'{mode}: An invalid value for `mode`.')
+        if mode not in [
+            "段位戦・銅の間・四人東風戦",
+            "段位戦・銅の間・四人半荘戦",
+            "段位戦・銀の間・四人東風戦",
+            "段位戦・銀の間・四人半荘戦",
+            "段位戦・金の間・四人東風戦",
+            "段位戦・金の間・四人半荘戦",
+            "段位戦・玉の間・四人東風戦",
+            "段位戦・玉の間・四人半荘戦",
+            "段位戦・王座の間・四人東風戦",
+            "段位戦・王座の間・四人半荘戦",
+            "段位戦・銅の間・三人東風戦",
+            "段位戦・銅の間・三人半荘戦",
+            "段位戦・銀の間・三人東風戦",
+            "段位戦・銀の間・三人半荘戦",
+            "段位戦・金の間・三人東風戦",
+            "段位戦・金の間・三人半荘戦",
+            "段位戦・玉の間・三人東風戦",
+            "段位戦・玉の間・三人半荘戦",
+            "段位戦・王座の間・三人東風戦",
+            "段位戦・王座の間・三人半荘戦",
+        ]:
+            raise ValueError(f"{mode}: An invalid value for `mode`.")
         self._mode = mode
 
         if len(account_list) != 4:
             raise ValueError(
-                "The length of `account_list` must be equal to 4.")
+                "The length of `account_list` must be equal to 4.",
+            )
         self._account_list = account_list
 
         self._round_list = []
@@ -1731,10 +1999,12 @@ class GameRecord(object):
 
     def to_json(self) -> object:
         return {
-            'uuid': self._uuid,
-            'mode': self._mode,
-            'start_time': int(self._start_time.timestamp()),
-            'end_time': int(self._end_time.timestamp()),
-            'account_list': [account.to_json() for account in self._account_list],
-            'round_list': [r.to_json() for r in self._round_list]
+            "uuid": self._uuid,
+            "mode": self._mode,
+            "start_time": int(self._start_time.timestamp()),
+            "end_time": int(self._end_time.timestamp()),
+            "account_list": [
+                account.to_json() for account in self._account_list
+            ],
+            "round_list": [r.to_json() for r in self._round_list],
         }
