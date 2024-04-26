@@ -13,7 +13,7 @@ _initialized = False
 def initialize(
     *,
     module_name: str,
-    service_name: Optional[str] = None,
+    service_name: str | None = None,
 ) -> None:
     global _module_name
     global _service_name

@@ -62,7 +62,7 @@ class Redis:
         key = key.encode("UTF-8")
         self.__redis.set(key, value, ex=ex, px=px, nx=nx, xx=xx)
 
-    def get(self, key: str) -> Optional[bytes]:
+    def get(self, key: str) -> bytes | None:
         key = key.encode("UTF-8")
         return self.__redis.get(key)
 
@@ -86,7 +86,7 @@ class Redis:
         key = key.encode("UTF-8")
         return self.__redis.llen(key)
 
-    def lpop(self, key: str) -> Optional[bytes]:
+    def lpop(self, key: str) -> bytes | None:
         key = key.encode("UTF-8")
         return self.__redis.lpop(key)
 
@@ -131,7 +131,7 @@ class Redis:
 
         return message
 
-    def lpop_websocket_message(self, key) -> Optional[dict]:
+    def lpop_websocket_message(self, key) -> dict | None:
         message = self.lpop(key)
 
         if message is None:
@@ -143,7 +143,7 @@ class Redis:
         message = self.blpop(key)
         return self.__decode_websocket_message(message)
 
-    def get_websocket_message(self, key: str) -> Optional[dict]:
+    def get_websocket_message(self, key: str) -> dict | None:
         message = self.get(key)
 
         if message is None:
@@ -159,7 +159,7 @@ class Redis:
         timestamp = timestamp.encode("UTF-8")
         self.__redis.set(key, timestamp)
 
-    def get_timestamp(self, key: str) -> Optional[datetime.datetime]:
+    def get_timestamp(self, key: str) -> datetime.datetime | None:
         key = key.encode("UTF-8")
         timestamp = self.__redis.get(key)
 

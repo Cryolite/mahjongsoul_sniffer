@@ -24,7 +24,7 @@ class YostarLogin:
         self,
         *,
         start_time: datetime.datetime,
-    ) -> Optional[str]:
+    ) -> str | None:
         emails = self.__s3_bucket.get_authentication_emails()
 
         target_date = None

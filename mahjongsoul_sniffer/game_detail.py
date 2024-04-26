@@ -2816,11 +2816,11 @@ class ValidationError(RuntimeError):
     def __init__(
         self,
         uuid: str,
-        chang: Optional[str],
-        ju: Optional[int],
-        ben: Optional[int],
-        index: Optional[int],
-        header: Optional[str],
+        chang: str | None,
+        ju: int | None,
+        ben: int | None,
+        index: int | None,
+        header: str | None,
         message: bytes,
         message_json: dict,
     ) -> None:

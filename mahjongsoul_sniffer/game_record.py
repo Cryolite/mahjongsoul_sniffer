@@ -1,6 +1,6 @@
 import datetime
 import logging
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 
 class GameRecordPlaceholder:
@@ -353,14 +353,12 @@ class ZimoKyushukyuhaiOption:
 class ZimoOption:
     def __init__(
         self,
-        option: Union[
-            ZimoDapaiOption,
-            ZimoAngangOption,
-            ZimoJiagangOption,
-            ZimoLizhiOption,
-            ZimoHuOption,
-            ZimoKyushukyuhaiOption,
-        ],
+        option: ZimoDapaiOption
+        | ZimoAngangOption
+        | ZimoJiagangOption
+        | ZimoLizhiOption
+        | ZimoHuOption
+        | ZimoKyushukyuhaiOption,
     ) -> None:
         self._option = option
 
@@ -959,12 +957,10 @@ class DapaiRongOption:
 class DapaiOption:
     def __init__(
         self,
-        option: Union[
-            DapaiChiOption,
-            DapaiPengOption,
-            DapaiDaminggangOption,
-            DapaiRongOption,
-        ],
+        option: DapaiChiOption
+        | DapaiPengOption
+        | DapaiDaminggangOption
+        | DapaiRongOption,
     ) -> None:
         self._option = option
 
@@ -1329,7 +1325,7 @@ class Angangzi:
 class Ming:
     def __init__(
         self,
-        ming: Union[Shunzi, Kezi, Minggangzi, Angangzi],
+        ming: Shunzi | Kezi | Minggangzi | Angangzi,
     ) -> None:
         self._ming = ming
 
@@ -1656,11 +1652,11 @@ class Hule:
         fu: int,
         hupai_list: List[Hupai],
         fan: int,
-        fan_title: Optional[str],
+        fan_title: str | None,
         damanguan: bool,
-        point_rong: Optional[int],
-        point_zimo_zhuangjia: Optional[int],
-        point_zimo_sanjia: Optional[int],
+        point_rong: int | None,
+        point_zimo_zhuangjia: int | None,
+        point_zimo_sanjia: int | None,
     ) -> None:
         self._seat = seat
         self._zhuangjia = zhuangjia
@@ -1797,7 +1793,7 @@ class PlayerResultOnNoTile:
         self,
         *,
         tingpai: bool,
-        hand: Optional[List[Tile]],
+        hand: List[Tile] | None,
         tingpai_list: List[TingpaiInfo],
         old_score: int,
         delta_score: int,
@@ -1886,19 +1882,17 @@ class Sifengzilianda:
 class Turn:
     def __init__(
         self,
-        turn: Union[
-            Zimo,
-            Chi,
-            Peng,
-            Daminggang,
-            Dapai,
-            Angang,
-            Jiagang,
-            RoundEndByHule,
-            NoTile,
-            Kyushukyuhai,
-            Sifengzilianda,
-        ],
+        turn: Zimo
+        | Chi
+        | Peng
+        | Daminggang
+        | Dapai
+        | Angang
+        | Jiagang
+        | RoundEndByHule
+        | NoTile
+        | Kyushukyuhai
+        | Sifengzilianda,
     ) -> None:
         self._turn = turn
 
