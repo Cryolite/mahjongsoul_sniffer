@@ -1704,18 +1704,24 @@ class Hule:
 
         if zimo:
             if point_rong is not None:
-                raise ValueError("{point_rong}: An invalid value.")
+                msg = f"{point_rong}: An invalid value."
+                raise ValueError(msg)
             if point_zimo_sanjia is None:
-                raise ValueError("{point_zimo_sanjia}: An invalid value.")
+                msg = f"{point_zimo_sanjia}: An invalid value."
+                raise ValueError(msg)
             if zhuangjia and point_zimo_zhuangjia is not None:
-                raise ValueError("{point_zimo_zhuangjia}: An invalid value.")
+                msg = f"{point_zimo_zhuangjia}: An invalid value."
+                raise ValueError(msg)
         else:
             if point_zimo_zhuangjia is not None:
-                raise ValueError("{point_zimo_zhuangjia}: An invalid value.")
+                msg = f"{point_zimo_zhuangjia}: An invalid value."
+                raise ValueError(msg)
             if point_zimo_sanjia is not None:
-                raise ValueError("{point_zimo_sanjia}: An invalid value.")
+                msg = f"{point_zimo_sanjia}: An invalid value."
+                raise ValueError(msg)
             if point_rong is None:
-                raise ValueError("{point_rong}: An invalid value.")
+                msg = f"{point_rong}: An invalid value."
+                raise ValueError(msg)
         self._point_rong = point_rong
         self._point_zimo_zhuangjia = point_zimo_zhuangjia
         self._point_zimo_sanjia = point_zimo_sanjia
