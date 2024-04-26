@@ -169,12 +169,10 @@ class Redis:
 
         timestamp = timestamp.decode("UTF-8")
         timestamp = float(timestamp)
-        timestamp = datetime.datetime.fromtimestamp(
+        return datetime.datetime.fromtimestamp(
             timestamp,
             tz=datetime.timezone.utc,
         )
-
-        return timestamp
 
     def get_all_log_records(self, key: str) -> list[str]:
         key = key.encode("UTF-8")
