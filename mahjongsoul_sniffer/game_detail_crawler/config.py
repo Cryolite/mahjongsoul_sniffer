@@ -1,8 +1,7 @@
 import pathlib
 from functools import cache
 
-import jsonschema
-import yaml
+from mahjongsoul_sniffer.config_loader import load_config
 
 _YOSTAR_LOGIN_CONFIG_SCHEMA = {
     "type": "object",
@@ -178,16 +177,4 @@ _CONFIG_FILE_PATH = pathlib.Path("game-detail-crawler/config.yaml")
 
 @cache
 def get() -> dict:
-    if not _CONFIG_FILE_PATH.exists():
-        msg = f"{_CONFIG_FILE_PATH}: File does not exist."
-        raise RuntimeError(msg)
-    if not _CONFIG_FILE_PATH.is_file():
-        msg = f"{_CONFIG_FILE_PATH}: Not a file."
-        raise RuntimeError(msg)
-
-    with _CONFIG_FILE_PATH.open() as config_file:
-        config = yaml.load(config_file, Loader=yaml.Loader)
-
-    jsonschema.validate(instance=config, schema=_CONFIG_SCHEMA)
-
-    return config
+    return load_config(_CONFIG_FILE_PATH, _CONFIG_SCHEMA)
