@@ -17,7 +17,7 @@ def _load(file_path: pathlib.Path, schema: dict[str, object]) -> dict:
         raise RuntimeError(msg)
 
     with file_path.open() as config_file:
-        config = yaml.load(config_file, Loader=yaml.Loader)
+        config = yaml.safe_load(config_file)
 
     jsonschema.validate(instance=config, schema=schema)
 
