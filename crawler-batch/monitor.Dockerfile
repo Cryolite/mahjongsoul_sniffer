@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:jammy
 
 RUN apt-get update && \
     apt-get -y dist-upgrade && \
