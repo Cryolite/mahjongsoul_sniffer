@@ -1,3 +1,5 @@
+# ruff: noqa: PLW0603
+
 import logging
 import logging.handlers
 import pathlib
