@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import importlib
 import pathlib
 from functools import cache

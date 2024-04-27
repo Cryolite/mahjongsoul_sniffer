@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ruff: noqa: E501, S101, RUF001, RUF003
 
 import datetime

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # ruff: noqa: RUF003
 
 import datetime

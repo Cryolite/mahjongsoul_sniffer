@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import logging
 
 import mahjongsoul_sniffer.config as config_

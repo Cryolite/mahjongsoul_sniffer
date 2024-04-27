@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import pathlib
 
 _YOSTAR_LOGIN_CONFIG_SCHEMA = {
