@@ -123,7 +123,7 @@ _LOGGING_CONFIG_SCHEMA = {
 }
 
 
-_CONFIG_SCHEMA = {
+CONFIG_SCHEMA = {
     "type": "object",
     "required": [
         "yostar_login",
@@ -172,9 +172,9 @@ _CONFIG_SCHEMA = {
 }
 
 
-_CONFIG_FILE_PATH = pathlib.Path("game-detail-crawler/config.yaml")
+CONFIG_FILE_PATH = pathlib.Path("game-detail-crawler/config.yaml")
 
 
 @cache
 def get() -> dict:
-    return load_config(_CONFIG_FILE_PATH, _CONFIG_SCHEMA)
+    return load_config(CONFIG_FILE_PATH, CONFIG_SCHEMA)

@@ -142,7 +142,7 @@ _MAIN_CONFIG_SCHEMA = {
 }
 
 
-_CONFIG_SCHEMA = {
+CONFIG_SCHEMA = {
     "type": "object",
     "required": [
         "redis",
@@ -167,9 +167,9 @@ _CONFIG_SCHEMA = {
 }
 
 
-_CONFIG_FILE_PATH = pathlib.Path("crawler-batch/config.yaml")
+CONFIG_FILE_PATH = pathlib.Path("crawler-batch/config.yaml")
 
 
 @cache
 def get() -> dict:
-    return load_config(_CONFIG_FILE_PATH, _CONFIG_SCHEMA)
+    return load_config(CONFIG_FILE_PATH, CONFIG_SCHEMA)
