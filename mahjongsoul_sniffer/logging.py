@@ -20,20 +20,14 @@ def initialize(
 
     if _initialized:
         if module_name != _module_name:
-            msg = f"""`initialize` is called with\
- different module names:
-Previous call: module_name = {_module_name},\
- service_name = {_service_name}
-Current call: module_name = {module_name},\
- service_name = {service_name}"""
+            msg = f"""`initialize` is called with different module names:
+Previous call: module_name = {_module_name}, service_name = {_service_name}
+Current call: module_name = {module_name}, service_name = {service_name}"""
             raise RuntimeError(msg)
         if service_name != _service_name:
-            msg = f"""`initialize` is called with\
- different service names:
-Previous call: module_name = {_module_name},\
- service_name = {_service_name}
-Current call: module_name = {module_name},\
- service_name = {service_name}"""
+            msg = f"""`initialize` is called with different service names:
+Previous call: module_name = {_module_name}, service_name = {_service_name}
+Current call: module_name = {module_name}, service_name = {service_name}"""
             raise RuntimeError(msg)
         return
 
