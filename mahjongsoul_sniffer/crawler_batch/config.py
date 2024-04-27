@@ -1,7 +1,4 @@
 import pathlib
-from functools import cache
-
-from mahjongsoul_sniffer.config_loader import load_config
 
 _REDIS_CONFIG_SCHEMA = {
     "type": "object",
@@ -168,8 +165,3 @@ CONFIG_SCHEMA = {
 
 
 CONFIG_FILE_PATH = pathlib.Path("crawler-batch/config.yaml")
-
-
-@cache
-def get() -> dict:
-    return load_config(CONFIG_FILE_PATH, CONFIG_SCHEMA)
