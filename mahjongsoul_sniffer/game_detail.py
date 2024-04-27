@@ -2951,9 +2951,7 @@ def validate(message: bytes) -> None:  # noqa: C901
         ),
     ]
 
-    index = 0
-
-    for record in records.records:
+    for index, record in enumerate(records.records):
         name = None
         message_type = None
         schema = None
@@ -3017,8 +3015,6 @@ def validate(message: bytes) -> None:  # noqa: C901
                 message,
                 response_json,
             ) from e
-
-        index += 1
 
 
 def get_game_abstract(message: bytes) -> dict:
