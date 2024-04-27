@@ -1,4 +1,5 @@
 import pathlib
+from functools import cache
 
 import jsonschema
 import yaml
@@ -170,15 +171,8 @@ _CONFIG_SCHEMA = {
 _CONFIG_FILE_PATH = pathlib.Path("crawler-batch/config.yaml")
 
 
-_config = None
-
-
+@cache
 def get() -> dict:
-    global _config
-
-    if _config is not None:
-        return _config
-
     if not _CONFIG_FILE_PATH.exists():
         msg = f"{_CONFIG_FILE_PATH}: File does not exist."
         raise RuntimeError(msg)
@@ -188,8 +182,7 @@ def get() -> dict:
 
     with _CONFIG_FILE_PATH.open() as config_file:
         config = yaml.load(config_file, Loader=yaml.Loader)
+
     jsonschema.validate(instance=config, schema=_CONFIG_SCHEMA)
 
-    _config = config
-
-    return _config
+    return config
