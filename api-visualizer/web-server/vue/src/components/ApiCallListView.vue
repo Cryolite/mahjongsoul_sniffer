@@ -118,6 +118,16 @@ onMounted(() => {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+/* Workaround for Bootstrap 5.3 issue */
+tr.bg-secondary td {
+  background-color: inherit;
+}
+
+/* Workaround for Bootstrap 5.3 issue */
+tr.text-white td {
+  color: inherit;
+}
+
 td.shrink-to-fit {
   width: 1%;
   white-space: nowrap;
