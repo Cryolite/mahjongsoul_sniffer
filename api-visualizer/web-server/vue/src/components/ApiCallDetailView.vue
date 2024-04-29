@@ -5,88 +5,75 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from "vue";
 import { JsonViewer } from "vue3-json-viewer";
 import "vue3-json-viewer/dist/index.css";
 
-export default {
-  name: "ApiCallDetailView",
-
-  components: {
-    JsonViewer,
+const props = defineProps({
+  data: {
+    type: Object,
+    required: true,
   },
+  debugMode: Boolean,
+});
 
-  props: {
-    data: {
-      type: Object,
-      required: true,
-    },
-    debugMode: Boolean,
-  },
+const scalarValueTypes = [
+  "double",
+  "float",
+  "int32",
+  "int64",
+  "uint32",
+  "uint64",
+  "sint32",
+  "sint64",
+  "fixed32",
+  "fixed64",
+  "sfixed32",
+  "sfixed64",
+  "bool",
+  "string",
+  "bytes",
+];
 
-  computed: {
-    visible() {
-      return this.data !== null;
-    },
+function parse(data) {
+  const result = {};
+  for (const p in data) {
+    const field = data[p];
+    const wrapped = field.wrapped;
+    const type = field.type;
+    const value = field.value;
+    const repeated = Array.isArray(value);
+    const pp =
+      p +
+      " (" +
+      type +
+      (wrapped ? ", wrapped" : "") +
+      (repeated ? ", repeated" : "") +
+      ")";
 
-    jasonified() {
-      if (this.data === null) {
-        return {};
-      }
+    if (scalarValueTypes.includes(type)) {
+      result[pp] = value;
+      continue;
+    }
 
-      function parse(data) {
-        const scalarValueTypes = [
-          "double",
-          "float",
-          "int32",
-          "int64",
-          "uint32",
-          "uint64",
-          "sint32",
-          "sint64",
-          "fixed32",
-          "fixed64",
-          "sfixed32",
-          "sfixed64",
-          "bool",
-          "string",
-          "bytes",
-        ];
+    if (repeated) {
+      result[pp] = value.map((e) => parse(e));
+    } else {
+      result[pp] = parse(value);
+    }
+  }
 
-        let result = {};
-        for (const p in data) {
-          const field = data[p];
-          const wrapped = field.wrapped;
-          const type = field.type;
-          const value = field.value;
-          const repeated = Array.isArray(value);
-          const pp =
-            p +
-            " (" +
-            type +
-            (wrapped ? ", wrapped" : "") +
-            (repeated ? ", repeated" : "") +
-            ")";
+  return result;
+}
 
-          if (scalarValueTypes.includes(type)) {
-            result[pp] = value;
-            continue;
-          }
-
-          if (repeated) {
-            result[pp] = value.map((e) => parse(e));
-          } else {
-            result[pp] = parse(value);
-          }
-        }
-
-        return result;
-      }
-
-      return parse(this.data.value);
-    },
-  },
-};
+const visible = computed(() => props.data !== null);
+const jasonified = computed(() => {
+  if (props.data === null) {
+    return {};
+  }
+  return parse(props.data.value);
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

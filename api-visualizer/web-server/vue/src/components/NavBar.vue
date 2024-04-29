@@ -9,35 +9,25 @@
   </b-navbar>
 </template>
 
-<script>
-export default {
-  name: "NavBar",
+<script setup>
+import { ref, computed } from "vue";
 
-  props: {
-    setDebugMode: {
-      type: Function,
-      required: true,
-    },
+const props = defineProps({
+  setDebugMode: {
+    type: Function,
+    required: true,
   },
+});
 
-  data() {
-    return {
-      debugMode_: false,
-    };
-  },
+const debugMode_ = ref(false);
 
-  computed: {
-    debugMode: {
-      set(value) {
-        this.setDebugMode(value);
-        this.debugMode_ = value;
-      },
-      get() {
-        return this.debugMode_;
-      },
-    },
+const debugMode = computed({
+  get: () => debugMode_.value,
+  set: (value) => {
+    props.setDebugMode(value);
+    debugMode_.value = value;
   },
-};
+});
 </script>
 
 <style></style>

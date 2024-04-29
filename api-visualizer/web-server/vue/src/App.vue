@@ -16,37 +16,21 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from "vue";
 import NavBar from "./components/NavBar.vue";
 import ApiCallListView from "./components/ApiCallListView.vue";
 import ApiCallDetailView from "./components/ApiCallDetailView.vue";
 
-export default {
-  name: "App",
+const debugMode = ref(false);
+const dataForDetailView = ref(null);
 
-  components: {
-    NavBar,
-    ApiCallListView,
-    ApiCallDetailView,
-  },
+const setDebugMode = (value) => {
+  debugMode.value = value;
+};
 
-  data() {
-    const self = this;
-
-    return {
-      debugMode: false,
-
-      setDebugMode(value) {
-        self.debugMode = value;
-      },
-
-      dataForDetailView: null,
-
-      setDetailView(data) {
-        self.dataForDetailView = data;
-      },
-    };
-  },
+const setDetailView = (data) => {
+  dataForDetailView.value = data;
 };
 </script>
 
