@@ -1,9 +1,7 @@
-import { FlatCompat } from "@eslint/eslintrc";
+import pluginVue from "eslint-plugin-vue";
 import js from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
 import globals from "globals";
-
-const compat = new FlatCompat();
 
 export default [
   {
@@ -21,7 +19,7 @@ export default [
     },
   },
   js.configs.recommended,
-  ...compat.extends("plugin:vue/vue3-recommended"),
+  ...pluginVue.configs["flat/recommended"],
   eslintConfigPrettier,
   {
     rules: {},
