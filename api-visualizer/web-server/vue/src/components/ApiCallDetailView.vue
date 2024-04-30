@@ -1,6 +1,6 @@
 <template>
   <div>
-    <json-viewer v-show="visible" :value="jasonified" />
+    <json-viewer v-show="visible" :value="jsonified" />
     <json-viewer v-show="visible && debugMode" :value="data" />
   </div>
 </template>
@@ -68,7 +68,7 @@ function parse(data) {
 }
 
 const visible = computed(() => props.data !== null);
-const jasonified = computed(() => {
+const jsonified = computed(() => {
   if (props.data === null) {
     return {};
   }
