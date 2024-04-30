@@ -1,10 +1,3 @@
-<template>
-  <div>
-    <json-viewer v-show="visible" :value="jsonified" />
-    <json-viewer v-show="visible && debugMode" :value="data" />
-  </div>
-</template>
-
 <script setup>
 import { computed } from "vue";
 import { JsonViewer } from "vue3-json-viewer";
@@ -75,6 +68,13 @@ const jsonified = computed(() => {
   return parse(props.data.value);
 });
 </script>
+
+<template>
+  <div>
+    <json-viewer v-show="visible" :value="jsonified" />
+    <json-viewer v-show="visible && debugMode" :value="data" />
+  </div>
+</template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped></style>

@@ -1,38 +1,3 @@
-<template>
-  <div>
-    <table class="table table-sm table-striped table-borderless table-hover">
-      <tbody>
-        <tr v-for="data in dataList" :key="data.index" :class="itemClass(data)">
-          <td class="px-1 py-0 shrink-to-fit">
-            <a style="cursor: pointer" @click="deleteItem(data)">
-              <img alt="delete" src="@/assets/x.svg" />
-            </a>
-          </td>
-          <td class="px-1 py-0 shrink-to-fit">
-            <a @click="setRequestAsDetailView(data)">
-              <img alt="request" :src="requestImageSrc(data.value)" />
-            </a>
-          </td>
-          <td class="px-1 py-0 shrink-to-fit">
-            <a
-              v-show="showResponseAnchor(data)"
-              @click="setResponseAsDetailView(data)"
-            >
-              <img alt="response" :src="responseImageSrc(data.value)" />
-            </a>
-          </td>
-          <td class="small shrink-to-fit">
-            {{ getTimestamp(data.value) }}
-          </td>
-          <td class="small text-left">
-            {{ data.value.name }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</template>
-
 <script setup>
 import { ref, onMounted } from "vue";
 import uploadSvg from "@/assets/upload.svg";
@@ -115,6 +80,41 @@ onMounted(() => {
   }, 1000);
 });
 </script>
+
+<template>
+  <div>
+    <table class="table table-sm table-striped table-borderless table-hover">
+      <tbody>
+        <tr v-for="data in dataList" :key="data.index" :class="itemClass(data)">
+          <td class="px-1 py-0 shrink-to-fit">
+            <a style="cursor: pointer" @click="deleteItem(data)">
+              <img alt="delete" src="@/assets/x.svg" />
+            </a>
+          </td>
+          <td class="px-1 py-0 shrink-to-fit">
+            <a @click="setRequestAsDetailView(data)">
+              <img alt="request" :src="requestImageSrc(data.value)" />
+            </a>
+          </td>
+          <td class="px-1 py-0 shrink-to-fit">
+            <a
+              v-show="showResponseAnchor(data)"
+              @click="setResponseAsDetailView(data)"
+            >
+              <img alt="response" :src="responseImageSrc(data.value)" />
+            </a>
+          </td>
+          <td class="small shrink-to-fit">
+            {{ getTimestamp(data.value) }}
+          </td>
+          <td class="small text-left">
+            {{ data.value.name }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
