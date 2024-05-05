@@ -1,8 +1,8 @@
 FROM ubuntu:jammy
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      curl \
       ca-certificates \
+      curl \
       gnupg2 \
       protobuf-compiler && \
     curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
