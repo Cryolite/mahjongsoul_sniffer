@@ -3,7 +3,7 @@
 set -euxo pipefail
 
 sudo apt-get update
-sudo apt-get install -y unzip
+sudo apt-get install -y jq unzip
 sudo apt-get clean
 sudo rm -rf /var/lib/apt/lists/*
 
@@ -21,7 +21,7 @@ python3 -m pip install -U PyYAML types-PyYAML
 python3 -m pip install -U redis
 python3 -m pip install -U selenium
 
-PROTOC_VERSION=$(curl -s "https://api.github.com/repos/protocolbuffers/protobuf/releases/latest" | grep -Po '"tag_name": "v\K[0-9.]+')
+PROTOC_VERSION=$(curl -s "https://api.github.com/repos/protocolbuffers/protobuf/releases/latest" | jq -r ".tag_name" | cut -c 2-)
 curl -Lo protoc.zip "https://github.com/protocolbuffers/protobuf/releases/latest/download/protoc-${PROTOC_VERSION}-linux-x86_64.zip"
 sudo unzip -q protoc.zip bin/protoc -d /usr/local/
 sudo chmod a+x /usr/local/bin/protoc
