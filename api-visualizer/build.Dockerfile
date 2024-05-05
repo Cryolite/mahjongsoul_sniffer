@@ -1,14 +1,18 @@
 FROM ubuntu:latest
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      ca-certificates \
       curl \
-      gnupg \
+      gnupg2 \
       protobuf-compiler && \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-    echo 'deb https://dl.yarnpkg.com/debian/ stable main' >/etc/apt/sources.list.d/yarn.list && \
-    apt-get update && apt-get install -y yarn && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y --no-install-recommends nodejs && \
+    install -m 0755 -d /etc/apt/keyrings && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor -o /etc/apt/keyrings/yarn-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/yarn-archive-keyring.gpg] https://dl.yarnpkg.com/debian/ stable main" | \
+      tee /etc/apt/sources.list.d/yarn.list > /dev/null && \
+    apt-get update && apt-get install -y --no-install-recommends yarn && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
-    yarn global add @vue/cli @vue/cli-service-global && \
     useradd -ms /bin/bash ubuntu && \
     mkdir -p /opt/mahjongsoul-sniffer && \
     chown -R ubuntu /opt/mahjongsoul-sniffer && \
