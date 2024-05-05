@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -euxo pipefail
+
 python3 -m pip install -U pip
 
 python3 -m pip install -U boto3 boto3-stubs[s3]
