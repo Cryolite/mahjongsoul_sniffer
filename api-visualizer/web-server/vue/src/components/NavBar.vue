@@ -1,3 +1,24 @@
+<script setup>
+import { ref, computed } from "vue";
+
+const props = defineProps({
+  setDebugMode: {
+    type: Function,
+    required: true,
+  },
+});
+
+const debugMode_ = ref(false);
+
+const debugMode = computed({
+  get: () => debugMode_.value,
+  set: (value) => {
+    props.setDebugMode(value);
+    debugMode_.value = value;
+  },
+});
+</script>
+
 <template>
   <b-navbar variant="info" class="w-100">
     <b-navbar-brand>MahjongSoul API Visualizer</b-navbar-brand>
@@ -8,36 +29,5 @@
     </b-navbar-nav>
   </b-navbar>
 </template>
-
-<script>
-export default {
-  name: "NavBar",
-
-  props: {
-    setDebugMode: {
-      type: Function,
-      required: true,
-    },
-  },
-
-  data() {
-    return {
-      debugMode_: false,
-    };
-  },
-
-  computed: {
-    debugMode: {
-      set(value) {
-        this.setDebugMode(value);
-        this.debugMode_ = value;
-      },
-      get() {
-        return this.debugMode_;
-      },
-    },
-  },
-};
-</script>
 
 <style></style>

@@ -1,3 +1,21 @@
+<script setup>
+import { ref } from "vue";
+import NavBar from "./components/NavBar.vue";
+import ApiCallListView from "./components/ApiCallListView.vue";
+import ApiCallDetailView from "./components/ApiCallDetailView.vue";
+
+const debugMode = ref(false);
+const dataForDetailView = ref(null);
+
+const setDebugMode = (value) => {
+  debugMode.value = value;
+};
+
+const setDetailView = (data) => {
+  dataForDetailView.value = data;
+};
+</script>
+
 <template>
   <div id="app" class="vh-100 p-0 d-flex flex-column">
     <NavBar :set-debug-mode="setDebugMode" />
@@ -15,39 +33,5 @@
     </div>
   </div>
 </template>
-
-<script>
-import NavBar from "./components/NavBar.vue";
-import ApiCallListView from "./components/ApiCallListView.vue";
-import ApiCallDetailView from "./components/ApiCallDetailView.vue";
-
-export default {
-  name: "App",
-
-  components: {
-    NavBar,
-    ApiCallListView,
-    ApiCallDetailView,
-  },
-
-  data() {
-    const self = this;
-
-    return {
-      debugMode: false,
-
-      setDebugMode(value) {
-        self.debugMode = value;
-      },
-
-      dataForDetailView: null,
-
-      setDetailView(data) {
-        self.dataForDetailView = data;
-      },
-    };
-  },
-};
-</script>
 
 <style></style>
