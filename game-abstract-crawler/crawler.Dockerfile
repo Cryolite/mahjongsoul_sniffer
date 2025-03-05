@@ -19,6 +19,10 @@ RUN set -exuo pipefail; \
     apt-get clean && rm -rf /var/lib/apt/lists/*; \
     pip3 install -U pip && pip3 install -U \
       boto3 \
+      protobuf \
+      google-cloud \
+      google \
+      google-api-python-client \
       jsonschema \
       mitmproxy \
       pyyaml \

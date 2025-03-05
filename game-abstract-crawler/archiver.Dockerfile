@@ -8,6 +8,8 @@ RUN apt-get update && apt-get install -y \
       boto3 \
       jsonschema \
       protobuf==3.20.3 \
+      google \
+      google-api-python-client \
       pyyaml \
       redis && \
     useradd -ms /bin/bash ubuntu && \

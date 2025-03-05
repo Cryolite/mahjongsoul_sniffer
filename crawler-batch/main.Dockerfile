@@ -8,6 +8,10 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     pip3 install -U pip && pip3 install -U \
       boto3 \
+      google \
+      protobuf \
+      google-api-core \
+      google-cloud \
       google-api-python-client \
       jsonschema \
       oauth2client \
